@@ -12,9 +12,9 @@ export async function addNewResident(
       const metadataSnap = await transaction.get(metadataRef);
       if (!metadataSnap.exists)
         throw new Error("lastResidentID metadata not found");
-      const { resident_id: oldResidentId } = metadataSnap.data() as any;
-      const resident_id = (parseInt(oldResidentId as any) + 1).toString();
-      const { emergencyContacts, ...resident } = {
+      const { resident_id: oldResidentId } = metadataSnap.data() as { resident_id: string };
+      const resident_id = (parseInt(oldResidentId) + 1).toString();
+      const resident: Resident = {
         ...residentData,
         resident_id,
       };
@@ -23,29 +23,8 @@ export async function addNewResident(
         .withConverter(residentConverter)
         .doc();
 
-      if (emergencyContacts && emergencyContacts.length) {
-        const { residence_id } = resident;
-        await Promise.all(
-          emergencyContacts.map((contact) =>
-            addNewEmergencyContact(
-              {
-                ...contact,
-                residence_id,
-                resident_id,
-              },
-              transaction, // Pass the transaction object directly
-            ),
-          ),
-        );
-      }
-
       // Ensure the 'resident' object matches the 'Resident' type for the converter
-      const residentToSave: Resident = {
-        resident_id: resident.resident_id,
-        residence_id: resident.residence_id,
-        resident_name: resident.resident_name,
-      };
-      transaction.set(residentRef, residentToSave);
+      transaction.set(residentRef, resident);
       transaction.update(metadataRef, { resident_id });
     });
     return {
