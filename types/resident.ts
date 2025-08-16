@@ -4,7 +4,6 @@ export type Nullable<T> = T | null | undefined;
 import { z } from "zod";
 
 export const EmergencyContactSchema = z.object({
-  residence_id: z.string(),
   contact_name: z.string().nullable().optional(),
   cell_phone: z.string(),
   work_phone: z.string().nullable().optional(),
