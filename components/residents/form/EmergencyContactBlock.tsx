@@ -1,6 +1,6 @@
 "use client";
 import { useFormContext } from "react-hook-form";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Lock, Trash2 } from "lucide-react";
 
 import { EditableFormField } from "./EditableFormField";
 import { useState } from "react";
@@ -41,14 +41,16 @@ export function EmergencyContactBlock({
             onClick={() => setIsEmContactBlockEditing(!isEmContactBlockEditing)}
             className="p-1 border hover:bg-primary/10 rounded-md cursor-pointer"
           >
-            <Edit />
+            {!isEmContactBlockEditing ? <Edit /> : <Lock />}
           </span>
-          <span
-            onClick={() => onDelete(index)}
-            className="p-1 border hover:bg-primary/10 rounded-md cursor-pointer"
-          >
-            <Trash2 />
-          </span>
+          {isEmContactBlockEditing && (
+            <span
+              onClick={() => onDelete(index)}
+              className="p-1 border hover:bg-primary/10 rounded-md cursor-pointer"
+            >
+              <Trash2 />
+            </span>
+          )}
         </div>
       </h3>
       <div className="space-y-6">
