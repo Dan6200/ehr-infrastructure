@@ -11,6 +11,7 @@ export default async function EditResidentPage({
   return (
     <main className="flex flex-col gap-5 bg-background container w-full md:w-2/3 mx-auto py-32">
       <GoBackLink
+        url={`/room/${residentData.document_id}/residents/${id}`}
         className="cursor-pointer text-blue-700 flex w-full sm:w-3/5 gap-2 sm:gap-5"
         refresh
       >

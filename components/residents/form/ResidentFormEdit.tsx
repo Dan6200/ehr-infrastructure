@@ -126,6 +126,7 @@ export function ResidentFormEdit({
       formTitle={
         <div className="flex items-center gap-2">Edit Resident Information</div>
       }
+      alwaysEditable={false}
     />
   );
 }

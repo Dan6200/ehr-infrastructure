@@ -87,8 +87,7 @@ export function ResidentFormAdd({ residence_id }: ResidentFormAddProps) {
       setNoOfEmContacts={setNoOfEmContacts}
       onSubmit={onSubmit}
       formTitle="Add A New Resident"
-      isFormEditing={isFormEditing}
-      setIsFormEditing={setIsFormEditing}
+      alwaysEditable
     />
   );
 }

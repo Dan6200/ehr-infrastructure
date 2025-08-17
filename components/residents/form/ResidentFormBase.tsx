@@ -14,6 +14,7 @@ interface ResidentFormBaseProps {
   setNoOfEmContacts: Dispatch<SetStateAction<number>>;
   onSubmit: (data: any) => Promise<void>;
   formTitle: string | React.ReactNode;
+  alwaysEditable: boolean;
 }
 
 export function ResidentFormBase({
@@ -21,6 +22,7 @@ export function ResidentFormBase({
   noOfEmContacts,
   setNoOfEmContacts,
   onSubmit,
+  alwaysEditable,
   formTitle,
 }: ResidentFormBaseProps) {
   const originalNoOfEmContacts = useRef(noOfEmContacts);
@@ -45,6 +47,7 @@ export function ResidentFormBase({
           name="resident_name"
           label="Name"
           description="Residents Name."
+          alwaysEditable={alwaysEditable}
         />
         <div className="flex justify-end border-b w-full">
           <h4 className="gap-2 flex items-center pb-4">

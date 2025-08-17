@@ -18,6 +18,8 @@ interface EditableFormFieldProps {
   name: string;
   label: string;
   description: string;
+  alwaysEditable: boolean;
+  isEmContactBlockEditing?: boolean;
   onDelete?: () => void; // Optional delete handler for the field
   renderInput?: (field: any, disabled: boolean) => React.ReactNode; // Custom input render
 }
@@ -27,12 +29,14 @@ export function EditableFormField({
   label,
   description,
   onDelete,
+  alwaysEditable,
   renderInput,
+  isEmContactBlockEditing,
 }: EditableFormFieldProps) {
   const { control, getValues, setValue } = useFormContext();
-  const [isFieldEditing, setIsFieldEditing] = useState(false);
+  const [isFieldEditing, setIsFieldEditing] = useState(alwaysEditable);
 
-  const fieldValue = getValues(name);
+  const isDisabled = !isFieldEditing || !isEmContactBlockEditing;
 
   return (
     <FormField
@@ -43,12 +47,14 @@ export function EditableFormField({
           <div className="flex items-center justify-between">
             <FormLabel>{label}</FormLabel>
             <div className="flex gap-2">
-              <span
-                onClick={() => setIsFieldEditing(!isFieldEditing)}
-                className="p-1 border hover:bg-primary/10 rounded-md cursor-pointer"
-              >
-                <Edit />
-              </span>
+              {!alwaysEditable && (
+                <span
+                  onClick={() => setIsFieldEditing(!isFieldEditing)}
+                  className="p-1 border hover:bg-primary/10 rounded-md cursor-pointer"
+                >
+                  <Edit />
+                </span>
+              )}
               {onDelete && (
                 <span
                   onClick={() => {
@@ -63,11 +69,16 @@ export function EditableFormField({
             </div>
           </div>
           <FormControl>
-            <Input
-              {...field}
-              value={field.value ?? ""}
-              className={field.value ? "border-2 border-blue-500" : ""}
-            />
+            {renderInput ? (
+              renderInput(field, isDisabled)
+            ) : (
+              <Input
+                {...field}
+                value={field.value ?? ""}
+                disabled={isDisabled}
+                className={field.value ? "border-2 border-blue-500" : ""}
+              />
+            )}
           </FormControl>
           <FormDescription>{description}</FormDescription>
           <FormMessage />

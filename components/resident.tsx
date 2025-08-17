@@ -30,7 +30,7 @@ export default function Resident({
   }, [setAdmin]);
 
   return (
-    <main className="bg-background flex flex-col gap-5 container md:px-16 mx-auto text-center py-32 sm:py-48 lg:py-56 h-fit">
+    <div className="py-8 md:py-16">
       <section className="flex flex-col items-center gap-4 mb-4">
         <Image
           src="/profile.svg"
@@ -42,7 +42,7 @@ export default function Resident({
         <h1 className="text-5xl mb-8 font-bold">{resident_name}</h1>
         <h3 className="text-xl font-bold">Contacts</h3>
       </section>
-      <section className="mb-8 flex justify-center flex-col sm:flex-wrap sm:flex-row gap-6 w-full">
+      <section className="mb-8 sm:mb-12 md:mb-16 flex justify-center flex-col sm:flex-wrap sm:flex-row gap-6 w-full">
         {emergencyContacts ? (
           emergencyContacts.map((contact: any, index: number) => (
             <Link
@@ -96,6 +96,6 @@ export default function Resident({
           </Button>
         </section>
       )}
-    </main>
+    </div>
   );
 }
