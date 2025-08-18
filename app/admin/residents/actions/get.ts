@@ -9,8 +9,11 @@ import {
   RoomDataSchema,
 } from "@/types/resident";
 import { notFound } from "next/navigation";
+import { z } from "zod";
 
-export async function getResidentData(documentId: string) {
+export async function getResidentData(
+  documentId: string,
+): Promise<z.infer<typeof ResidentSchema>> {
   try {
     const residentsColRef = collectionWrapper("residents");
     const residentsSnap = await residentsColRef.doc(documentId).get();

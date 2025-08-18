@@ -6,6 +6,11 @@ import { Firestore, initializeFirestore } from "firebase-admin/firestore";
 const { credential } = fbAdmin;
 const appName = "linkID-server";
 
+let databaseId: string | undefined = undefined;
+if (process.env.VERCEL_ENV === "preview") {
+  databaseId = "staging";
+}
+
 if (!fbAdmin.apps.find((app) => app?.name === appName)) {
   if (process.env.NODE_ENV === "production") {
     // Use service account key in production
@@ -34,12 +39,12 @@ if (!fbAdmin.apps.find((app) => app?.name === appName)) {
 export const auth = getAuth(getApp(appName));
 let db: Firestore;
 if (process.env.NODE_ENV === "production") {
-  db = initializeFirestore(getApp(appName));
+  db = initializeFirestore(getApp(appName), {}, databaseId);
 } else {
   // For firebase-admin, connecting to the emulator is done by setting the
   // FIRESTORE_EMULATOR_HOST environment variable (e.g., FIRESTORE_EMULATOR_HOST="localhost:8080")
   // before starting your Node.js process.
-  db = initializeFirestore(getApp(appName), {});
+  db = initializeFirestore(getApp(appName), {}, databaseId);
   if (process.env.FIRESTORE_EMULATOR_HOST) {
     console.log(
       `Server: Connected to Firestore emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`,

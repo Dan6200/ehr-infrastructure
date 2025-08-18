@@ -8,6 +8,14 @@ export default async function EditResidentPage({
   params: { id: string };
 }) {
   const residentData = await getResidentData(id);
+
+  // Ensure document_id and resident_id are present for edit mode
+  if (!residentData.document_id || !residentData.resident_id) {
+    // Handle the case where data is incomplete for editing
+    // For example, throw notFound() or redirect to an error page
+    throw new Error("Resident data is incomplete for editing.");
+  }
+
   return (
     <main className="flex flex-col gap-5 bg-background container w-full md:w-2/3 mx-auto py-32">
       <GoBackLink
@@ -17,7 +25,13 @@ export default async function EditResidentPage({
       >
         Go To Previous Page
       </GoBackLink>
-      <ResidentForm {...residentData} />
+      <ResidentForm
+        resident_name={residentData.resident_name}
+        document_id={residentData.document_id}
+        resident_id={residentData.resident_id}
+        residence_id={residentData.residence_id}
+        emergencyContacts={residentData.emergencyContacts}
+      />
     </main>
   );
 }

@@ -12,11 +12,16 @@ export const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FB_MESSAGING_SENDER_ID,
 };
 
+let databaseId: string | undefined = undefined;
+if (process.env.VERCEL_ENV === "preview") {
+  databaseId = "staging";
+}
+
 if (!getApps().find((app) => app?.name === appName))
   initializeApp(firebaseConfig, appName);
 
 export const auth = getAuth(getApp(appName));
-export const db = getFirestore(getApp(appName));
+export const db = getFirestore(getApp(appName), databaseId);
 
 // Connect to Firestore Emulator in development
 if (process.env.NODE_ENV === 'development') {

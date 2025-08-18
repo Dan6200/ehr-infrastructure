@@ -29,6 +29,16 @@ export default function Resident({
     return () => unsubscribe();
   }, [setAdmin]);
 
+  const numContacts = emergencyContacts ? emergencyContacts.length : 0;
+
+    let gridColsClass = "grid-cols-1"; // Default for small screens or single item
+
+    if (numContacts === 2) {
+      gridColsClass = "grid-cols-1 md:grid-cols-2";
+    } else if (numContacts >= 3) {
+      gridColsClass = "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
+    }
+
   return (
     <div className="py-8 md:py-16 space-y-16 sm:space-y-18 md:space-y-24">
       <section className="flex flex-col items-center gap-4 sm:gap-6 md:gap-8">
@@ -43,8 +53,7 @@ export default function Resident({
       </section>
       <section className="space-y-12 sm:space-y-18">
         <h3 className="text-2xl font-bold">Contacts</h3>
-        {/*<section className="flex justify-center flex-col sm:flex-wrap sm:flex-row gap-6 w-full">*/}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full md:w-fit mx-auto">
+        <section className={`grid ${gridColsClass} gap-6 w-full md:w-fit mx-auto`}>
           {emergencyContacts ? (
             emergencyContacts.map((contact: any, index: number) => (
               <Link
