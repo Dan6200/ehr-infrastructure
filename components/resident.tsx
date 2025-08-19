@@ -41,7 +41,7 @@ export default function Resident({
   // }
 
   return (
-    <div className="border-2 py-8 md:py-16 space-y-16 sm:space-y-18 md:space-y-24">
+    <div className="py-8 md:py-16 space-y-16 sm:space-y-18 md:space-y-24">
       <section className="flex flex-col items-center gap-4 sm:gap-6 md:gap-8">
         <Image
           src="/profile.svg"
