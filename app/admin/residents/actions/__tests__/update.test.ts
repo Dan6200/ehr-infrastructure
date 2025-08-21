@@ -3,16 +3,6 @@ import { getResidentData } from "../get";
 import { loadInitialData, clearFirestore } from "@/test-data/emulatorSetup";
 import admin from "firebase-admin";
 
-// Mock next/navigation functions
-jest.mock("next/navigation", () => ({
-  notFound: jest.fn(() => {
-    const error = new Error("not_found");
-    (error as any).digest = "NEXT_NOT_FOUND";
-    throw error;
-  }),
-  redirect: jest.fn(),
-}));
-
 describe("updateResident", () => {
   beforeAll(async () => {
     await clearFirestore();
@@ -41,7 +31,10 @@ describe("updateResident", () => {
       ],
     };
 
-    const result = await updateResident(updatedResidentData, documentIdToUpdate);
+    const result = await updateResident(
+      updatedResidentData,
+      documentIdToUpdate,
+    );
 
     expect(result.success).toBe(true);
     expect(result.message).toBe("Successfully Updated Resident Information");
@@ -49,7 +42,9 @@ describe("updateResident", () => {
     // Verify the resident was updated
     const updatedResident = await getResidentData(documentIdToUpdate);
     expect(updatedResident.resident_name).toBe(updatedName);
-    expect(updatedResident.emergencyContacts?.[0]?.contact_name).toBe("Jane Doe Updated");
+    expect(updatedResident.emergencyContacts?.[0]?.contact_name).toBe(
+      "Jane Doe Updated",
+    );
   });
 
   it("should return success: false if resident does not exist", async () => {
@@ -61,7 +56,10 @@ describe("updateResident", () => {
       emergencyContacts: [],
     };
 
-    const result = await updateResident(updatedResidentData, nonExistentDocumentId);
+    const result = await updateResident(
+      updatedResidentData,
+      nonExistentDocumentId,
+    );
 
     expect(result.success).toBe(false);
     expect(result.message).toBe("Failed to Update the Resident");
