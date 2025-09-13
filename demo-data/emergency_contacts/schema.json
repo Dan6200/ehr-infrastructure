@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Senior Care Emergency Contacts (Optimized)",
+  "description": "Emergency contacts linked to residents in senior care facilities.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "Firestore document ID (auto-generated).",
+        "minLength": 1
+      },
+      "data": {
+        "type": "object",
+        "properties": {
+          "contact_name": {
+            "type": "string",
+            "description": "Full name of the emergency contact.",
+            "minLength": 1
+          },
+          "cell_phone": {
+            "type": "string",
+            "description": "Primary contact number (formatted or E.164).",
+            "pattern": "^(\\(\\d{3}\\) \\d{3}-\\d{4}|\\+\\d{11,15})$"
+          },
+          "home_phone": {
+            "type": ["string", "null"],
+            "description": "Secondary home phone (optional).",
+            "pattern": "^(\\(\\d{3}\\) \\d{3}-\\d{4}|\\+\\d{11,15})?$"
+          },
+          "work_phone": {
+            "type": ["string", "null"],
+            "description": "Secondary work phone (optional).",
+            "pattern": "^(\\(\\d{3}\\) \\d{3}-\\d{4}|\\+\\d{11,15})?$"
+          },
+          "relationship": {
+            "type": ["string", "null"],
+            "description": "Role of the contact (e.g., 'Doctor', 'Family').",
+            "enum": [
+              "Doctor",
+              "Family",
+              "Caregiver",
+              "Emergency",
+              "Other",
+              null
+            ]
+          },
+          "resident_id": {
+            "type": "string",
+            "description": "UUID of the resident this contact belongs to.",
+            "format": "uuid"
+          },
+          "facility_id": {
+            "type": "string",
+            "description": "ID of the senior care facility (e.g., 'GYRH1274').",
+            "pattern": "^[A-Z0-9]{4,10}$"
+          }
+        },
+        "required": ["contact_name", "cell_phone", "resident_id", "facility_id"]
+      }
+    },
+    "required": ["id", "data"]
+  }
+}
+

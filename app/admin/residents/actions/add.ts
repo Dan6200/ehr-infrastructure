@@ -1,12 +1,24 @@
 "use server";
 import { collectionWrapper } from "@/firebase/firestore";
 import db from "@/firebase/server/config";
-import { Resident, residentConverter } from "@/types/resident";
+import { Resident, createResidentConverter } from "@/types/resident"; // Import createResidentConverter
+import { getEncryptionKey } from "@/app/admin/actions/get-encryption-key"; // Import getEncryptionKey
 
 export async function addNewResident(
   residentData: Omit<Resident, "resident_id">,
+  idToken: string // Accept idToken as an argument
 ) {
   try {
+    // Fetch the encryption key
+    const { key: encryptionKey, error: keyError } = await getEncryptionKey(idToken);
+    if (keyError || !encryptionKey) {
+      console.error("Failed to retrieve encryption key:", keyError);
+      return {
+        success: false,
+        message: "Failed to add new resident: Encryption key not available.",
+      };
+    }
+
     await db.runTransaction(async (transaction) => {
       const metadataRef = collectionWrapper("metadata").doc("lastResidentID");
       const metadataSnap = await transaction.get(metadataRef);
@@ -18,9 +30,9 @@ export async function addNewResident(
         ...residentData,
         resident_id,
       };
-      // Apply the converter
+      // Apply the converter with the encryption key
       const residentRef = collectionWrapper("residents")
-        .withConverter(residentConverter)
+        .withConverter(createResidentConverter(encryptionKey)) // Use createResidentConverter
         .doc();
 
       // Ensure the 'resident' object matches the 'Resident' type for the converter
