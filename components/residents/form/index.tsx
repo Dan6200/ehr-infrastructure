@@ -1,13 +1,13 @@
 "use client";
 import { ResidentFormAdd } from "./ResidentFormAdd";
 import { ResidentFormEdit } from "./ResidentFormEdit";
-import type { Nullable } from "@/types/resident";
+import type { Nullable } from "@/types";
 
 interface ResidentFormProps {
   encrypted_resident_name?: Nullable<string>; // Changed from resident_name
   document_id?: Nullable<string>;
   resident_id?: Nullable<string>;
-  residence_id: string;
+  facility_id: string;
   emergencyContacts?: Nullable<
     {
       encrypted_contact_name?: Nullable<string>; // Changed
@@ -23,7 +23,7 @@ export function ResidentForm({
   encrypted_resident_name, // Changed
   document_id,
   resident_id,
-  residence_id,
+  facility_id,
   emergencyContacts,
 }: ResidentFormProps) {
   if (document_id && resident_id) {
@@ -32,11 +32,12 @@ export function ResidentForm({
         encrypted_resident_name={encrypted_resident_name} // Changed
         document_id={document_id}
         resident_id={resident_id}
-        residence_id={residence_id}
+        facility_id={facility_id}
         emergencyContacts={emergencyContacts}
       />
     );
   } else {
-    return <ResidentFormAdd residence_id={residence_id} />;
+    return <ResidentFormAdd facility_id={facility_id} />;
   }
 }
+

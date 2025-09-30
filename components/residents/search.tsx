@@ -2,7 +2,7 @@ export {};
 //"use client";
 //import { SearchBar } from "@/components/search-bar";
 //import { useLayoutEffect, useState } from "react";
-//import type { Resident } from "@/types/resident";
+//import type { Resident } from "@/types";
 //import { SearchSuggestions } from "../search-suggestions";
 //import { redirect } from "next/navigation";
 //import { useAtomValue } from "jotai";

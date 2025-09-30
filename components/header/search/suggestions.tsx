@@ -1,11 +1,11 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Residence } from "@/types/resident";
+import type { Facility } from "@/types";
 import Link from "next/link";
 import { Dispatch, SetStateAction } from "react";
 
 interface SuggestionProps {
-  matchingRooms: (Residence & { document_id: string })[];
+  matchingRooms: (Facility & { document_id: string })[];
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -22,7 +22,7 @@ export const Suggestions = ({ matchingRooms, setOpen }: SuggestionProps) => {
                 key={room.document_id}
                 onClick={() => setOpen(false)}
               >
-                <p className="font-semibold">{room.residence_id}</p>
+                <p className="font-semibold">{room.facility_id}</p>
                 <p>{room.address}</p>
                 <p className="text-sm font-semibold">Rm: {room.roomNo}</p>
               </Link>

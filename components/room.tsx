@@ -1,5 +1,5 @@
 "use client";
-import type { RoomData } from "@/types/resident";
+import type { RoomData } from "@/types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
@@ -26,7 +26,7 @@ export default function Room({ roomData }: { roomData: RoomData }) {
   return (
     <main className="bg-background flex flex-col gap-8 sm:gap-5 container mx-auto text-center py-56 sm:py-48 h-[130vh]">
       <section className="flex flex-col gap-4 mb-8">
-        <h1 className="text-5xl mb-4 font-bold">{roomData.residence_id}</h1>
+        <h1 className="text-5xl mb-4 font-bold">{roomData.facility_id}</h1>
         <p className="font-semibold">Room: {roomData.roomNo}</p>
         <p className="">{roomData.address}</p>
       </section>
@@ -85,7 +85,7 @@ export default function Room({ roomData }: { roomData: RoomData }) {
               className="sm:w-64 w-full"
               onMouseDown={() =>
                 router.push(
-                  `/admin/room/${roomData.document_id}/residents/add?room=${roomData.residence_id}`,
+                  `/admin/room/${roomData.document_id}/residents/add?room=${roomData.facility_id}`,
                 )
               }
             >

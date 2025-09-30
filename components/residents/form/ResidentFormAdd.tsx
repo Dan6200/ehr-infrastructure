@@ -9,7 +9,7 @@ import { toast } from "@/components/ui/use-toast";
 import { isError } from "@/app/utils";
 import { addNewResident } from "@/app/admin/residents/actions/add";
 import { ResidentFormBase } from "./ResidentFormBase";
-import type { Resident } from "@/types/resident";
+import type { Resident } from "@/types";
 
 const emergencyContactSchema = z.object({
   encrypted_contact_name: z
@@ -31,10 +31,10 @@ const ResidentFormSchema = z.object({
 });
 
 interface ResidentFormAddProps {
-  residence_id: string;
+  facility_id: string;
 }
 
-export function ResidentFormAdd({ residence_id }: ResidentFormAddProps) {
+export function ResidentFormAdd({ facility_id }: ResidentFormAddProps) {
   const [idToken, setIdToken] = useState<string | null>(null); // State to hold idToken
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export function ResidentFormAdd({ residence_id }: ResidentFormAddProps) {
 
     let residentData: Resident = {} as Resident;
     residentData.encrypted_resident_name = data.encrypted_resident_name ?? null; // Changed from resident_name
-    residentData.residence_id = residence_id;
+    residentData.facility_id = facility_id;
 
     if (data.emergencyContacts) {
       residentData.emergencyContacts = data.emergencyContacts.map(

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Dispatch, forwardRef, SetStateAction, useEffect, useRef } from "react";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Residence } from "@/types/resident";
+import { Facility } from "@/types";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -14,10 +14,10 @@ const SearchValueSchema = z.object({
 });
 
 interface SearchBarProps {
-  rooms: (Residence & { document_id: string })[];
-  matchingRooms: (Residence & { document_id: string })[] | null;
+  rooms: (Facility & { document_id: string })[];
+  matchingRooms: (Facility & { document_id: string })[] | null;
   setMatchingRooms: Dispatch<
-    SetStateAction<(Residence & { document_id: string })[] | null>
+    SetStateAction<(Facility & { document_id: string })[] | null>
   >;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
@@ -58,7 +58,7 @@ export const SearchBar = ({
   }, [nameRef?.current]);
 
   async function Send(searchValue: string) {
-    let matchingRooms: (Residence & { document_id: string })[] = [];
+    let matchingRooms: (Facility & { document_id: string })[] = [];
     if (searchValue) {
       matchingRooms = rooms.filter(
         (room) =>
@@ -67,10 +67,10 @@ export const SearchBar = ({
             .replaceAll(/[^a-zA-Z0-9]/g, "") // Ignore non-alnum chars
             .slice(0, 25)
             .includes(
-              searchValue.toLowerCase().replaceAll(/[^a-zA-Z0-9]/g, "")
+              searchValue.toLowerCase().replaceAll(/[^a-zA-Z0-9]/g, ""),
             ) ||
           room.roomNo.toLowerCase().includes(searchValue.toLowerCase()) ||
-          room.residence_id.toLowerCase().includes(searchValue.toLowerCase())
+          room.facility_id.toLowerCase().includes(searchValue.toLowerCase()),
       );
     }
 

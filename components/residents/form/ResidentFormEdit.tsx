@@ -11,7 +11,7 @@ import { toast } from "@/components/ui/use-toast";
 import { isError } from "@/app/utils";
 import { updateResident } from "@/app/admin/residents/actions/update";
 import { ResidentFormBase } from "./ResidentFormBase";
-import type { Resident, Nullable } from "@/types/resident";
+import type { Resident, Nullable } from "@/types";
 
 const emergencyContactSchema = z.object({
   encrypted_contact_name: z
@@ -36,7 +36,7 @@ interface ResidentFormEditProps {
   encrypted_resident_name?: Nullable<string>;
   document_id: string; // document_id is required for editing
   resident_id: string; // resident_id is required for editing
-  residence_id: string;
+  facility_id: string;
   emergencyContacts?: Nullable<
     {
       encrypted_contact_name?: Nullable<string>;
@@ -52,7 +52,7 @@ export function ResidentFormEdit({
   encrypted_resident_name,
   document_id,
   resident_id,
-  residence_id,
+  facility_id,
   emergencyContacts,
 }: ResidentFormEditProps) {
   const router = useRouter();
@@ -107,7 +107,7 @@ export function ResidentFormEdit({
 
     let residentData: Resident = {} as Resident;
     residentData.encrypted_resident_name = data.encrypted_resident_name ?? null;
-    residentData.residence_id = residence_id;
+    residentData.facility_id = facility_id;
     residentData.resident_id = resident_id; // Use existing resident_id
 
     if (data.emergencyContacts) {
@@ -128,7 +128,7 @@ export function ResidentFormEdit({
       const { message, success } = await updateResident(
         residentData,
         document_id,
-        idToken // Pass idToken to updateResident
+        idToken, // Pass idToken to updateResident
       );
       toast({
         title: message,

@@ -15,7 +15,7 @@ export {};
 //  FormMessage,
 //} from "@/components/ui/form";
 //import { Input } from "@/components/ui/input";
-//import { Resident } from "@/types/resident";
+//import { Resident } from "@/types";
 //import { Dispatch, SetStateAction, useMemo, useRef, useState } from "react";
 //import { Minus, Plus } from "lucide-react";
 //

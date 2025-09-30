@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { auth } from "@/firebase/client/config";
-import { Residence } from "@/types/resident";
+import { Facility } from "@/types";
 import { onAuthStateChanged, User } from "firebase/auth";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 export default function RoomList({
   rooms,
 }: {
-  rooms: (Residence & { document_id: string })[];
+  rooms: (Facility & { document_id: string })[];
 }) {
   const [admin, setAdmin] = useState<User | null>(null);
   useEffect(() => {
@@ -44,9 +44,9 @@ export default function RoomList({
               ({
                 document_id,
                 roomNo,
-                residence_id,
+                facility_id,
                 address,
-              }: Residence & { document_id: string }) => {
+              }: Facility & { document_id: string }) => {
                 return (
                   <TableRow key={document_id}>
                     <TableCell className="text-center">
@@ -54,7 +54,7 @@ export default function RoomList({
                         href={`/room/${document_id}`}
                         className="w-full block"
                       >
-                        {residence_id}
+                        {facility_id}
                       </Link>
                     </TableCell>
                     <TableCell className="text-center">
@@ -75,7 +75,7 @@ export default function RoomList({
                     </TableCell>
                   </TableRow>
                 );
-              }
+              },
             )}
           </TableBody>
         </Table>

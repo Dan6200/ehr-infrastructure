@@ -27,7 +27,7 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "@/components/ui/use-toast";
 import Search from "./search/index";
-import { Residence } from "@/types/resident";
+import { Facility } from "@/types";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/firebase/client/config";
 import { signOutWrapper } from "@/firebase/auth/actions";
@@ -35,12 +35,12 @@ import { signOutWrapper } from "@/firebase/auth/actions";
 export default function Header({
   rooms,
 }: {
-  rooms: (Residence & { document_id: string })[] | null;
+  rooms: (Facility & { document_id: string })[] | null;
 }) {
   const router = useRouter();
 
   const handleSignOut: MouseEventHandler<HTMLButtonElement> = async (
-    event: MouseEvent
+    event: MouseEvent,
   ) => {
     event.preventDefault();
     signOutWrapper();

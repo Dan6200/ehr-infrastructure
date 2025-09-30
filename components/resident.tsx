@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import type { Resident } from "@/types/resident";
+import type { Resident } from "@/types";
 import { PhoneCall } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
