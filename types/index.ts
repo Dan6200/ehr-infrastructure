@@ -23,8 +23,7 @@ import {
 // --- Facility Schema and Type ---
 export const FacilitySchema = z.object({
   document_id: z.string(),
-  facility_id: z.string(),
-  roomNo: z.string(),
+  room: z.string(),
   address: z.string(),
 });
 export type Facility = z.infer<typeof FacilitySchema>;
@@ -32,7 +31,6 @@ export type Facility = z.infer<typeof FacilitySchema>;
 // --- Resident Schema and Type ---
 export const ResidentSchema = z.object({
   resident_id: z.string(),
-  facility_id: z.string(),
   encrypted_resident_name: z.string().nullable().optional(),
   document_id: z.string().nullable().optional(),
   emergencyContacts: z.array(EmergencyContactSchema).nullable().optional(),
@@ -47,8 +45,7 @@ export const RoomResidentSchema = z.object({
 });
 export const RoomDataSchema = z.object({
   document_id: z.string(),
-  facility_id: z.string(),
-  roomNo: z.string(),
+  room: z.string(),
   address: z.string(),
   residents: z.array(RoomResidentSchema).nullable().optional(),
 });
@@ -125,7 +122,6 @@ export const createResidentConverter = (
     const data = snapshot.data();
     const decryptedData: any = {
       resident_id: data.resident_id,
-      facility_id: data.facility_id,
       document_id: snapshot.id,
       emergencyContacts: data.emergencyContacts || null,
     };
@@ -184,4 +180,3 @@ export const facilityConverter: FirestoreDataConverter<Facility> = {
     return FacilitySchema.parse(snapshot.data());
   },
 };
-
