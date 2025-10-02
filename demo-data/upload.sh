@@ -3,7 +3,6 @@
 firestore-cli set providers/GYRHOME/facilities -b -f facilities/data.json
 
 jq -r --arg providers "GYRHOME" '
-.[] |select(.data.facility_id?)|
-  "firestore-cli set providers/\($providers)/residents \(tojson | @sh)"
+.[] | "firestore-cli set providers/\($providers)/residents \(tojson | @sh)"
 ' residents/data.json |
-parallel -j 4 '{}' 1>> upload.log 2>> error.log
+parallel -j 4 '{}'
