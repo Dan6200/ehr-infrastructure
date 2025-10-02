@@ -1,17 +1,17 @@
-"use client";
+'use client'
 import React, {
   MouseEventHandler,
   MouseEvent,
   useEffect,
   useState,
-} from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/firebase/client/config";
-import { signOutWrapper } from "@/firebase/auth/actions";
-import { getAllRooms } from "@/app/admin/residents/actions/get";
-import { Facility } from "@/types";
-import Search from "./search/index";
+} from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import { onAuthStateChanged, User } from 'firebase/auth'
+import { auth } from '@/firebase/client/config'
+import { signOutWrapper } from '@/firebase/auth/actions'
+import { getAllResidentsData } from '@/app/admin/residents/actions/get'
+import { ResidentData } from '@/types'
+import Search from './search/index'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,59 +20,64 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { QrCode, SearchIcon, UserRound, UserRoundPlus } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import { QrCode, SearchIcon, UserRound, UserRoundPlus } from 'lucide-react'
+import { toast } from '@/components/ui/use-toast'
 
 export default function AdminHeaderItems() {
-  const [admin, setAdmin] = useState<User | null>(null);
-  const [rooms, setRooms] = useState<
-    (Facility & { document_id: string })[] | null
-  >(null);
-  const router = useRouter();
-  const pathname = usePathname();
+  const [admin, setAdmin] = useState<User | null>(null)
+  const [residentsData, setResidentsData] = useState<ResidentData[] | null>(
+    null,
+  )
+  const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setAdmin(currentUser);
+      setAdmin(currentUser)
       if (currentUser) {
         // User is logged in, fetch the rooms
-        const fetchedRooms = await getAllRooms().catch((e) => {
-          console.log("Failed to Retrieve Rooms -- Tag:14.\n\t" + e);
-          return null;
-        });
-        setRooms(fetchedRooms);
+        const fetchedData = await getAllResidentsData(
+          await currentUser.getIdTokenResult(),
+        ).catch((e) => {
+          console.log('Failed to Retrieve Rooms -- Tag:14.\n\t' + e)
+          return null
+        })
+        setResidentsData(fetchedData)
       } else {
         // User is not logged in
-        // setRooms(null);
-        // if (
-        //   !pathname.includes("residents") &&
-        //   !pathname.includes("room") &&
-        //   pathname !== "/admin/sign-in"
-        // ) {
-        //   router.push("/admin/sign-in");
-        // }
+        setResidentsData(null)
+        if (
+          !pathname.includes('residents') &&
+          !pathname.includes('room') &&
+          pathname !== '/admin/sign-in'
+        ) {
+          router.push('/admin/sign-in')
+        }
       }
-    });
-    return () => unsubscribe();
-  }, [pathname, router]);
+    })
+    return () => unsubscribe()
+  }, [pathname, router])
 
   const handleSignOut: MouseEventHandler<HTMLButtonElement> = async (
     event: MouseEvent,
   ) => {
-    event.preventDefault();
-    signOutWrapper();
-  };
+    event.preventDefault()
+    signOutWrapper()
+  }
 
   if (!admin) {
-    return null; // Don't render anything if not an admin
+    return null // Don't render anything if not an admin
   }
 
   return (
     <>
-      {rooms && (
-        <Search className="w-full md:w-2/5 order-2 md:order-1" {...{ rooms }} />
+      {residentsData && (
+        <Search
+          className="w-full md:w-2/5 order-2 md:order-1"
+          {...{ residentsData }}
+        />
       )}
       <DropdownMenu>
         <div className="flex justify-end order-1 md:order-2">
@@ -86,7 +91,7 @@ export default function AdminHeaderItems() {
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <span
-                  onClick={() => router.push("/")}
+                  onClick={() => router.push('/')}
                   className="cursor-pointer h-9 items-center flex justify-between mx-auto w-full"
                 >
                   All Residents
@@ -95,7 +100,7 @@ export default function AdminHeaderItems() {
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <span
-                  onClick={() => router.push("/admin/new")}
+                  onClick={() => router.push('/admin/new')}
                   className="cursor-pointer h-9 items-center flex justify-between mx-auto w-full"
                 >
                   Add New Admin
@@ -105,7 +110,7 @@ export default function AdminHeaderItems() {
               <DropdownMenuItem>
                 <a
                   onMouseDown={() => {
-                    toast({ title: "Printing QR Codes..." });
+                    toast({ title: 'Printing QR Codes...' })
                   }}
                   href={process.env.NEXT_PUBLIC_QR_PRINT_URL!}
                   download
@@ -125,5 +130,5 @@ export default function AdminHeaderItems() {
         </div>
       </DropdownMenu>
     </>
-  );
+  )
 }

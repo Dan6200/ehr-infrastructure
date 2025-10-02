@@ -1,86 +1,88 @@
-"use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Dispatch, forwardRef, SetStateAction, useEffect, useRef } from "react";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Facility } from "@/types";
-import { Search } from "lucide-react";
-import { useRouter } from "next/navigation";
+'use client'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { Dispatch, SetStateAction, useEffect, useRef } from 'react'
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { ResidentData } from '@/types'
+import { Search } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 const SearchValueSchema = z.object({
   searchValue: z.string(),
-});
+})
 
 interface SearchBarProps {
-  rooms: (Facility & { document_id: string })[];
-  matchingRooms: (Facility & { document_id: string })[] | null;
-  setMatchingRooms: Dispatch<
-    SetStateAction<(Facility & { document_id: string })[] | null>
-  >;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  residentsData: ResidentData[]
+  matchingResidentsData: ResidentData[] | null
+  setMatchingResidentsData: Dispatch<SetStateAction<ResidentData[] | null>>
+  setOpen: Dispatch<SetStateAction<boolean>>
 }
 
 export const SearchBar = ({
-  rooms,
-  matchingRooms,
-  setMatchingRooms,
+  residentsData,
+  matchingResidentsData,
+  setMatchingResidentsData,
   setOpen,
 }: SearchBarProps) => {
   const form = useForm<z.infer<typeof SearchValueSchema>>({
     resolver: zodResolver(SearchValueSchema),
     defaultValues: {
-      searchValue: "",
+      searchValue: '',
     },
-  });
+  })
 
-  const router = useRouter();
+  const router = useRouter()
 
-  const { watch } = form;
+  const { watch } = form
 
-  const nameRef = useRef<HTMLInputElement | null>(null);
+  const nameRef = useRef<HTMLInputElement | null>(null)
   // Run effect when searchValue changes
   useEffect(() => {
-    const searchValue = watch("searchValue");
-    Send(searchValue);
-  }, [watch("searchValue")]); // useEffect instead of useMemo
+    const searchValue = watch('searchValue')
+    Send(searchValue)
+  }, [watch('searchValue')]) // useEffect instead of useMemo
 
   useEffect(() => {
     const handleClick = (e: Event) => {
       if (nameRef?.current && !nameRef?.current.contains(e.target as Node)) {
-        setOpen(false);
+        setOpen(false)
       }
-    };
-
-    document.addEventListener("click", handleClick);
-    () => document.removeEventListener("click", handleClick);
-  }, [nameRef?.current]);
-
-  async function Send(searchValue: string) {
-    let matchingRooms: (Facility & { document_id: string })[] = [];
-    if (searchValue) {
-      matchingRooms = rooms.filter(
-        (room) =>
-          room.address
-            .toLowerCase() // Ignore case
-            .replaceAll(/[^a-zA-Z0-9]/g, "") // Ignore non-alnum chars
-            .slice(0, 25)
-            .includes(
-              searchValue.toLowerCase().replaceAll(/[^a-zA-Z0-9]/g, ""),
-            ) ||
-          room.roomNo.toLowerCase().includes(searchValue.toLowerCase()) ||
-          room.facility_id.toLowerCase().includes(searchValue.toLowerCase()),
-      );
     }
 
-    // Update matchingRooms state
-    setMatchingRooms(matchingRooms);
+    document.addEventListener('click', handleClick)
+    ;() => document.removeEventListener('click', handleClick)
+  }, [nameRef?.current])
+
+  async function Send(searchValue: string) {
+    let matchingResidentsData: ResidentData[] = []
+    if (searchValue) {
+      matchingResidentsData = residentsData.filter(
+        (residentsData) =>
+          residentsData.address
+            .toLowerCase() // Ignore case
+            .replaceAll(/[^a-zA-Z0-9]/g, '') // Ignore non-alnum chars
+            .slice(0, 25)
+            .includes(
+              searchValue.toLowerCase().replaceAll(/[^a-zA-Z0-9]/g, ''),
+            ) ||
+          residentsData.roomNo
+            .toLowerCase()
+            .includes(searchValue.toLowerCase()) ||
+          residentsData.facility_id
+            .toLowerCase()
+            .includes(searchValue.toLowerCase()),
+      )
+    }
+
+    // Update matchingResidentsData state
+    setMatchingResidentsData(matchingResidentsData)
   }
 
   async function onSubmit() {
-    router.push(`/room/${matchingRooms?.[0].document_id}`);
-    setOpen(!open);
+    router.push(`/residentsDatas/${matchingResidentsData?.[0].document_id}`)
+    setOpen(!open)
   }
 
   return (
@@ -114,5 +116,5 @@ export const SearchBar = ({
         />
       </form>
     </Form>
-  );
-};
+  )
+}

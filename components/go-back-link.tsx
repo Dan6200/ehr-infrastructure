@@ -1,14 +1,14 @@
-"use client";
-import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { FC, ReactNode } from "react";
+'use client'
+import { ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { FC, ReactNode } from 'react'
 
 export interface GoBackLinkProps {
-  className: string;
-  children: ReactNode;
-  url?: string;
-  refresh?: boolean;
-  id?: string;
+  className: string
+  children: ReactNode
+  url?: string
+  refresh?: boolean
+  id?: string
 }
 
 export const GoBackLink: FC<GoBackLinkProps> = ({
@@ -17,8 +17,8 @@ export const GoBackLink: FC<GoBackLinkProps> = ({
   url,
   refresh,
 }) => {
-  const router = useRouter();
-  if (refresh) router.refresh();
+  const router = useRouter()
+  if (refresh) router.refresh()
   return (
     <a
       className={className}
@@ -27,5 +27,5 @@ export const GoBackLink: FC<GoBackLinkProps> = ({
       <ArrowLeft />
       {children}
     </a>
-  );
-};
+  )
+}

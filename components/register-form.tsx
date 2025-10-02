@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -13,57 +13,57 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { toast } from "@/components/ui/use-toast";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/firebase/client/config";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { toast } from '@/components/ui/use-toast'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { onAuthStateChanged, User } from 'firebase/auth'
+import { auth } from '@/firebase/client/config'
 
 const AddAdminFormSchema = z.object({
   email: z.string().min(2, {
-    message: "email must be provided.",
+    message: 'email must be provided.',
   }),
   password: z.string().min(2, {
-    message: "must provide password.",
+    message: 'must provide password.',
   }),
-});
+})
 
 type Authenticate = (data: { email: string; password: string }) => Promise<{
-  result?: string;
-  success: boolean;
-  message: string;
-}>;
+  result?: string
+  success: boolean
+  message: string
+}>
 
 interface AddAdminForm {
-  addAdmin: Authenticate;
+  addAdmin: Authenticate
 }
 
 export function AddAdminForm({ addAdmin }: AddAdminForm) {
-  const router = useRouter();
+  const router = useRouter()
   const form = useForm<z.infer<typeof AddAdminFormSchema>>({
     resolver: zodResolver(AddAdminFormSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
-  });
+  })
 
-  const [admin, setAdmin] = useState<User | null>(null);
+  const [admin, setAdmin] = useState<User | null>(null)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setAdmin(currentUser);
-    });
-    return () => unsubscribe();
-  }, [setAdmin]);
+      setAdmin(currentUser)
+    })
+    return () => unsubscribe()
+  }, [setAdmin])
 
   async function onSubmit(
     addAdmin: Authenticate,
-    data: z.infer<typeof AddAdminFormSchema>
+    data: z.infer<typeof AddAdminFormSchema>,
   ) {
-    const { message, success } = await addAdmin(data);
-    toast({ title: message, variant: success ? "default" : "destructive" });
+    const { message, success } = await addAdmin(data)
+    toast({ title: message, variant: success ? 'default' : 'destructive' })
   }
 
   return (
@@ -107,5 +107,5 @@ export function AddAdminForm({ addAdmin }: AddAdminForm) {
         </form>
       </Form>
     )
-  );
+  )
 }

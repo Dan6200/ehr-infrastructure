@@ -1,33 +1,33 @@
-"use client";
-import type { RoomData } from "@/types";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
-import Image from "next/image";
-import { deleteResidentData } from "@/app/admin/residents/actions/delete";
-import DeleteResident from "@/app/room/[id]/residents/delete";
-import { useEffect, useState } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/firebase/client/config";
+'use client'
+import type { RoomData } from '@/types'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { Button } from './ui/button'
+import { Card, CardContent, CardFooter, CardHeader } from './ui/card'
+import Image from 'next/image'
+import { deleteResidentData } from '@/app/admin/residents/actions/delete'
+import DeleteResident from '@/app/room/[id]/residents/delete'
+import { useEffect, useState } from 'react'
+import { onAuthStateChanged, User } from 'firebase/auth'
+import { auth } from '@/firebase/client/config'
 
 export default function Room({ roomData }: { roomData: RoomData }) {
   const [admin, setAdmin] = useState<User | null>(null),
-    router = useRouter();
-  const residents = roomData.residents;
+    router = useRouter()
+  const residents = roomData.residents
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setAdmin(currentUser);
-    });
-    return () => unsubscribe();
-  }, [setAdmin]);
+      setAdmin(currentUser)
+    })
+    return () => unsubscribe()
+  }, [setAdmin])
 
   return (
     <main className="bg-background flex flex-col gap-8 sm:gap-5 container mx-auto text-center py-56 sm:py-48 h-[130vh]">
       <section className="flex flex-col gap-4 mb-8">
-        <h1 className="text-5xl mb-4 font-bold">{roomData.facility_id}</h1>
-        <p className="font-semibold">Room: {roomData.roomNo}</p>
+        <h1 className="text-5xl mb-4 font-bold">{roomData.document_id}</h1>
+        <p className="font-semibold">Room: {roomData.room}</p>
         <p className="">{roomData.address}</p>
       </section>
       <section className="my-8 w-full">
@@ -85,7 +85,7 @@ export default function Room({ roomData }: { roomData: RoomData }) {
               className="sm:w-64 w-full"
               onMouseDown={() =>
                 router.push(
-                  `/admin/room/${roomData.document_id}/residents/add?room=${roomData.facility_id}`,
+                  `/admin/room/${roomData.document_id}/residents/add?room=${roomData.document_id}`,
                 )
               }
             >
@@ -95,5 +95,5 @@ export default function Room({ roomData }: { roomData: RoomData }) {
         </section>
       )}
     </main>
-  );
+  )
 }

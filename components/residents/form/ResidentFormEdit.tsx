@@ -1,23 +1,23 @@
-"use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { Edit } from "lucide-react";
-import { getAuth, onAuthStateChanged } from "firebase/auth"; // Added imports
+'use client'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { Edit } from 'lucide-react'
+import { getAuth, onAuthStateChanged } from 'firebase/auth' // Added imports
 
-import { toast } from "@/components/ui/use-toast";
-import { isError } from "@/app/utils";
-import { updateResident } from "@/app/admin/residents/actions/update";
-import { ResidentFormBase } from "./ResidentFormBase";
-import type { Resident, Nullable } from "@/types";
+import { toast } from '@/components/ui/use-toast'
+import { isError } from '@/app/utils'
+import { updateResident } from '@/app/admin/residents/actions/update'
+import { ResidentFormBase } from './ResidentFormBase'
+import type { Resident, Nullable } from '@/types'
 
 const emergencyContactSchema = z.object({
   encrypted_contact_name: z
     .string()
     .min(3, {
-      message: "contact name must be at least 3 characters.",
+      message: 'contact name must be at least 3 characters.',
     })
     .nullable()
     .optional(),
@@ -25,27 +25,27 @@ const emergencyContactSchema = z.object({
   encrypted_home_phone: z.string().nullable().optional(),
   encrypted_work_phone: z.string().nullable().optional(),
   encrypted_relationship: z.string().nullable().optional(),
-});
+})
 
 const ResidentFormSchema = z.object({
   encrypted_resident_name: z.string().nullable(),
   emergencyContacts: z.array(emergencyContactSchema).nullable().optional(),
-});
+})
 
 interface ResidentFormEditProps {
-  encrypted_resident_name?: Nullable<string>;
-  document_id: string; // document_id is required for editing
-  resident_id: string; // resident_id is required for editing
-  facility_id: string;
+  encrypted_resident_name?: Nullable<string>
+  document_id: string // document_id is required for editing
+  resident_id: string // resident_id is required for editing
+  facility_id: string
   emergencyContacts?: Nullable<
     {
-      encrypted_contact_name?: Nullable<string>;
-      encrypted_cell_phone: string;
-      encrypted_home_phone?: Nullable<string>;
-      encrypted_work_phone?: Nullable<string>;
-      encrypted_relationship?: Nullable<string>;
+      encrypted_contact_name?: Nullable<string>
+      encrypted_cell_phone: string
+      encrypted_home_phone?: Nullable<string>
+      encrypted_work_phone?: Nullable<string>
+      encrypted_relationship?: Nullable<string>
     }[]
-  >;
+  >
 }
 
 export function ResidentFormEdit({
@@ -55,21 +55,21 @@ export function ResidentFormEdit({
   facility_id,
   emergencyContacts,
 }: ResidentFormEditProps) {
-  const router = useRouter();
-  const [idToken, setIdToken] = useState<string | null>(null); // State to hold idToken
+  const router = useRouter()
+  const [idToken, setIdToken] = useState<string | null>(null) // State to hold idToken
 
   useEffect(() => {
-    const auth = getAuth();
+    const auth = getAuth()
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const token = await user.getIdToken();
-        setIdToken(token);
+        const token = await user.getIdToken()
+        setIdToken(token)
       } else {
-        setIdToken(null);
+        setIdToken(null)
       }
-    });
-    return () => unsubscribe();
-  }, []);
+    })
+    return () => unsubscribe()
+  }, [])
 
   const form = useForm<z.infer<typeof ResidentFormSchema>>({
     resolver: zodResolver(ResidentFormSchema),
@@ -92,23 +92,23 @@ export function ResidentFormEdit({
           }),
         ) ?? [],
     },
-  });
-  const originalNoOfEmContacts = useRef(emergencyContacts?.length ?? 0);
+  })
+  const originalNoOfEmContacts = useRef(emergencyContacts?.length ?? 0)
 
   async function onSubmit(data: z.infer<typeof ResidentFormSchema>) {
     if (!idToken) {
       toast({
-        title: "Authentication Error",
-        description: "User not authenticated. Please log in again.",
-        variant: "destructive",
-      });
-      return;
+        title: 'Authentication Error',
+        description: 'User not authenticated. Please log in again.',
+        variant: 'destructive',
+      })
+      return
     }
 
-    let residentData: Resident = {} as Resident;
-    residentData.encrypted_resident_name = data.encrypted_resident_name ?? null;
-    residentData.facility_id = facility_id;
-    residentData.resident_id = resident_id; // Use existing resident_id
+    let residentData: Resident = {} as Resident
+    residentData.encrypted_resident_name = data.encrypted_resident_name ?? null
+    residentData.facility_id = facility_id
+    residentData.resident_id = resident_id // Use existing resident_id
 
     if (data.emergencyContacts) {
       residentData.emergencyContacts = data.emergencyContacts.map(
@@ -119,9 +119,9 @@ export function ResidentFormEdit({
           encrypted_relationship: contact.encrypted_relationship ?? null,
           encrypted_cell_phone: contact.encrypted_cell_phone,
         }),
-      );
+      )
     } else {
-      residentData.emergencyContacts = null;
+      residentData.emergencyContacts = null
     }
 
     try {
@@ -129,14 +129,14 @@ export function ResidentFormEdit({
         residentData,
         document_id,
         idToken, // Pass idToken to updateResident
-      );
+      )
       toast({
         title: message,
-        variant: success ? "default" : "destructive",
-      });
-      router.back();
+        variant: success ? 'default' : 'destructive',
+      })
+      router.back()
     } catch (err) {
-      if (isError(err)) toast({ title: err.message, variant: "destructive" });
+      if (isError(err)) toast({ title: err.message, variant: 'destructive' })
     }
   }
 
@@ -148,5 +148,5 @@ export function ResidentFormEdit({
       isResidentNameEditableByDefault={false}
       originalNoOfEmContacts={originalNoOfEmContacts.current}
     />
-  );
+  )
 }

@@ -1,24 +1,24 @@
-"use client";
-import { useFormContext } from "react-hook-form";
-import { Edit, Lock, Trash2 } from "lucide-react";
+'use client'
+import { useFormContext } from 'react-hook-form'
+import { Edit, Lock, Trash2 } from 'lucide-react'
 
-import { EditableFormField } from "./EditableFormField";
-import { useState } from "react";
+import { EditableFormField } from './EditableFormField'
+import { useState } from 'react'
 
 interface EmergencyContactBlockProps {
-  index: number;
-  onDelete: (index: number) => void; // Callback to remove this contact
+  index: number
+  onDelete: (index: number) => void // Callback to remove this contact
 }
 
 export function EmergencyContactBlock({
   index,
   onDelete,
 }: EmergencyContactBlockProps) {
-  const { getValues } = useFormContext();
+  const { getValues } = useFormContext()
 
   const initialIsEmContactBlockEditing = () => {
-    const contactPath = `emergencyContacts.${index}`;
-    const contact = getValues(contactPath);
+    const contactPath = `emergencyContacts.${index}`
+    const contact = getValues(contactPath)
 
     return (
       !contact?.contact_name &&
@@ -26,16 +26,16 @@ export function EmergencyContactBlock({
       !contact?.home_phone &&
       !contact?.work_phone &&
       !contact?.relationship
-    );
-  };
+    )
+  }
 
   const [isEmContactBlockEditing, setIsEmContactBlockEditing] = useState(
     initialIsEmContactBlockEditing,
-  );
+  )
   return (
     <div className="mb-8 border-b py-4">
       <h3 className="font-semibold mb-8 flex items-center justify-between">
-        Emergency Contact {index > 0 ? index + 1 : ""}
+        Emergency Contact {index > 0 ? index + 1 : ''}
         <div className="flex gap-2">
           <span
             onClick={() => setIsEmContactBlockEditing(!isEmContactBlockEditing)}
@@ -91,5 +91,5 @@ export function EmergencyContactBlock({
         />
       </div>
     </div>
-  );
+  )
 }

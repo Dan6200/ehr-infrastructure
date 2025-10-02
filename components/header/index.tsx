@@ -1,8 +1,8 @@
-"use client";
-import React from "react";
-import Link from "next/link";
-import Image from "next/image";
-import AdminHeaderItems from "./admin-header-items";
+'use client'
+import React from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import AdminHeaderItems from './admin-header-items'
 
 export default function Header() {
   return (
@@ -29,5 +29,5 @@ export default function Header() {
       </Link>
       <AdminHeaderItems />
     </header>
-  );
+  )
 }

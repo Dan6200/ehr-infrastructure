@@ -1,4 +1,4 @@
-export {};
+export {}
 //"use client";
 //import { SearchBar } from "@/components/search-bar";
 //import { useLayoutEffect, useState } from "react";

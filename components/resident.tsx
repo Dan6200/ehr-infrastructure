@@ -1,40 +1,40 @@
-"use client";
-import Image from "next/image";
-import type { Resident } from "@/types";
-import { PhoneCall } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardFooter } from "./ui/card";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/firebase/client/config";
+'use client'
+import Image from 'next/image'
+import type { Resident } from '@/types'
+import { PhoneCall } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { Button } from './ui/button'
+import { Card, CardContent, CardFooter } from './ui/card'
+import { onAuthStateChanged, User } from 'firebase/auth'
+import { auth } from '@/firebase/client/config'
 
 export default function Resident({
   resId,
   residentData,
 }: {
-  resId: string;
-  residentData: Resident;
+  resId: string
+  residentData: Resident
 }) {
   const [admin, setAdmin] = useState<User | null>(null),
-    router = useRouter();
+    router = useRouter()
 
-  const { encrypted_resident_name, emergencyContacts } = residentData;
+  const { encrypted_resident_name, emergencyContacts } = residentData
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setAdmin(currentUser);
-    });
-    return () => unsubscribe();
-  }, [setAdmin]);
+      setAdmin(currentUser)
+    })
+    return () => unsubscribe()
+  }, [setAdmin])
 
-  const numContacts = emergencyContacts ? emergencyContacts.length : 0;
+  const numContacts = emergencyContacts ? emergencyContacts.length : 0
 
-  let gridColsClass = "grid-cols-1"; // Default for small screens or single item
+  let gridColsClass = 'grid-cols-1' // Default for small screens or single item
 
   if (numContacts >= 2) {
-    gridColsClass = "grid-cols-1 md:grid-cols-2";
+    gridColsClass = 'grid-cols-1 md:grid-cols-2'
   }
   // } else if (numContacts >= 3) {
   //   gridColsClass = "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
@@ -60,7 +60,7 @@ export default function Resident({
           {emergencyContacts ? (
             emergencyContacts.map((contact: any, index: number) => (
               <Link
-                key={index + contact.encrypted_contact_name.split(" ")[0]}
+                key={index + contact.encrypted_contact_name.split(' ')[0]}
                 href={`tel:${contact.encrypted_cell_phone}`}
                 className="w-full sm:w-fit"
               >
@@ -70,7 +70,9 @@ export default function Resident({
                       {contact.encrypted_contact_name}
                     </h3>
                     {contact.encrypted_relationship && (
-                      <p className="capitalize">{contact.encrypted_relationship}</p>
+                      <p className="capitalize">
+                        {contact.encrypted_relationship}
+                      </p>
                     )}
                     {contact.encrypted_cell_phone && (
                       <p className="text-green-700 font-semibold">
@@ -112,5 +114,5 @@ export default function Resident({
         </section>
       )}
     </div>
-  );
+  )
 }

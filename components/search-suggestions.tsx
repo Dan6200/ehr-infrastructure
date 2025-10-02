@@ -1,4 +1,4 @@
-export {};
+export {}
 //import { Card, CardContent } from "@/components/ui/card";
 //import type { Resident } from "@/types";
 //import Link from "next/link";

@@ -55,4 +55,4 @@ const PrintQRs = ({ AllResidents }: { AllResidents: Resident[] }) => {
   );
 };
  */
-export {};
+export {}

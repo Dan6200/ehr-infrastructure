@@ -1,7 +1,7 @@
-"use client";
-import { useState, memo } from "react";
-import { Edit, Lock } from "lucide-react";
-import { useFormContext } from "react-hook-form";
+'use client'
+import { useState, memo } from 'react'
+import { Edit, Lock } from 'lucide-react'
+import { useFormContext } from 'react-hook-form'
 
 import {
   FormControl,
@@ -10,16 +10,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 
 interface EditableFormFieldProps {
-  name: string;
-  label: string;
-  description: string;
-  isInputDisabled: boolean; // Directly controls input disabled state
-  showLocalEditingControls?: boolean; // Controls visibility of local edit/lock icons
-  renderInput?: (field: any, disabled: boolean) => React.ReactNode; // Custom input render
+  name: string
+  label: string
+  description: string
+  isInputDisabled: boolean // Directly controls input disabled state
+  showLocalEditingControls?: boolean // Controls visibility of local edit/lock icons
+  renderInput?: (field: any, disabled: boolean) => React.ReactNode // Custom input render
 }
 
 export const EditableFormField = memo(function EditableFormField({
@@ -30,15 +30,15 @@ export const EditableFormField = memo(function EditableFormField({
   showLocalEditingControls = true,
   renderInput,
 }: EditableFormFieldProps) {
-  const { control, getValues, setValue } = useFormContext();
+  const { control, getValues, setValue } = useFormContext()
   // isFieldEditing is only relevant if showLocalEditingControls is true
   const [isFieldEditing, setIsFieldEditing] = useState(
     showLocalEditingControls ? !isInputDisabled : true,
-  );
+  )
 
   const isDisabled = showLocalEditingControls
     ? !isFieldEditing
-    : isInputDisabled;
+    : isInputDisabled
 
   return (
     <FormField
@@ -65,9 +65,9 @@ export const EditableFormField = memo(function EditableFormField({
             ) : (
               <Input
                 {...field}
-                value={field.value ?? ""}
+                value={field.value ?? ''}
                 disabled={isDisabled}
-                className={field.value ? "border-2 border-blue-500" : ""}
+                className={field.value ? 'border-2 border-blue-500' : ''}
               />
             )}
           </FormControl>
@@ -76,5 +76,5 @@ export const EditableFormField = memo(function EditableFormField({
         </FormItem>
       )}
     />
-  );
-});
+  )
+})

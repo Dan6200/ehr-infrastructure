@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -12,56 +12,56 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { toast } from "@/components/ui/use-toast";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { auth } from "@/firebase/client/config";
-import { signInWithEmailAndPasswordWrapper } from "@/firebase/auth/actions";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { toast } from '@/components/ui/use-toast'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { auth } from '@/firebase/client/config'
+import { signInWithEmailAndPasswordWrapper } from '@/firebase/auth/actions'
 
 const SignInFormSchema = z.object({
   email: z.string().min(2, {
-    message: "email must be provided.",
+    message: 'email must be provided.',
   }),
   password: z.string().min(2, {
-    message: "must provide password.",
+    message: 'must provide password.',
   }),
-});
+})
 
 type AuthenticateResult = (
   email: string,
-  password: string
+  password: string,
 ) => Promise<
   | {
-      result: string;
-      message: string;
-      success: boolean;
+      result: string
+      message: string
+      success: boolean
     }
   | {
-      result: string;
-      message: string;
-      success: boolean;
+      result: string
+      message: string
+      success: boolean
     }
->;
+>
 
 export function SignInForm() {
   const form = useForm<z.infer<typeof SignInFormSchema>>({
     resolver: zodResolver(SignInFormSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
-  });
-  const router = useRouter();
+  })
+  const router = useRouter()
 
   async function onSubmit(data: z.infer<typeof SignInFormSchema>) {
     const { result, message, success } =
-      await signInWithEmailAndPasswordWrapper(data.email, data.password);
+      await signInWithEmailAndPasswordWrapper(data.email, data.password)
     if (success) {
-      router.push("/"); // Navigate to the homepage
+      router.push('/') // Navigate to the homepage
     }
-    toast({ title: message, variant: success ? "default" : "destructive" });
+    toast({ title: message, variant: success ? 'default' : 'destructive' })
   }
 
   return (
@@ -101,5 +101,5 @@ export function SignInForm() {
         </Button>
       </form>
     </Form>
-  );
+  )
 }

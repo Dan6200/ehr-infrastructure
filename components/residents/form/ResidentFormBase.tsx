@@ -1,19 +1,19 @@
-"use client";
-import { useForm, useFieldArray } from "react-hook-form";
-import { v4 as uuid } from "uuid";
+'use client'
+import { useForm, useFieldArray } from 'react-hook-form'
+import { v4 as uuid } from 'uuid'
 
-import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
-import { Minus, Plus } from "lucide-react";
-import { EditableFormField } from "./EditableFormField";
-import { EmergencyContactBlock } from "./EmergencyContactBlock";
+import { Button } from '@/components/ui/button'
+import { Form } from '@/components/ui/form'
+import { Minus, Plus } from 'lucide-react'
+import { EditableFormField } from './EditableFormField'
+import { EmergencyContactBlock } from './EmergencyContactBlock'
 
 interface ResidentFormBaseProps {
-  form: ReturnType<typeof useForm<any>>;
-  onSubmit: (data: any) => Promise<void>;
-  formTitle: string | React.ReactNode;
-  isResidentNameEditableByDefault: boolean; // Renamed from alwaysEditable
-  originalNoOfEmContacts: number;
+  form: ReturnType<typeof useForm<any>>
+  onSubmit: (data: any) => Promise<void>
+  formTitle: string | React.ReactNode
+  isResidentNameEditableByDefault: boolean // Renamed from alwaysEditable
+  originalNoOfEmContacts: number
 }
 
 export function ResidentFormBase({
@@ -25,12 +25,12 @@ export function ResidentFormBase({
 }: ResidentFormBaseProps) {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "emergencyContacts",
-  });
+    name: 'emergencyContacts',
+  })
 
   const handleRemoveEmergencyContact = (indexToRemove: number) => {
-    remove(indexToRemove);
-  };
+    remove(indexToRemove)
+  }
 
   return (
     <Form {...form}>
@@ -47,15 +47,15 @@ export function ResidentFormBase({
         />
         <div className="flex justify-end border-b w-full">
           <h4 className="gap-2 flex items-center pb-4">
-            {(fields.length < 1 ? "Add " : "") + "Emergency Contacts"}
+            {(fields.length < 1 ? 'Add ' : '') + 'Emergency Contacts'}
             <span
               onClick={() =>
                 append({
-                  contact_name: "",
-                  cell_phone: "",
-                  home_phone: "",
-                  work_phone: "",
-                  relationship: "",
+                  contact_name: '',
+                  cell_phone: '',
+                  home_phone: '',
+                  work_phone: '',
+                  relationship: '',
                   id: uuid(),
                 })
               }
@@ -85,5 +85,5 @@ export function ResidentFormBase({
         </Button>
       </form>
     </Form>
-  );
+  )
 }
