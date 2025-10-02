@@ -1,19 +1,19 @@
-import { GoBackLink } from "@/components/go-back-link";
-import { ResidentForm } from "@/components/residents/form";
-import { getResidentData } from "../../actions/get";
+import { GoBackLink } from '@/components/go-back-link'
+import { ResidentForm } from '@/components/residents/form'
+import { getResidentData } from '../../actions/get'
 
 export default async function EditResidentPage({
   params: { resId },
 }: {
-  params: { resId: string };
+  params: { resId: string }
 }) {
-  const residentData = await getResidentData(resId);
+  const residentData = await getResidentData(resId)
 
   // Ensure document_id and resident_id are present for edit mode
   if (!residentData.document_id || !residentData.resident_id) {
     // Handle the case where data is incomplete for editing
     // For example, throw notFound() or redirect to an error page
-    throw new Error("Resident data is incomplete for editing.");
+    throw new Error('Resident data is incomplete for editing.')
   }
 
   return (
@@ -29,5 +29,5 @@ export default async function EditResidentPage({
         emergencyContacts={residentData.emergencyContacts}
       />
     </main>
-  );
+  )
 }

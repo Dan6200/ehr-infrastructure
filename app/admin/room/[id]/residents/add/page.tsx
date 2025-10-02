@@ -1,15 +1,15 @@
-"use client";
+'use client'
 
-import { GoBackLink } from "@/components/go-back-link";
-import { ResidentForm } from "@/components/residents/form";
-import { useSearchParams } from "next/navigation";
+import { GoBackLink } from '@/components/go-back-link'
+import { ResidentForm } from '@/components/residents/form'
+import { useSearchParams } from 'next/navigation'
 
 export default function AddResidentPage({
   params: { id },
 }: {
-  params: { id: string };
+  params: { id: string }
 }) {
-  const room = useSearchParams().get("room");
+  const room = useSearchParams().get('room')
   return (
     <main className="flex flex-col gap-5 bg-background container w-full md:w-2/3 mx-auto py-32">
       <GoBackLink
@@ -21,11 +21,11 @@ export default function AddResidentPage({
       </GoBackLink>
       <ResidentForm
         {...{
-          resident_name: "",
+          resident_name: '',
           facility_id: room as string,
           emergencyContacts: [],
         }}
       />
     </main>
-  );
+  )
 }

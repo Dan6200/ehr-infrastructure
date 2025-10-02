@@ -1,47 +1,47 @@
-"use client";
-import { Button } from "@/components/ui/button";
+'use client'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogClose,
   DialogContent,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { toast } from "@/components/ui/use-toast";
-import { Nullable } from "@/types";
-import { useRouter } from "next/navigation";
+} from '@/components/ui/dialog'
+import { toast } from '@/components/ui/use-toast'
+import { Nullable } from '@/types'
+import { useRouter } from 'next/navigation'
 
 export default function DeleteResident({
   resident_name,
   resident_id,
   deleteResidentData,
 }: {
-  resident_name: Nullable<string>;
-  resident_id: string;
+  resident_name: Nullable<string>
+  resident_id: string
   deleteResidentData: (resident_id: string) => Promise<
     | {
-        success: boolean;
-        message?: undefined;
+        success: boolean
+        message?: undefined
       }
     | {
-        success: boolean;
-        message: string;
+        success: boolean
+        message: string
       }
-  >;
+  >
 }) {
-  const router = useRouter();
+  const router = useRouter()
   const handleDelete = () => {
     if (!resident_id) {
-      toast({ title: "Unable to Delete Resident", variant: "destructive" });
-      return null;
+      toast({ title: 'Unable to Delete Resident', variant: 'destructive' })
+      return null
     }
     deleteResidentData(resident_id)
       .catch((err) => {
-        console.error(err);
-        toast({ title: "Unable to Delete Resident", variant: "destructive" });
+        console.error(err)
+        toast({ title: 'Unable to Delete Resident', variant: 'destructive' })
       })
-      .then((_) => toast({ title: "Successfully Deleted Resident" }));
-    router.refresh();
-  };
+      .then((_) => toast({ title: 'Successfully Deleted Resident' }))
+    router.refresh()
+  }
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -56,7 +56,7 @@ export default function DeleteResident({
       <DialogContent className="flex flex-col gap-8">
         {resident_name ? (
           <h4 className="text-center capitalize text-2xl">
-            are you sure you wish to delete resident{" "}
+            are you sure you wish to delete resident{' '}
             <span className="font-bold">{resident_name}</span>?
           </h4>
         ) : (
@@ -82,5 +82,5 @@ export default function DeleteResident({
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

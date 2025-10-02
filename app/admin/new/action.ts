@@ -1,21 +1,21 @@
-"use server";
+'use server'
 
-import { createUserWithEmailAndPasswordWrapper } from "@/firebase/auth/actions";
+import { createUserWithEmailAndPasswordWrapper } from '@/firebase/auth/actions'
 
 export async function addAdmin(data: { email: string; password: string }) {
   return createUserWithEmailAndPasswordWrapper(data.email, data.password)
     .then((user) => ({
       result: JSON.stringify(user),
       success: true,
-      message: "User Created Successfully",
+      message: 'User Created Successfully',
     }))
     .catch((error) => {
-      let msg = "";
+      let msg = ''
       if (error.message.match(/(email-already-in-use)/g))
-        msg = "Email Already In Use";
+        msg = 'Email Already In Use'
       return {
         success: false,
-        message: "Failed to Create User: " + msg,
-      };
-    });
+        message: 'Failed to Create User: ' + msg,
+      }
+    })
 }

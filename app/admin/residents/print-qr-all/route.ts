@@ -1,5 +1,5 @@
 // cspell:disable
-export {};
+export {}
 /***** Moved To A Standalone Application *******************/
 /*
 import { getAllRooms } from "@/app/admin/residents/data-actions";

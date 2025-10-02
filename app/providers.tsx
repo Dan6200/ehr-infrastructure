@@ -1,71 +1,78 @@
-"use client";
-import React, { useState, useEffect, createContext, useContext } from "react";
-import { Provider as JotaiProvider } from "jotai";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/firebase/client/config";
-import { getEncryptionKey } from "@/app/admin/actions/get-encryption-key"; // Our Server Action
+'use client'
+import React, { useState, useEffect, createContext, useContext } from 'react'
+import { Provider as JotaiProvider } from 'jotai'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '@/firebase/client/config'
+import { getEncryptionKey } from '@/app/admin/actions/get-encryption-key' // Our Server Action
 
 // Define the shape of our context value
 interface EncryptionKeyContextType {
-  encryptionKey: string | null;
-  loadingKey: boolean;
-  errorKey: string | null;
+  encryptionKey: string | null
+  loadingKey: boolean
+  errorKey: string | null
 }
 
 // Create the context
-const EncryptionKeyContext = createContext<EncryptionKeyContextType | undefined>(undefined);
+const EncryptionKeyContext = createContext<
+  EncryptionKeyContextType | undefined
+>(undefined)
 
 // Custom hook to use the encryption key
 export const useEncryptionKey = () => {
-  const context = useContext(EncryptionKeyContext);
+  const context = useContext(EncryptionKeyContext)
   if (context === undefined) {
-    throw new Error("useEncryptionKey must be used within an EncryptionKeyProvider");
+    throw new Error(
+      'useEncryptionKey must be used within an EncryptionKeyProvider',
+    )
   }
-  return context;
-};
+  return context
+}
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  const [encryptionKey, setEncryptionKey] = useState<string | null>(null);
-  const [loadingKey, setLoadingKey] = useState<boolean>(true);
-  const [errorKey, setErrorKey] = useState<string | null>(null);
+  const [encryptionKey, setEncryptionKey] = useState<string | null>(null)
+  const [loadingKey, setLoadingKey] = useState<boolean>(true)
+  const [errorKey, setErrorKey] = useState<string | null>(null)
 
   useEffect(() => {
-
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
-          setLoadingKey(true);
-          setErrorKey(null);
-          const idToken = await user.getIdToken();
-          const { key, error } = await getEncryptionKey(idToken);
+          setLoadingKey(true)
+          setErrorKey(null)
+          const idToken = await user.getIdToken()
+          const { key, error } = await getEncryptionKey(idToken)
           if (key) {
-            setEncryptionKey(key);
+            setEncryptionKey(key)
           } else if (error) {
-            setErrorKey(error);
-            console.error("Failed to fetch encryption key:", error);
+            setErrorKey(error)
+            console.error('Failed to fetch encryption key:', error)
           }
         } catch (err) {
-          setErrorKey("An unexpected error occurred while fetching the encryption key.");
-          console.error("Error fetching encryption key:", err);
+          setErrorKey(
+            'An unexpected error occurred while fetching the encryption key.',
+          )
+          console.error('Error fetching encryption key:', err)
         } finally {
-          setLoadingKey(false);
+          setLoadingKey(false)
         }
       } else {
         // User logged out
-        setEncryptionKey(null);
-        setLoadingKey(false);
-        setErrorKey(null);
+        setEncryptionKey(null)
+        setLoadingKey(false)
+        setErrorKey(null)
       }
-    });
+    })
 
-    return () => unsubscribe(); // Cleanup subscription
-  }, []);
+    return () => unsubscribe() // Cleanup subscription
+  }, [])
 
   return (
     <JotaiProvider>
-      <EncryptionKeyContext.Provider value={{ encryptionKey, loadingKey, errorKey }}>
+      <EncryptionKeyContext.Provider
+        value={{ encryptionKey, loadingKey, errorKey }}
+      >
         {children}
       </EncryptionKeyContext.Provider>
     </JotaiProvider>
-  );
+  )
 }

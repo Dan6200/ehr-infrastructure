@@ -1,67 +1,64 @@
-import { updateResident } from "../update";
-import { getResidentData } from "../get";
-import { loadInitialData, clearFirestore } from "@/test-data/emulatorSetup";
-import admin from "firebase-admin";
+import { updateResident } from '../update'
+import { getResidentData } from '../get'
+import { loadInitialData, clearFirestore } from '@/test-data/emulatorSetup'
+import admin from 'firebase-admin'
 
-describe("updateResident", () => {
+describe('updateResident', () => {
   beforeAll(async () => {
-    await clearFirestore();
-  });
+    await clearFirestore()
+  })
 
   beforeEach(async () => {
-    await loadInitialData();
-  });
+    await loadInitialData()
+  })
 
   afterEach(async () => {
-    await clearFirestore();
-  });
+    await clearFirestore()
+  })
 
-  it("should update resident data successfully", async () => {
-    const documentIdToUpdate = "residentDoc1"; // From test-data/residents.json
-    const updatedName = "John Doe Updated";
+  it('should update resident data successfully', async () => {
+    const documentIdToUpdate = 'residentDoc1' // From test-data/residents.json
+    const updatedName = 'John Doe Updated'
     const updatedResidentData = {
       resident_name: updatedName,
-      facility_id: "CC1101",
-      resident_id: "1",
+      facility_id: 'CC1101',
+      resident_id: '1',
       emergencyContacts: [
         {
-          contact_name: "Jane Doe Updated",
-          cell_phone: "999-888-7777",
+          contact_name: 'Jane Doe Updated',
+          cell_phone: '999-888-7777',
         },
       ],
-    };
+    }
 
-    const result = await updateResident(
-      updatedResidentData,
-      documentIdToUpdate,
-    );
+    const result = await updateResident(updatedResidentData, documentIdToUpdate)
 
-    expect(result.success).toBe(true);
-    expect(result.message).toBe("Successfully Updated Resident Information");
+    expect(result.success).toBe(true)
+    expect(result.message).toBe('Successfully Updated Resident Information')
 
     // Verify the resident was updated
-    const updatedResident = await getResidentData(documentIdToUpdate);
-    expect(updatedResident.resident_name).toBe(updatedName);
+    const updatedResident = await getResidentData(documentIdToUpdate)
+    expect(updatedResident.resident_name).toBe(updatedName)
     expect(updatedResident.emergencyContacts?.[0]?.contact_name).toBe(
-      "Jane Doe Updated",
-    );
-  });
+      'Jane Doe Updated',
+    )
+  })
 
-  it("should return success: false if resident does not exist", async () => {
-    const nonExistentDocumentId = "nonExistentDoc";
+  it('should return success: false if resident does not exist', async () => {
+    const nonExistentDocumentId = 'nonExistentDoc'
     const updatedResidentData = {
-      resident_name: "Non Existent",
-      facility_id: "CC0000",
-      resident_id: "0",
+      resident_name: 'Non Existent',
+      facility_id: 'CC0000',
+      resident_id: '0',
       emergencyContacts: [],
-    };
+    }
 
     const result = await updateResident(
       updatedResidentData,
       nonExistentDocumentId,
-    );
+    )
 
-    expect(result.success).toBe(false);
-    expect(result.message).toBe("Failed to Update the Resident");
-  });
-});
+    expect(result.success).toBe(false)
+    expect(result.message).toBe('Failed to Update the Resident')
+  })
+})

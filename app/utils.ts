@@ -1,9 +1,9 @@
-"use server";
+'use server'
 
 export const isError = (_object: unknown): _object is Error =>
-  typeof _object === "object" &&
+  typeof _object === 'object' &&
   typeof _object !== null &&
-  _object instanceof Error;
+  _object instanceof Error
 
 /*
  * Using a route handler instead...

@@ -1,4 +1,4 @@
-import { SignInForm } from "@/components/signin-form/";
+import { SignInForm } from '@/components/signin-form/'
 //import Link from "next/link";
 
 export default async function SignInPage() {
@@ -12,5 +12,5 @@ export default async function SignInPage() {
         Don't have an account? Sign up instead.
       </Link>*/}
     </main>
-  );
+  )
 }
