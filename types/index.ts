@@ -18,9 +18,7 @@ export const EmergencyContactSchema = z.object({
 })
 
 export const ResidentSchema = z.object({
-  resident_id: z.string(),
   resident_name: z.string().nullable().optional(),
-  document_id: z.string(),
   facility_id: z.string(),
   roomNo: z.string(),
   avatarUrl: z.string(),
@@ -37,9 +35,7 @@ const EncryptedEmergencyContactSchema = z.object({
 })
 
 const EncryptedResidentSchema = z.object({
-  resident_id: z.string(),
   encrypted_resident_name: z.string().nullable().optional(),
-  document_id: z.string(),
   facility_id: z.string(),
   roomNo: z.string(),
   avatarUrl: z.string(),
@@ -55,13 +51,11 @@ export type Resident = z.infer<typeof ResidentSchema>
 
 // --- Other Schemas & Types (unchanged) ---
 export const FacilitySchema = z.object({
-  document_id: z.string(),
   address: z.string(),
 })
 export type Facility = z.infer<typeof FacilitySchema>
 
 export const ResidentDataSchema = z.object({
-  resident_id: z.string(),
   resident_name: z.string().nullable().optional(),
   document_id: z.string(),
   address: z.string(),
