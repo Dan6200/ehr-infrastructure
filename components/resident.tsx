@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image'
-import type { Resident } from '@/types'
+import type { Resident, ResidentData } from '@/types'
 import { PhoneCall } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -8,19 +8,20 @@ import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardFooter } from './ui/card'
 import { onAuthStateChanged, User } from 'firebase/auth'
-import { auth } from '@/firebase/client/config'
+import { auth } from '@/firebase/auth/client/config'
 
 export default function Resident({
-  resId,
+  id,
   residentData,
 }: {
-  resId: string
-  residentData: Resident
+  id: string
+  residentData: ResidentData
 }) {
   const [admin, setAdmin] = useState<User | null>(null),
     router = useRouter()
 
-  const { encrypted_resident_name, emergencyContacts } = residentData
+  const { resident_name, roomNo, facility_id, address, emergencyContacts } =
+    residentData
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -42,17 +43,51 @@ export default function Resident({
 
   return (
     <div className="py-8 md:py-16 space-y-16 sm:space-y-18 md:space-y-24">
-      <section className="flex flex-col items-center gap-4 sm:gap-6 md:gap-8">
-        <Image
-          src="/profile.svg"
-          alt="profile svg icon"
-          className="border-[6px] border-black rounded-full"
-          width={96}
-          height={96}
-        />
-        <h1 className="text-5xl font-bold">{encrypted_resident_name}</h1>
+      <section className="flex items-start gap-4 sm:gap-8 md:gap-12">
+        {residentData.avatarUrl ? (
+          <Image
+            src={residentData.avatarUrl}
+            alt="resident avatar"
+            className="rounded-full"
+            width={96}
+            height={96}
+          />
+        ) : (
+          <Image
+            src="/avatars/placeholder.png"
+            alt="placeholder image"
+            className="rounded-full"
+            width={96}
+            height={96}
+          />
+        )}
+        <article className="text-left flex flex-col gap-2">
+          <h1 className="text-5xl font-bold mb-4">{resident_name}</h1>
+          <p className="text-lg ">
+            Room: <span className="text-xl ml-4">{roomNo}</span>
+          </p>
+          <p className="text-lg ">
+            Facility ID: <span className="text-xl ml-4">{facility_id}</span>
+          </p>
+          <p className="text-lg ">
+            Facility Address: <span className="text-xl ml-4">{address}</span>
+          </p>
+          <p className="text-lg ">
+            Patient Contact:<span className="text-xl ml-4"></span>
+          </p>
+          {admin && (
+            <section className="">
+              <Button
+                className="sm:w-64"
+                onMouseDown={() => router.push(`/admin/residents/${id}/edit`)}
+              >
+                Edit Resident Information
+              </Button>
+            </section>
+          )}
+        </article>
       </section>
-      <section className="space-y-12 sm:space-y-18">
+      {/*<section className="space-y-12 sm:space-y-18">
         <h3 className="text-2xl font-bold">Contacts</h3>
         <section
           className={`grid ${gridColsClass} gap-6 w-full md:w-fit mx-auto`}
@@ -60,40 +95,36 @@ export default function Resident({
           {emergencyContacts ? (
             emergencyContacts.map((contact: any, index: number) => (
               <Link
-                key={index + contact.encrypted_contact_name.split(' ')[0]}
-                href={`tel:${contact.encrypted_cell_phone}`}
+                key={index + contact.contact_name.split(' ')[0]}
+                href={`tel:${contact.cell_phone}`}
                 className="w-full sm:w-fit"
               >
-                <Card className="justify-between hover:bg-green-700/10 active:bg-green-700/10 flex shadow-md p-4 w-full md:p-6 items-center md:h-[15vh] sm:w-[45vw] md:w-[30vw]">
-                  <CardContent className="p-0 flex flex-col justify-between text-left ">
+                <Card className="justify-between hover:bg-green-700/10 active:bg-green-700/10 flex shadow-md p-4 w-full md:p-6 items-center ">
+                  <CardContent className="p-0 flex justify-between text-left ">
                     <h3 className="capitalize font-semibold md:text-xl">
-                      {contact.encrypted_contact_name}
+                      {contact.contact_name}
                     </h3>
-                    {contact.encrypted_relationship && (
-                      <p className="capitalize">
-                        {contact.encrypted_relationship}
+                    {contact.relationship && (
+                      <p className="capitalize">{contact.relationship}</p>
+                    )}
+                    {contact.cell_phone && (
+                      <p className="text-green-700 font-semibold">
+                        {contact.cell_phone}
                       </p>
                     )}
-                    {contact.encrypted_cell_phone && (
+                    {contact.home_phone && (
                       <p className="text-green-700 font-semibold">
-                        {contact.encrypted_cell_phone}
+                        {contact.home_phone}
                       </p>
                     )}
-                    {contact.encrypted_home_phone && (
+                    {contact.work_phone && (
                       <p className="text-green-700 font-semibold">
-                        {contact.encrypted_home_phone}
-                      </p>
-                    )}
-                    {contact.encrypted_work_phone && (
-                      <p className="text-green-700 font-semibold">
-                        {contact.encrypted_work_phone}
+                        {contact.work_phone}
                       </p>
                     )}
                   </CardContent>
                   <CardFooter className="shrink p-2">
-                    <span className="border-4 border-green-700 w-16 h-16 flex items-center rounded-full">
-                      <PhoneCall className="text-green-700 font-bold mx-auto" />
-                    </span>
+                    <PhoneCall className="text-green-700 font-bold mx-auto" />
                   </CardFooter>
                 </Card>
               </Link>
@@ -102,17 +133,7 @@ export default function Resident({
             <p>No Emergency Contacts On Record</p>
           )}
         </section>
-      </section>
-      {admin && (
-        <section className="mt-32 flex justify-center flex-wrap gap-6 w-full md:w-4/5 lg:w-2/3 mx-auto">
-          <Button
-            className="sm:w-64"
-            onMouseDown={() => router.push(`/admin/residents/${resId}/edit`)}
-          >
-            Edit Resident Information
-          </Button>
-        </section>
-      )}
+      </section>*/}
     </div>
   )
 }
