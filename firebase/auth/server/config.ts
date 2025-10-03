@@ -41,14 +41,6 @@ db = databaseId
   : initializeFirestore(getApp(appName), {})
 
 if (process.env.NODE_ENV === 'development') {
-  // const firestoreHost =
-  //   process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST?.split(':')[0]
-  // const firestorePort =
-  //   process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST?.split(':')[1]
-  // const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!
-  //
-  // connectFirestoreEmulator(db, firestoreHost!, Number(firestorePort!))
-  // connectAuthEmulator(auth, authHost)
   console.log(
     `Server:\nConnected to Firebase Auth emulator at ${process.env.FIREBASE_AUTH_EMULATOR_HOST};\nConnected to Firestore emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`,
   )
