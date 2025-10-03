@@ -1,5 +1,4 @@
 'use client'
-import { PulsingDiv } from '@/components/ui/pulsing-div'
 import {
   Table,
   TableBody,
@@ -20,21 +19,13 @@ export default function residentDataList({
 }: {
   residentsData: ResidentData[] | null
 }) {
-  const [displayData, setDisplayData] = useState<ResidentData[] | null>(
-    residentsData,
-  )
-  const [admin, setAdmin] = useState<User | null>(null)
+  const [, setAdmin] = useState<User | null>(null)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setAdmin(currentUser)
     })
     return () => unsubscribe()
   }, [setAdmin])
-
-  useEffect(() => {
-    if (residentsData === null) setDisplayData(Array(50).fill(null))
-    else setDisplayData(residentsData)
-  }, [residentsData])
 
   return (
     <div className="w-fit rounded-md border-2 mx-auto">
@@ -50,46 +41,26 @@ export default function residentDataList({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {displayData?.map((data: ResidentData | null, index) => (
-            <TableRow key={data?.facility_id ?? index}>
-              <TableCell className="text-center">
-                {data ? (
-                  <Link
-                    href={`/residents/${data.document_id}`}
-                    className="w-full block"
-                  >
+          {residentsData &&
+            residentsData.map((data: ResidentData) => (
+              <TableRow key={data.id}>
+                <TableCell className="text-center">
+                  <Link href={`/residents/${data.id}`} className="w-full block">
                     {data.roomNo}
                   </Link>
-                ) : (
-                  <PulsingDiv className="h-5 w-12 mx-auto" />
-                )}
-              </TableCell>
-              <TableCell className="text-center">
-                {data ? (
-                  <Link
-                    href={`/residents/${data.document_id}`}
-                    className="w-full block"
-                  >
+                </TableCell>
+                <TableCell className="text-center">
+                  <Link href={`/residents/${data.id}`} className="w-full block">
                     {data.resident_name ?? 'Vacant'}
                   </Link>
-                ) : (
-                  <PulsingDiv className="h-5 w-32 mx-auto" />
-                )}
-              </TableCell>
-              <TableCell className="text-center">
-                {data ? (
-                  <Link
-                    href={`/residents/${data.document_id}`}
-                    className="w-full block"
-                  >
+                </TableCell>
+                <TableCell className="text-center">
+                  <Link href={`/residents/${data.id}`} className="w-full block">
                     {data.address}
                   </Link>
-                ) : (
-                  <PulsingDiv className="h-5 w-48 mx-auto" />
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
     </div>
