@@ -9,8 +9,8 @@ export default async function EditResidentPage({
 }) {
   const residentData = await getResidentData(resId)
 
-  // Ensure document_id and resident_id are present for edit mode
-  if (!residentData.document_id || !residentData.resident_id) {
+  // Ensure id is present for edit mode
+  if (!residentData.id) {
     // Handle the case where data is incomplete for editing
     // For example, throw notFound() or redirect to an error page
     throw new Error('Resident data is incomplete for editing.')
@@ -22,9 +22,8 @@ export default async function EditResidentPage({
         Go To Previous Page
       </GoBackLink>
       <ResidentForm
-        encrypted_resident_name={residentData.encrypted_resident_name}
-        document_id={residentData.document_id}
-        resident_id={residentData.resident_id}
+        resident_name={residentData.resident_name}
+        document_id={residentData.id}
         facility_id={residentData.facility_id}
         emergencyContacts={residentData.emergencyContacts}
       />
