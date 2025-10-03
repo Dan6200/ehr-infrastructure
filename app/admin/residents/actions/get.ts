@@ -26,7 +26,6 @@ export async function getResidentData(
       'providers/GYRHOME/residents',
     ).withConverter(createResidentConverter(encryptionKey))
     const residentSnap = await residentsColRef.doc(documentId).get()
-    console.log(residentSnap.data())
     if (!residentSnap.exists) throw notFound()
     const resident = residentSnap.data()
     let validatedResident: Resident
