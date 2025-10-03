@@ -22,12 +22,13 @@ export async function getResidentData(
     if (!idToken) throw new Error('Failed to verify session token')
     const { key: encryptionKey } = await getEncryptionKey()
     if (!encryptionKey) throw new Error('failed to retrieve encryption key')
-    const residentsColRef = collectionWrapper('residents').withConverter(
-      createResidentConverter(encryptionKey),
-    )
-    const residentsSnap = await residentsColRef.doc(documentId).get()
-    if (!residentsSnap.exists) throw notFound()
-    const resident = residentsSnap.data()
+    const residentsColRef = collectionWrapper(
+      'providers/GYRHOME/residents',
+    ).withConverter(createResidentConverter(encryptionKey))
+    const residentSnap = await residentsColRef.doc(documentId).get()
+    console.log(residentSnap.data())
+    if (!residentSnap.exists) throw notFound()
+    const resident = residentSnap.data()
     let validatedResident: Resident
     try {
       validatedResident = ResidentSchema.parse(resident)
@@ -36,15 +37,16 @@ export async function getResidentData(
         'Object is not of type Resident  -- Tag:16: ' + error.message,
       )
     }
-    const facilitySnap = await collectionWrapper('facilites')
+    const facilitySnap = await collectionWrapper('providers/GYRHOME/facilites')
       .withConverter(facilityConverter)
-      .where('facility_id', '==', validatedResident.facility_id)
-      .limit(1)
+      .doc(validatedResident.facility_id)
       .get()
 
-    const { address } = facilitySnap.docs[0].data()
+    if (!facilitySnap.exists)
+      throw new Error('Could not find linked facility for this resident')
+    const { address } = facilitySnap.data()
 
-    return { ...validatedResident, id: residentsSnap.id, address }
+    return { ...validatedResident, id: residentSnap.id, address }
   } catch (error) {
     throw new Error('Failed to fetch resident.\n\t\t' + error)
   }
@@ -95,10 +97,7 @@ export async function getAllFacilities() {
   }
 }
 
-export async function getAllResidentsData(
-  page: number = 1,
-  limit: number = 50,
-) {
+export async function getAllResidentsData(page?: number, limit?: number) {
   try {
     const idToken = await verifySessionCookie()
     if (!idToken) throw new Error('Failed to verify session token')
@@ -113,11 +112,13 @@ export async function getAllResidentsData(
     const countSnapshot = await residentsCollection.count().get()
     const total = countSnapshot.data().count
 
-    // 2. Get the paginated documents
-    const residentsSnapshot = await residentsCollection
-      .limit(limit)
-      .offset((page - 1) * limit)
-      .get()
+    // 2. Get the paginated documents if pagination arguments are provided
+    let collectionQuery = residentsCollection
+    if (page && limit)
+      collectionQuery = residentsCollection
+        .limit(limit)
+        .offset((page - 1) * limit) as any
+    const residentsSnapshot = await collectionQuery.get()
     const residentsForPage = residentsSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
