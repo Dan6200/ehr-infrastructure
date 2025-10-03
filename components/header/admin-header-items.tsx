@@ -8,7 +8,7 @@ import React, {
 import { useRouter, usePathname } from 'next/navigation'
 import { onAuthStateChanged, User } from 'firebase/auth'
 import { auth } from '@/firebase/client/config'
-import { signOutWrapper } from '@/firebase/auth/actions'
+import { signOutWrapper } from '@/firebase/auth/client'
 import { getAllResidentsData } from '@/app/admin/residents/actions/get'
 import { ResidentData } from '@/types'
 import Search from './search/index'
