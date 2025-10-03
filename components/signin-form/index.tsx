@@ -16,9 +16,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/use-toast'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
-import { auth } from '@/firebase/client/config'
-import { signInWithEmailAndPasswordWrapper } from '@/firebase/auth/actions'
+import { signInWithEmailAndPasswordWrapper } from '@/firebase/auth/client'
+// TODO; see if you can rewrite with useActionState instead of RHF, or even both!!!
 
 const SignInFormSchema = z.object({
   email: z.string().min(2, {
@@ -65,6 +64,7 @@ export function SignInForm() {
   }
 
   return (
+    // TODO; see if you can rewrite with useActionState instead of RHF, or even both!!!
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
