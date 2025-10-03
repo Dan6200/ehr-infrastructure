@@ -33,8 +33,6 @@ if (process.env.NODE_ENV === 'development') {
     process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST?.split(':')[1]
   const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!
 
-  console.log(firestoreHost, firestorePort, authHost)
-
   connectFirestoreEmulator(db, firestoreHost!, Number(firestorePort!))
   connectAuthEmulator(auth, authHost)
   console.log('Client: Connected to Firestore and Auth emulators!')

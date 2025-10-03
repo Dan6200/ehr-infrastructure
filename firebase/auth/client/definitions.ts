@@ -4,9 +4,6 @@ import {
 } from 'firebase/auth'
 import { auth } from '../client/config'
 
-// TODO: Set the tenant ID...
-// auth.tenantId = "Foo";
-//
 export async function createUserWithEmailAndPasswordWrapper(
   email: string,
   password: string,

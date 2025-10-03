@@ -1,5 +1,6 @@
 //cspell:ignore firestore
-import db from './server/config'
+
+import db from './auth/server/config'
 
 export const collectionWrapper = (path: string) => {
   try {

@@ -36,28 +36,21 @@ if (!fbAdmin.apps.find((app) => app?.name === appName)) {
 
 export const auth = getAuth(getApp(appName))
 let db: Firestore
-if (process.env.NODE_ENV === 'production') {
-  db = databaseId
-    ? initializeFirestore(getApp(appName), {}, databaseId)
-    : initializeFirestore(getApp(appName), {})
-} else if (process.env.FIRESTORE_EMULATOR_HOST) {
-  db = databaseId
-    ? initializeFirestore(
-        getApp(appName),
-        { host: process.env.FIRESTORE_EMULATOR_HOST, ssl: false },
-        databaseId,
-      )
-    : initializeFirestore(getApp(appName), {
-        host: process.env.FIRESTORE_EMULATOR_HOST,
-        ssl: false,
-      })
+db = databaseId
+  ? initializeFirestore(getApp(appName), {}, databaseId)
+  : initializeFirestore(getApp(appName), {})
+
+if (process.env.NODE_ENV === 'development') {
+  // const firestoreHost =
+  //   process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST?.split(':')[0]
+  // const firestorePort =
+  //   process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST?.split(':')[1]
+  // const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!
+  //
+  // connectFirestoreEmulator(db, firestoreHost!, Number(firestorePort!))
+  // connectAuthEmulator(auth, authHost)
   console.log(
-    `Server: Connected to Firestore emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`,
+    `Server:\nConnected to Firebase Auth emulator at ${process.env.FIREBASE_AUTH_EMULATOR_HOST};\nConnected to Firestore emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`,
   )
-} else {
-  db = databaseId
-    ? initializeFirestore(getApp(appName), {}, databaseId)
-    : initializeFirestore(getApp(appName), {})
-  db.settings({ host: process.env.FIRESTORE_EMULATOR_HOST, ssl: false })
 }
 export default db
