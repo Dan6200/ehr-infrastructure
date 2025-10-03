@@ -25,8 +25,8 @@ export const Suggestions = ({
               {matchingResidentsData.map((residents) => (
                 <Link
                   className="text-left cursor-pointer active:bg-primary/10 hover:bg-primary/10 bg-muted w-full rounded-md p-2 text-nowrap align-bottom"
-                  href={`/residents/${residents.document_id}`}
-                  key={residents.document_id}
+                  href={`/admin/residents/${residents.id}`}
+                  key={residents.id}
                   onClick={() => setOpen(false)}
                 >
                   <p className="font-semibold">{residents.resident_name}</p>

@@ -40,12 +40,15 @@ export default function AdminHeaderItems() {
       setAdmin(currentUser)
       if (currentUser) {
         // User is logged in, fetch the rooms
-        const fetchedData = await getAllResidentsData().catch((e) => {
+        const { residents } = await getAllResidentsData(1, 1000).catch((e) => {
           console.error('Failed to Fetch Residents -- Tag:14.\n\t' + e)
-          toast({ title: 'Failed To Fetch Residents', variant: 'destructive' })
+          toast({
+            title: 'Failed To Fetch Residents',
+            variant: 'destructive',
+          })
           return null
         })
-        setResidentsData(fetchedData)
+        setResidentsData(residents)
       } else {
         // User is not logged in
         setResidentsData(null)
