@@ -25,6 +25,8 @@ import { toast } from '@/components/ui/use-toast'
 import { signOutWrapper } from '@/firebase/auth/client/definitions'
 import { auth } from '@/firebase/auth/client/config'
 
+export const SEARCHBOX_WIDTH = 'w-full md:w-[40vw]'
+
 export default function AdminHeaderItems() {
   const [admin, setAdmin] = useState<User | null>(null)
   const [residentsData, setResidentsData] = useState<ResidentData[] | null>(
@@ -47,7 +49,7 @@ export default function AdminHeaderItems() {
       } else {
         // User is not logged in
         setResidentsData(null)
-        if (!pathname.includes('residents') && pathname !== '/sign-in') {
+        if (!pathname.startsWith('/admin') && pathname !== '/sign-in') {
           router.push('/sign-in')
         }
       }
@@ -60,6 +62,11 @@ export default function AdminHeaderItems() {
   ) => {
     event.preventDefault()
     signOutWrapper()
+    await fetch('/api/auth/logout', {
+      method: 'post',
+    }).then(async (result) => {
+      if (result.status === 200) router.push('/sign-in') // Navigate to the login page
+    })
   }
 
   if (!admin) {
@@ -68,12 +75,10 @@ export default function AdminHeaderItems() {
 
   return (
     <>
-      {residentsData && (
-        <Search
-          className="w-full md:w-2/5 order-2 md:order-1"
-          {...{ residentsData }}
-        />
-      )}
+      <Search
+        className={`${SEARCHBOX_WIDTH} order-2 md:order-1`}
+        {...{ residentsData }}
+      />
       <DropdownMenu>
         <div className="flex justify-end order-1 md:order-2">
           <DropdownMenuTrigger className="rounded-full border-primary border-4 bg-primary-foreground w-12 h-12">
