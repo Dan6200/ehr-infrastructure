@@ -16,7 +16,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/use-toast'
 import { useRouter } from 'next/navigation'
-import { signInWithEmailAndPasswordWrapper } from '@/firebase/auth/client'
+import { signInWithEmailAndPasswordWrapper } from '@/firebase/auth/client/definitions'
+import { User } from 'firebase/auth'
 // TODO; see if you can rewrite with useActionState instead of RHF, or even both!!!
 
 const SignInFormSchema = z.object({
@@ -58,7 +59,12 @@ export function SignInForm() {
     const { result, message, success } =
       await signInWithEmailAndPasswordWrapper(data.email, data.password)
     if (success) {
-      router.push('/') // Navigate to the homepage
+      await fetch('/api/auth/login', {
+        method: 'post',
+        body: JSON.stringify({ idToken: await (result as User).getIdToken() }),
+      }).then(async (result) => {
+        if (result.status === 200) router.push('/admin') // Navigate to the homepage
+      })
     }
     toast({ title: message, variant: success ? 'default' : 'destructive' })
   }
