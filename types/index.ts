@@ -57,7 +57,7 @@ export type Facility = z.infer<typeof FacilitySchema>
 
 export const ResidentDataSchema = z.object({
   resident_name: z.string().nullable().optional(),
-  document_id: z.string(),
+  id: z.string(),
   address: z.string(),
   facility_id: z.string(),
   roomNo: z.string(),
@@ -79,8 +79,6 @@ export const createResidentConverter = (
     encryptedData.facility_id = dataToEncrypt.facility_id
     encryptedData.roomNo = dataToEncrypt.roomNo
     encryptedData.avatarUrl = dataToEncrypt.avatarUrl
-    if (dataToEncrypt.document_id)
-      encryptedData.document_id = dataToEncrypt.document_id
 
     if (dataToEncrypt.resident_name) {
       encryptedData.encrypted_resident_name = encrypt(
