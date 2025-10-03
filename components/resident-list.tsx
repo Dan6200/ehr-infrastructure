@@ -45,17 +45,26 @@ export default function residentDataList({
             residentsData.map((data: ResidentData) => (
               <TableRow key={data.id}>
                 <TableCell className="text-center">
-                  <Link href={`/residents/${data.id}`} className="w-full block">
+                  <Link
+                    href={`/admin/residents/${data.id}`}
+                    className="w-full block"
+                  >
                     {data.roomNo}
                   </Link>
                 </TableCell>
                 <TableCell className="text-center">
-                  <Link href={`/residents/${data.id}`} className="w-full block">
+                  <Link
+                    href={`/admin/residents/${data.id}`}
+                    className="w-full block"
+                  >
                     {data.resident_name ?? 'Vacant'}
                   </Link>
                 </TableCell>
                 <TableCell className="text-center">
-                  <Link href={`/residents/${data.id}`} className="w-full block">
+                  <Link
+                    href={`/admin/residents/${data.id}`}
+                    className="w-full block"
+                  >
                     {data.address}
                   </Link>
                 </TableCell>
