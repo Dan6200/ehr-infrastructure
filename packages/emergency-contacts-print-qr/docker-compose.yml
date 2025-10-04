@@ -1,0 +1,46 @@
+version: "3.8"
+services:
+  app:
+    image: danielnyong/emergency-contacts-print-qr:latest
+    ports:
+      - "3000:3000"
+    env_file: ~/emergency-contacts-print-qr/.env
+    networks:
+      - app-network
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
+      - /var/www/html:/var/www/html
+    # To create the ssl certificate:
+    # Use the staging flag to avoid rate-limiting
+
+    # command: certonly --webroot --webroot-path=/var/www/html --email danielnyong66@gmail.com --agree-tos --no-eff-email --noninteractive --staging -d print-qr.emergency-contacts-demo.danielnyo.ng
+
+    # command: certonly --webroot --webroot-path=/var/www/html --email danielnyong66@gmail.com --agree-tos --no-eff-email --noninteractive --force-renewal -d print-qr.emergency-contacts-demo.danielnyo.ng
+    # To renew every 12 hrs:
+    entrypoint: /bin/sh -c 'trap "exit 0" TERM; while :; do certbot renew; sleep 12h; done'
+
+networks:
+  app-network:
+    driver: bridge
+
+### No need for containerized nginx... using local nginx
+  # webserver:
+  #   image: nginx:mainline-alpine
+  #   container_name: webserver
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - web-root:/var/www/html
+  #     - ./nginx-conf:/etc/nginx/conf.d
+  #     - certbot-etc:/etc/letsencrypt
+  #     - certbot-var:/var/lib/letsencrypt
+  #   depends_on: [app]
+  #   networks: [app-network]
+
