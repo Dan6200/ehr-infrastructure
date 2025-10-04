@@ -1,0 +1,9 @@
+packages:
+  - packages/*
+ignoredBuiltDependencies:
+  - puppeteer
+onlyBuiltDependencies:
+  - core-js
+  - protobufjs
+  - sharp
+  - unrs-resolver
