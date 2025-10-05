@@ -39,8 +39,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         try {
           setLoadingKey(true)
           setErrorKey(null)
-          const idToken = await user.getIdToken()
-          const { key, error } = await getEncryptionKey(idToken)
+          const { key, error } = await getEncryptionKey()
           if (key) {
             setEncryptionKey(key)
           } else if (error) {
