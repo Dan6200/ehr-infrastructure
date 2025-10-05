@@ -1,7 +1,7 @@
 import { getAuth, connectAuthEmulator } from 'firebase/auth'
 import { getApp, getApps, initializeApp } from 'firebase/app'
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
-import { getAnalytics } from 'firebase/analytics'
+import { getAnalytics, isSupported } from 'firebase/analytics'
 
 const appName = 'linkID-client'
 export const firebaseConfig = {
@@ -22,17 +22,19 @@ if (!getApps().find((app) => app?.name === appName))
   initializeApp(firebaseConfig, appName)
 
 export const auth = getAuth(getApp(appName))
-export const analytics = getAnalytics(getApp(appName))
+export const analytics = (async () => {
+  if (await isSupported()) return getAnalytics(getApp(appName))
+  return null
+})()
+
 export const db = databaseId
   ? getFirestore(getApp(appName), databaseId)
   : getFirestore(getApp(appName))
 
 // Connect to Firestore Emulator in development
 if (process.env.NODE_ENV === 'development') {
-  const firestoreHost =
-    process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST?.split(':')[0]
-  const firestorePort =
-    process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST?.split(':')[1]
+  const firestoreHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST
+  const firestorePort = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_PORT
   const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!
 
   connectFirestoreEmulator(db, firestoreHost!, Number(firestorePort!))

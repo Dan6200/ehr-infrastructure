@@ -24,6 +24,7 @@ export async function signInWithEmailAndPasswordWrapper(
       success: true,
     }))
     .catch((error: Error) => {
+      console.error(error)
       return {
         result: error.toString(),
         message: 'Failed to Sign In User.',
