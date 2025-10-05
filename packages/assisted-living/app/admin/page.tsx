@@ -1,5 +1,5 @@
 import { getAllResidentsData } from './residents/actions/get'
-import ResidentDataList from '@/components/resident-list'
+import ResidentList from '@/components/resident-list'
 import ServerPagination from '@/components/ui/server-pagination'
 import { redirect } from 'next/navigation'
 
@@ -24,7 +24,7 @@ export default async function Home({
 
   return (
     <main className="sm:container bg-background text-center mx-auto py-48 md:py-32">
-      <ResidentDataList {...{ residentsData: residents }} />
+      <ResidentList {...{ residentsData: residents }} />
       <ServerPagination {...{ totalPages, currentPage }} />
     </main>
   )

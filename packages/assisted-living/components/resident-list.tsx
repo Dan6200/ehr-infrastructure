@@ -14,7 +14,7 @@ import { onAuthStateChanged, User } from 'firebase/auth'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-export default function residentDataList({
+export default function ResidentList({
   residentsData,
 }: {
   residentsData: ResidentData[] | null
@@ -28,19 +28,22 @@ export default function residentDataList({
   }, [setAdmin])
 
   return (
-    <div className="w-fit rounded-md border-2 mx-auto">
-      <Table className="text-base w-[90vw] md:w-[70vw] lg:w-[50vw]">
+    <div className="w-full md:w-3/5 sm:rounded-md border-y-2 sm:border-2 mx-auto">
+      <Table className="text-base w-fit sm:w-full overflow-x-scroll">
         <TableCaption>All Residents.</TableCaption>
         <TableHeader className="bg-foreground/20 font-bold rounded-md">
           <TableRow>
-            <TableHead className="text-center w-[1vw]">Room Number</TableHead>
-            <TableHead className="text-center w-[2vw]">Resident</TableHead>
-            <TableHead className="text-center w-[10vw]">
+            <TableHead className="text-center sm:w-[1vw]">
+              <span className="sm:hidden">Room</span>
+              <span className="hidden sm:inline">Room Number</span>
+            </TableHead>
+            <TableHead className="text-center sm:w-[2vw]">Resident</TableHead>
+            <TableHead className="text-center sm:w-[10vw]">
               Facility Address
             </TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className=" whitespace-nowrap">
           {residentsData &&
             residentsData.map((data: ResidentData) => (
               <TableRow key={data.id}>
