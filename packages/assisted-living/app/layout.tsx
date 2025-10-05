@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Toaster } from '@/components/ui/toaster'
-import { Analytics } from '@vercel/analytics/react'
+// Replacing with Google Analytics...
+// import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
 import Header from '@/components/header/index'
 import Providers from './providers'
@@ -26,7 +27,7 @@ export default async function RootLayout({
           <Header />
           {children}
           <Toaster />
-          <Analytics />
+          {/*<Analytics />*/}
         </Providers>
       </body>
     </html>
