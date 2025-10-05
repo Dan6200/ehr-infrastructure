@@ -41,6 +41,7 @@ export default function AdminHeaderItems() {
       if (currentUser) {
         // User is logged in, fetch the rooms
         const { residents } = await getAllResidentsData(1, 1000).catch((e) => {
+          if (e.toString().match(/(session|cookie)/i)) router.push('/sign-in')
           console.error('Failed to Fetch Residents -- Tag:14.\n\t' + e)
           toast({
             title: 'Failed To Fetch Residents',
@@ -79,7 +80,7 @@ export default function AdminHeaderItems() {
   return (
     <>
       <Search
-        className={`${SEARCHBOX_WIDTH} order-2 md:order-1`}
+        className={`${SEARCHBOX_WIDTH} hidden md:inline-block order-2 md:order-1`}
         {...{ residentsData }}
       />
       <DropdownMenu>
