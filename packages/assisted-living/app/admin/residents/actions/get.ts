@@ -9,11 +9,12 @@ import {
   facilityConverter,
   createResidentConverter,
 } from '@/types'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { z } from 'zod'
 import { getEncryptionKey } from '../../actions/get-encryption-key'
 import { verifySessionCookie } from '@/firebase/auth/server/definitions'
 
+// Use a DTO for resident data
 export async function getResidentData(
   documentId: string,
 ): Promise<z.infer<typeof ResidentDataSchema>> {
@@ -36,7 +37,7 @@ export async function getResidentData(
         'Object is not of type Resident  -- Tag:16: ' + error.message,
       )
     }
-    const facilitySnap = await collectionWrapper('providers/GYRHOME/facilites')
+    const facilitySnap = await collectionWrapper('providers/GYRHOME/facilities')
       .withConverter(facilityConverter)
       .doc(validatedResident.facility_id)
       .get()
@@ -46,7 +47,7 @@ export async function getResidentData(
     const { address } = facilitySnap.data()
 
     return { ...validatedResident, id: residentSnap.id, address }
-  } catch (error) {
+  } catch (error: any) {
     throw new Error('Failed to fetch resident.\n\t\t' + error)
   }
 }
@@ -125,7 +126,7 @@ export async function getAllResidentsData(page?: number, limit?: number) {
 
     // 3. Fetch facility data only for the residents on the current page
     const facilitiesCollection = collectionWrapper(
-      'providers/GYRHOME/facilites',
+      'providers/GYRHOME/facilities',
     ).withConverter(facilityConverter)
     const facilitiesData = await facilitiesCollection.get()
     const facility_lookup: { [id: string]: string } =
@@ -145,7 +146,7 @@ export async function getAllResidentsData(page?: number, limit?: number) {
     })
 
     return { residents: residentsWithAddress, total }
-  } catch (error) {
+  } catch (error: any) {
     throw new Error('Failed to fetch All Residents Data:\n\t\t' + error)
   }
 }

@@ -1,6 +1,7 @@
 import { getAllResidentsData } from './residents/actions/get'
 import ResidentDataList from '@/components/resident-list'
 import ServerPagination from '@/components/ui/server-pagination'
+import { redirect } from 'next/navigation'
 
 export default async function Home({
   searchParams,
@@ -14,6 +15,7 @@ export default async function Home({
     currentPage,
     LIMIT,
   ).catch((e) => {
+    if (e.toString().match(/(session|cookie)/i)) redirect('/sign-in')
     console.error('Failed to fetch residentData:', e)
     return { residents: [], total: 0 } // Handle error gracefully
   })
