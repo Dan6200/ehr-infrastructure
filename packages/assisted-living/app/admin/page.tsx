@@ -1,6 +1,6 @@
 import { getAllResidentsData } from './residents/actions/get'
 import ResidentList from '@/components/resident-list'
-import ServerPagination from '@/components/ui/server-pagination'
+import ServerPagination from '@/components/server-pagination'
 import { redirect } from 'next/navigation'
 
 export default async function Home({
