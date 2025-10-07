@@ -11,8 +11,8 @@ import { Inter } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
 export const metadata: Metadata = {
-  title: 'LinkID',
-  description: 'System To Manage Patient Information',
+  title: 'Lean EHR: Assisted Living',
+  description: 'An EHR software solution for assisted living facilities',
 }
 
 export default async function RootLayout({
