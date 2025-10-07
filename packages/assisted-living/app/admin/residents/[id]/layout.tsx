@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
-import { getResidentData } from '@/app/admin/residents/actions/get'
+import { getResidentData } from '@/actions/residents/get'
 import { ResidentSchema, Resident as ResidentType } from '@/types'
 import Resident from '@/components/resident'
 import { GoBackLink } from '@/components/go-back-link'
@@ -41,4 +41,3 @@ export default async function ResidentLayout({
     </main>
   )
 }
-
