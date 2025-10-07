@@ -69,3 +69,16 @@ gcloud kms keys add-iam-policy-binding kek-contact --keyring=assisted-living --l
 
 gcloud kms keys add-iam-policy-binding kek-clinical --keyring=assisted-living --location=europe-west1 --member=serviceAccount:assisted-living-app@lean-ehr.iam.gserviceaccount.com --role=roles/cloudkms.cryptoKeyEncrypterDecrypter --project=lean-ehr
 ```
+
+### 6. Generate Service Account Key
+
+This command generates a JSON key file for the `assisted-living-app` service account. This key is used for local development authentication.
+
+**Important:** Keep this file secure and do not commit it to version control.
+
+```bash
+gcloud iam service-accounts keys create secret-key/assisted-living-app-key.json \
+  --iam-account=assisted-living-app@lean-ehr.iam.gserviceaccount.com \
+  --project=lean-ehr
+```
+
