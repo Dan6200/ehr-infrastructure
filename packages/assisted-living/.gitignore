@@ -60,7 +60,6 @@ secret-key/*
 # redis config
 redis-config/*
 redis.conf
-/firebase.json
 /firestore-debug.log
 /firebase-debug.log
 /.env.production
