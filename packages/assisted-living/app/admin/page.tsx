@@ -1,4 +1,4 @@
-import { getAllResidentsData } from './residents/actions/get'
+import { getAllResidentsData } from '@/actions/residents/get'
 import ResidentList from '@/components/resident-list'
 import ServerPagination from '@/components/server-pagination'
 import { redirect } from 'next/navigation'
