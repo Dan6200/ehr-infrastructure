@@ -1,4 +1,4 @@
-import { getAuth, connectAuthEmulator } from 'firebase/auth'
+// import { getAuth, connectAuthEmulator } from 'firebase/auth'
 import { getApp, getApps, initializeApp } from 'firebase/app'
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
 import { getAnalytics, isSupported } from 'firebase/analytics'
@@ -21,7 +21,7 @@ if (process.env.VERCEL_ENV === 'preview') {
 if (!getApps().find((app) => app?.name === appName))
   initializeApp(firebaseConfig, appName)
 
-export const auth = getAuth(getApp(appName))
+// export const auth = getAuth(getApp(appName))
 export const analytics = (async () => {
   if (await isSupported()) return getAnalytics(getApp(appName))
   return null
@@ -35,9 +35,9 @@ export const db = databaseId
 if (process.env.NODE_ENV === 'development') {
   const firestoreHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST
   const firestorePort = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_PORT
-  const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!
+  // const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!
 
   connectFirestoreEmulator(db, firestoreHost!, Number(firestorePort!))
-  connectAuthEmulator(auth, authHost)
+  // connectAuthEmulator(auth, authHost)
   console.log('Client: Connected to Firestore and Auth emulators!')
 }

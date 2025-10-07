@@ -1,50 +1,37 @@
-import { getApp, initializeApp } from 'firebase-admin/app'
-import fbAdmin from 'firebase-admin'
-import { getAuth } from 'firebase-admin/auth'
-import { Firestore, initializeFirestore } from 'firebase-admin/firestore'
+import { getAuth, connectAuthEmulator } from 'firebase/auth'
+import { getApp, getApps, initializeApp } from 'firebase/app'
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
 
-const { credential } = fbAdmin
 const appName = 'lean-ehr-assisted-living-server'
+export const firebaseConfig = {
+  apiKey: process.env.FB_API_KEY,
+  authDomain: process.env.FB_AUTH_DOMAIN,
+  projectId: process.env.FB_PROJECT_ID,
+  storageBucket: process.env.FB_STORAGE_BUCKET,
+  appId: process.env.FB_APP_ID,
+  messagingSenderId: process.env.FB_MESSAGING_SENDER_ID,
+}
 
 let databaseId: string | undefined = undefined
 if (process.env.VERCEL_ENV === 'preview') {
   databaseId = 'staging'
 }
 
-if (!fbAdmin.apps.find((app) => app?.name === appName)) {
-  if (process.env.NODE_ENV === 'production') {
-    // using ADC in prod, switch to SA key for non-GCP envs
-    initializeApp(undefined, appName)
-    // SA key auth
-    //     initializeApp(
-    //       {
-    //         credential: credential.cert({
-    //           projectId: process.env.FB_PROJECT_ID,
-    //           clientEmail: process.env.FB_CLIENT_EMAIL,
-    //           privateKey: process.env.FB_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    //         }),
-    //       },
-    //       appName,
-    //     )
-  } else {
-    initializeApp(
-      {
-        projectId: process.env.FB_PROJECT_ID,
-      },
-      appName,
-    )
-  }
-}
+if (!getApps().find((app) => app?.name === appName))
+  initializeApp(firebaseConfig, appName)
 
 export const auth = getAuth(getApp(appName))
-let db: Firestore
-db = databaseId
-  ? initializeFirestore(getApp(appName), {}, databaseId)
-  : initializeFirestore(getApp(appName), {})
+export const db = databaseId
+  ? getFirestore(getApp(appName), databaseId)
+  : getFirestore(getApp(appName))
 
+// Connect to Firestore Emulator in development
 if (process.env.NODE_ENV === 'development') {
-  console.log(
-    `Server:\nConnected to Firebase Auth emulator at ${process.env.FIREBASE_AUTH_EMULATOR_HOST};\nConnected to Firestore emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`,
-  )
+  const firestoreHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST
+  const firestorePort = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_PORT
+  const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!
+
+  connectFirestoreEmulator(db, firestoreHost!, Number(firestorePort!))
+  connectAuthEmulator(auth, authHost)
+  console.log('Server: Connected to Firestore and Auth emulators!')
 }
-export default db
