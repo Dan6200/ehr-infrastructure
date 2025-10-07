@@ -62,11 +62,38 @@ export function SignInForm() {
       await fetch('/api/auth/login', {
         method: 'post',
         body: JSON.stringify({ idToken: await (result as User).getIdToken() }),
-      }).then(async (result) => {
-        if (result.status === 200) router.push('/admin') // Navigate to the homepage
       })
+        .then(async (result) => {
+          if (result.ok) {
+            router.push('/admin') // Navigate to the homepage
+            toast({ title: message, variant: 'default' })
+            return result
+          } else {
+            toast({
+              title: 'Failed to Login User',
+              description: result.statusText,
+              variant: 'destructive',
+            })
+          }
+        })
+        .catch((rej) => {
+          console.log(rej)
+          toast({
+            title: 'Failed to Login User',
+            description: rej.toString(),
+            variant: 'destructive',
+          })
+        })
+    } else {
+      if (!success && typeof result === 'string') {
+        let description = result as string
+        if (description.match(/wrong/i)) description = 'Invalid Credentials'
+        if (description.match(/not-found/i))
+          description =
+            "Can't Find the Associated Account with the Username/Email"
+        toast({ title: message, description, variant: 'destructive' })
+      }
     }
-    toast({ title: message, variant: success ? 'default' : 'destructive' })
   }
 
   return (
