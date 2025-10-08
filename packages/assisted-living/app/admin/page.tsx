@@ -14,8 +14,13 @@ export default async function Home({
   const { residents, total } = await getAllResidentsData(
     currentPage,
     LIMIT,
-  ).catch((e) => {
-    if (e.toString().match(/(session|cookie)/i)) redirect('/sign-in')
+  ).catch(async (e) => {
+    if (e.toString().match(/(session|cookie)/i))
+      await fetch('/api/auth/logout', {
+        method: 'post',
+      }).then(async (result) => {
+        if (result.status === 200) redirect('/sign-in') // Navigate to the login page
+      })
     console.error('Failed to fetch residentData:', e)
     return { residents: [], total: 0 } // Handle error gracefully
   })
