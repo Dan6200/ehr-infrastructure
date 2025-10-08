@@ -1,9 +1,9 @@
+'use client'
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
 } from 'firebase/auth'
-// import { auth } from '../client/config'
-import { auth } from '../server/config'
+import { auth } from '../client/config'
 
 export async function createUserWithEmailAndPasswordWrapper(
   email: string,
