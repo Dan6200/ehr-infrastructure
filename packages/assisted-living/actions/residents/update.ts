@@ -11,7 +11,7 @@ export async function updateResident(
   idToken: string,
 ) {
   try {
-    const decodedClaims = await verifySessionCookie(idToken)
+    const decodedClaims = await getVerifiedSessionCookie(idToken)
     const userRoles: string[] = decodedClaims.claims.roles || []
 
     await db.runTransaction(async (transaction) => {
