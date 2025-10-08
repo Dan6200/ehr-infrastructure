@@ -14,7 +14,7 @@ import {
   DocumentData,
   FirestoreDataConverter,
   QueryDocumentSnapshot,
-} from 'firebase-admin/firestore'
+} from 'firebase/firestore'
 
 // --- Enums ---
 export const RelationshipEnum = z.enum([
@@ -513,4 +513,3 @@ export const createResidentConverter = (
     return ResidentSchema.parse(decryptedData)
   },
 })
-
