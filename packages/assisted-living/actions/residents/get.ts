@@ -1,5 +1,12 @@
 'use server'
-import { collectionWrapper } from '@/firebase/firestore'
+import {
+  collectionWrapper,
+  getCount,
+  queryWrapper,
+  limitQuery,
+  startAfter,
+  getDocsWrapper,
+} from '@/firebase/firestore'
 import {
   Resident,
   Facility,
@@ -11,14 +18,15 @@ import {
 } from '@/types'
 import { notFound, redirect } from 'next/navigation'
 import { z } from 'zod'
-import { verifySessionCookie } from '@/firebase/auth/server/definitions'
+import { getVerifiedSessionCookie } from '@/firebase/auth/server/definitions'
+import { DocumentReference } from 'firebase/firestore'
 
 // Use a DTO for resident data
 export async function getResidentData(
   documentId: string,
 ): Promise<z.infer<typeof ResidentDataSchema>> {
   try {
-    const idToken = await verifySessionCookie()
+    const idToken = await getVerifiedSessionCookie()
     if (!idToken) throw new Error('Failed to verify session token')
     const userRoles: string[] = idToken.claims.roles || []
 
@@ -96,27 +104,34 @@ export async function getAllFacilities() {
   }
 }
 
-export async function getAllResidentsData(page?: number, limit?: number) {
+export async function getAllResidentsData(
+  lastDoc?: DocumentReference,
+  limit?: number,
+) {
   try {
-    const idToken = await verifySessionCookie()
+    const idToken = await getVerifiedSessionCookie()
     if (!idToken) throw new Error('Failed to verify session token')
-    const userRoles: string[] = idToken.claims.roles || []
+    const userRoles: string[] = idToken.roles || []
 
     const residentsCollection = collectionWrapper(
       `providers/GYRHOME/residents`,
     ).withConverter(createResidentConverter(userRoles))
 
     // 1. Get the total count of residents
-    const countSnapshot = await residentsCollection.count().get()
+    const countSnapshot = await getCount(residentsCollection)
     const total = countSnapshot.data().count
 
     // 2. Get the paginated documents if pagination arguments are provided
-    let collectionQuery = residentsCollection
-    if (page && limit)
-      collectionQuery = residentsCollection
-        .limit(limit)
-        .offset((page - 1) * limit) as any
-    const residentsSnapshot = await collectionQuery.get()
+    let collectionQuery = queryWrapper(
+      residentsCollection,
+      limit ? limitQuery(limit) : null,
+      lastDoc ? startAfter(lastDoc) : null,
+    )
+    // if (page && limit)
+    //   collectionQuery = residentsCollection
+    //     .limit(limit)
+    //     .offset((page - 1) * limit) as any
+    const residentsSnapshot = await getDocsWrapper(collectionQuery)
     const residentsForPage = residentsSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -126,7 +141,7 @@ export async function getAllResidentsData(page?: number, limit?: number) {
     const facilitiesCollection = collectionWrapper(
       'providers/GYRHOME/facilities',
     ).withConverter(facilityConverter)
-    const facilitiesData = await facilitiesCollection.get()
+    const facilitiesData = await getDocsWrapper(facilitiesCollection)
     const facility_lookup: { [id: string]: string } =
       facilitiesData.docs.reduce(
         (lookup: { [id: string]: any }, facility) => ({
