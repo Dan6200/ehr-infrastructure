@@ -1,5 +1,5 @@
 import { getAuth, connectAuthEmulator } from 'firebase/auth'
-import { getApp, getApps, initializeApp } from 'firebase/app'
+import { getApp, getApps, initializeServerApp } from 'firebase/app'
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
 
 const appName = 'lean-ehr-assisted-living-server'
@@ -17,10 +17,10 @@ if (process.env.VERCEL_ENV === 'preview') {
   databaseId = 'staging'
 }
 
-if (!getApps().find((app) => app?.name === appName))
-  initializeApp(firebaseConfig, appName)
+initializeServerApp(firebaseConfig, {})
 
-export const auth = getAuth(getApp(appName))
+// Can't use auth on both the backend and server...
+// export const auth = getAuth(getApp(appName))
 export const db = databaseId
   ? getFirestore(getApp(appName), databaseId)
   : getFirestore(getApp(appName))
@@ -29,9 +29,9 @@ export const db = databaseId
 if (process.env.NODE_ENV === 'development') {
   const firestoreHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST
   const firestorePort = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_PORT
-  const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!
+  // const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!
 
   connectFirestoreEmulator(db, firestoreHost!, Number(firestorePort!))
-  connectAuthEmulator(auth, authHost)
+  // connectAuthEmulator(auth, authHost)
   console.log('Server: Connected to Firestore and Auth emulators!')
 }
