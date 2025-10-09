@@ -1,5 +1,8 @@
 'use server'
-import { cookies } from 'next/headers'
+import { initializeServerApp } from 'firebase/app'
+import { cookies, headers } from 'next/headers'
+import { firebaseConfig } from './config'
+import { Auth, getAuth } from 'firebase/auth'
 
 // Environment variables for Cloud Function URLs
 const REVOKE_SESSIONS_FUNCTION_URL = process.env.REVOKE_SESSIONS_FUNCTION_URL
@@ -88,7 +91,29 @@ export async function getVerifiedSessionCookie() {
     return result // This should be the decodedIdToken
   } catch (error: any) {
     console.error(`Error calling ${VERIFY_SESSION_COOKIE_FUNCTION_URL}:`, error)
-    // In this scenario, we don't delete the cookie here. It will be handled on sign-out.
+    return null
+  }
+}
+
+/**
+ * Initializes a FriebaseServerApp and retrieves the server auth object.
+ * @returns The auth object derived from serverApp
+ */
+export async function getServerAuth(): Promise<Auth | null> {
+  try {
+    const authIdToken = (await headers())
+      .get('Authorization')
+      ?.split('Bearer ')[1]
+
+    const app = initializeServerApp(firebaseConfig, {
+      authIdToken,
+      releaseOnDeref: headers(),
+    })
+
+    return getAuth(app)
+  } catch (error: any) {
+    console.error('Error retrieving server auth', error)
+    console.error('Error retrieving server auth')
     return null
   }
 }
