@@ -3,10 +3,10 @@ import {
   collectionWrapper,
   getCount,
   queryWrapper,
+  getDocsWrapper,
   limitQuery,
   startAfter,
-  getDocsWrapper,
-} from '@/firebase/firestore'
+} from '@/firebase/firestore-server'
 import {
   Resident,
   Facility,
@@ -16,9 +16,9 @@ import {
   facilityConverter,
   createResidentConverter,
 } from '@/types'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { z } from 'zod'
-import { getVerifiedSessionCookie } from '@/firebase/auth/server/definitions'
+import { getAuthenticatedAppAndClaims } from '@/firebase/auth/server/definitions'
 import { DocumentReference } from 'firebase/firestore'
 
 // Use a DTO for resident data
@@ -26,11 +26,13 @@ export async function getResidentData(
   documentId: string,
 ): Promise<z.infer<typeof ResidentDataSchema>> {
   try {
-    const idToken = await getVerifiedSessionCookie()
-    if (!idToken) throw new Error('Failed to verify session token')
-    const userRoles: string[] = idToken.claims.roles || []
+    const authenticatedApp = await getAuthenticatedAppAndClaims()
+    if (!authenticatedApp) throw new Error('Failed to authenticate session')
+    const { app, idToken } = authenticatedApp
+    const userRoles: string[] = (idToken?.roles as string[]) || []
 
     const residentsColRef = collectionWrapper(
+      app,
       'providers/GYRHOME/residents',
     ).withConverter(createResidentConverter(userRoles))
     const residentSnap = await residentsColRef.doc(documentId).get()
@@ -44,7 +46,10 @@ export async function getResidentData(
         'Object is not of type Resident  -- Tag:16: ' + error.message,
       )
     }
-    const facilitySnap = await collectionWrapper('providers/GYRHOME/facilities')
+    const facilitySnap = await collectionWrapper(
+      app,
+      'providers/GYRHOME/facilities',
+    )
       .withConverter(facilityConverter)
       .doc(validatedResident.facility_id)
       .get()
@@ -61,7 +66,12 @@ export async function getResidentData(
 
 export async function getResidents() {
   try {
-    const residentsCollection = collectionWrapper('residents')
+    const authenticatedApp = await getAuthenticatedAppAndClaims()
+    if (!authenticatedApp) throw new Error('Failed to authenticate session')
+    const { app, idToken } = authenticatedApp
+    const userRoles: string[] = (idToken.claims?.roles as string[]) || []
+
+    const residentsCollection = collectionWrapper(app, 'residents')
     const residentsSnap = await residentsCollection.get()
     return residentsSnap.docs.map((doc) => {
       const resident = doc.data()
@@ -82,7 +92,12 @@ export async function getResidents() {
 
 export async function getAllFacilities() {
   try {
+    const authenticatedApp = await getAuthenticatedAppAndClaims()
+    if (!authenticatedApp) throw new Error('Failed to authenticate session')
+    const { app } = authenticatedApp
+
     const facilitiesCollection = collectionWrapper(
+      app,
       'providers/GYRHOME/facilities',
     )
     const facilitiesSnap = await facilitiesCollection.get()
@@ -109,11 +124,13 @@ export async function getAllResidentsData(
   limit?: number,
 ) {
   try {
-    const idToken = await getVerifiedSessionCookie()
-    if (!idToken) throw new Error('Failed to verify session token')
-    const userRoles: string[] = idToken.roles || []
+    const authenticatedApp = await getAuthenticatedAppAndClaims()
+    if (!authenticatedApp) throw new Error('Failed to authenticate session')
+    const { app, idToken } = authenticatedApp
+    const userRoles: string[] = (idToken?.roles as string[]) || []
 
     const residentsCollection = collectionWrapper(
+      app,
       `providers/GYRHOME/residents`,
     ).withConverter(createResidentConverter(userRoles))
 
@@ -124,21 +141,24 @@ export async function getAllResidentsData(
     // 2. Get the paginated documents if pagination arguments are provided
     let collectionQuery = queryWrapper(
       residentsCollection,
-      limit ? limitQuery(limit) : null,
+      limit ? limitQuery(limit) : null, // limitQuery and startAfter are not directly available in firestore-server.ts
       lastDoc ? startAfter(lastDoc) : null,
     )
     // if (page && limit)
     //   collectionQuery = residentsCollection
     //     .limit(limit)
     //     .offset((page - 1) * limit) as any
-    const residentsSnapshot = await getDocsWrapper(collectionQuery)
+    const residentsSnapshot = await getDocsWrapper<Resident, Resident>(
+      collectionQuery,
+    )
     const residentsForPage = residentsSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }))
 
     // 3. Fetch facility data only for the residents on the current page
-    const facilitiesCollection = collectionWrapper(
+    const facilitiesCollection = collectionWrapper<Facility>(
+      app,
       'providers/GYRHOME/facilities',
     ).withConverter(facilityConverter)
     const facilitiesData = await getDocsWrapper(facilitiesCollection)
