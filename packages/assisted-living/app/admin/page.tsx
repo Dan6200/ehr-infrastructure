@@ -16,7 +16,7 @@ export default async function Home({
     LIMIT,
   ).catch(async (e) => {
     if (e.toString().match(/(session|cookie)/i))
-      await fetch('/api/auth/logout', {
+      await fetch(`${process.env.URL}:${process.env.PORT}/api/auth/logout`, {
         method: 'post',
       }).then(async (result) => {
         if (result.status === 200) redirect('/sign-in') // Navigate to the login page
