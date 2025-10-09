@@ -12,7 +12,7 @@ export default async function Home({
   const LIMIT = 25
 
   const { residents, total } = await getAllResidentsData(
-    currentPage,
+    currentPage - 1,
     LIMIT,
   ).catch(async (e) => {
     if (e.toString().match(/(session|cookie)/i))
