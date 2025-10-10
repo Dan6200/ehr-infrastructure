@@ -1,4 +1,3 @@
-'use server'
 import { KeyManagementServiceClient } from '@google-cloud/kms'
 import * as crypto from 'crypto'
 import { execSync } from 'child_process'
@@ -36,20 +35,20 @@ const KMS_PROJECT_ID = getKmsConfig(
 const KMS_LOCATION = getKmsConfig('KMS_LOCATION', 'echo europe-west1')
 const KMS_KEY_RING = getKmsConfig(
   'KMS_KEY_RING',
-  `gcloud kms keyrings list --location=${KMS_LOCATION} --project=${KMS_PROJECT_ID} --filter="name=assisted-living" --format="value(name)"`,
+  `gcloud kms keyrings list --location=${KMS_LOCATION} --project=${KMS_PROJECT_ID} --filter="name:assisted-living" --format="value(name)"`,
 )
 
 export const KEK_GENERAL_PATH = getKmsConfig(
   'KEK_GENERAL_PATH',
-  `gcloud kms keys list --keyring=${KMS_KEY_RING} --location=${KMS_LOCATION} --project=${KMS_PROJECT_ID} --filter="name=kek-general" --format="value(name)"`,
+  `gcloud kms keys list --keyring=${KMS_KEY_RING} --location=${KMS_LOCATION} --project=${KMS_PROJECT_ID} --filter="name:kek-general" --format="value(name)"`,
 )
 export const KEK_CONTACT_PATH = getKmsConfig(
   'KEK_CONTACT_PATH',
-  `gcloud kms keys list --keyring=${KMS_KEY_RING} --location=${KMS_LOCATION} --project=${KMS_PROJECT_ID} --filter="name=kek-contact" --format="value(name)"`,
+  `gcloud kms keys list --keyring=${KMS_KEY_RING} --location=${KMS_LOCATION} --project=${KMS_PROJECT_ID} --filter="name:kek-contact" --format="value(name)"`,
 )
 export const KEK_CLINICAL_PATH = getKmsConfig(
   'KEK_CLINICAL_PATH',
-  `gcloud kms keys list --keyring=${KMS_KEY_RING} --location=${KMS_LOCATION} --project=${KMS_PROJECT_ID} --filter="name=kek-clinical" --format="value(name)"`,
+  `gcloud kms keys list --keyring=${KMS_KEY_RING} --location=${KMS_LOCATION} --project=${KMS_PROJECT_ID} --filter="name:kek-clinical" --format="value(name)"`,
 )
 
 const kmsClient = new KeyManagementServiceClient()
