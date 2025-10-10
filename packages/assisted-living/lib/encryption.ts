@@ -1,3 +1,4 @@
+'use server'
 import { KeyManagementServiceClient } from '@google-cloud/kms'
 import * as crypto from 'crypto'
 import { execSync } from 'child_process'
@@ -38,44 +39,32 @@ const KMS_KEY_RING = getKmsConfig(
   `gcloud kms keyrings list --location=${KMS_LOCATION} --project=${KMS_PROJECT_ID} --filter="name=assisted-living" --format="value(name)"`,
 )
 
-export const KEK_GENERAL_NAME = getKmsConfig(
-  'KEK_GENERAL_NAME',
+export const KEK_GENERAL_PATH = getKmsConfig(
+  'KEK_GENERAL_PATH',
   `gcloud kms keys list --keyring=${KMS_KEY_RING} --location=${KMS_LOCATION} --project=${KMS_PROJECT_ID} --filter="name=kek-general" --format="value(name)"`,
 )
-export const KEK_CONTACT_NAME = getKmsConfig(
-  'KEK_CONTACT_NAME',
+export const KEK_CONTACT_PATH = getKmsConfig(
+  'KEK_CONTACT_PATH',
   `gcloud kms keys list --keyring=${KMS_KEY_RING} --location=${KMS_LOCATION} --project=${KMS_PROJECT_ID} --filter="name=kek-contact" --format="value(name)"`,
 )
-export const KEK_CLINICAL_NAME = getKmsConfig(
-  'KEK_CLINICAL_NAME',
+export const KEK_CLINICAL_PATH = getKmsConfig(
+  'KEK_CLINICAL_PATH',
   `gcloud kms keys list --keyring=${KMS_KEY_RING} --location=${KMS_LOCATION} --project=${KMS_PROJECT_ID} --filter="name=kek-clinical" --format="value(name)"`,
 )
 
 const kmsClient = new KeyManagementServiceClient()
 
-// Helper function to get the full KEK path
-function getKekPath(kekName: string): string {
-  return kmsClient.cryptoKeyPath(
-    KMS_PROJECT_ID,
-    KMS_LOCATION,
-    KMS_KEY_RING,
-    kekName,
-  )
-}
-
 // --- DEK Generation and Wrapping/Unwrapping ---
 
 /**
  * Generates a new Data Encryption Key (DEK) and encrypts it with the specified KEK.
- * @param kekName The name of the KEK to use for wrapping the DEK.
+ * @param kekPath The name of the KEK to use for wrapping the DEK.
  * @returns A tuple containing the plaintext DEK (as Buffer) and the encrypted DEK (as Buffer).
  */
-export async function generateDataKey(kekName: string): Promise<{
+export async function generateDataKey(kekPath: string): Promise<{
   plaintextDek: Buffer
   encryptedDek: Buffer | string | Uint8Array
 }> {
-  const kekPath = getKekPath(kekName)
-
   // Generate a new 256-bit (32-byte) AES key
   const plaintextDek = crypto.randomBytes(32)
 
@@ -95,15 +84,13 @@ export async function generateDataKey(kekName: string): Promise<{
 /**
  * Decrypts an encrypted Data Encryption Key (DEK) using the specified KEK.
  * @param encryptedDek The encrypted DEK (as Buffer).
- * @param kekName The name of the KEK used to wrap the DEK.
+ * @param kekPath The name of the KEK used to wrap the DEK.
  * @returns The plaintext DEK (as Buffer).
  */
 export async function decryptDataKey(
   encryptedDek: Buffer | string | Uint8Array,
-  kekName: string,
+  kekPath: string,
 ): Promise<Buffer | string | Uint8Array> {
-  const kekPath = getKekPath(kekName)
-
   const [decryptResponse] = await kmsClient.decrypt({
     name: kekPath,
     ciphertext: encryptedDek,
@@ -186,4 +173,3 @@ export function decryptData(
 
 // Export the KMS client for direct use if needed (e.g., for testing)
 export { kmsClient }
-
