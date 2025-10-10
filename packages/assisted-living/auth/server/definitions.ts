@@ -1,7 +1,7 @@
 'use server'
 import { initializeServerApp } from 'firebase/app'
 import { cookies, headers } from 'next/headers'
-import { firebaseConfig } from '../../config'
+import { firebaseConfig } from '@/firebase/config'
 
 // Environment variables for Cloud Function URLs
 const REVOKE_SESSIONS_FUNCTION_URL = process.env.REVOKE_SESSIONS_FUNCTION_URL

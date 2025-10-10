@@ -4,7 +4,7 @@ import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
 import { getAnalytics, isSupported } from 'firebase/analytics'
 
 const appName = 'lean-ehr-assisted-living-client'
-import { firebaseConfig } from '../../config'
+import { firebaseConfig } from '@/firebase/config'
 
 let databaseId: string | undefined = undefined
 if (process.env.VERCEL_ENV === 'preview') {
@@ -16,7 +16,6 @@ let clientApp = getApps().find((app) => app?.name === appName)
 if (typeof window !== 'undefined' && !clientApp) {
   clientApp = initializeApp(firebaseConfig, appName)
 }
-console.log('client app', clientApp)
 
 export const analytics = (async () => {
   if (typeof window !== 'undefined' && (await isSupported()))
