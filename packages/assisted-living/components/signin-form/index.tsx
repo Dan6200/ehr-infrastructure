@@ -16,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/use-toast'
 import { useRouter } from 'next/navigation'
-import { signInWithEmailAndPasswordWrapper } from '@/firebase/auth/client/definitions'
+import { signInWithEmailAndPasswordWrapper } from '@/auth/client/definitions'
 import { User } from 'firebase/auth'
 // TODO; see if you can rewrite with useActionState instead of RHF, or even both!!!
 

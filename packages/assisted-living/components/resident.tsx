@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 import { onAuthStateChanged, User } from 'firebase/auth'
-import { auth } from '@/firebase/auth/client/config'
+import { auth } from '@/auth/client/config'
 
 function ResidentInfoRow({
   label,

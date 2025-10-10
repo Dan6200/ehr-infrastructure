@@ -2,7 +2,7 @@
 import { collectionWrapper } from '@/firebase/firestore'
 import db from '@/firebase/server/config'
 import { Resident, createResidentConverter } from '@/types'
-import { verifySessionCookie } from '@/firebase/auth/server/definitions'
+import { verifySessionCookie } from '@/auth/server/definitions'
 
 export async function addNewResident(
   residentData: Omit<Resident, 'resident_id'>,

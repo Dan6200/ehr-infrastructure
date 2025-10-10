@@ -2,7 +2,7 @@
 import { collectionWrapper } from '@/firebase/firestore-server'
 import { Resident, createResidentConverter } from '@/types'
 import { notFound } from 'next/navigation'
-import { getAuthenticatedAppAndClaims } from '@/firebase/auth/server/definitions'
+import { getAuthenticatedAppAndClaims } from '@/auth/server/definitions'
 
 export async function updateResident(
   newResidentData: Resident,

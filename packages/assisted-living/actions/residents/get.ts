@@ -18,7 +18,7 @@ import {
 } from '@/types'
 import { notFound } from 'next/navigation'
 import { z } from 'zod'
-import { getAuthenticatedAppAndClaims } from '@/firebase/auth/server/definitions'
+import { getAuthenticatedAppAndClaims } from '@/auth/server/definitions'
 import { DocumentReference } from 'firebase/firestore'
 
 // Use a DTO for resident data

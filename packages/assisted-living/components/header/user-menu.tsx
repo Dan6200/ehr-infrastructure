@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { QrCode, SearchIcon, UserRound, UserRoundPlus } from 'lucide-react'
 import React, { MouseEventHandler, MouseEvent } from 'react'
-import { signOutWrapper } from '@/firebase/auth/client/definitions'
+import { signOutWrapper } from '@/auth/client/definitions'
 import { toast } from '@/components/ui/use-toast'
 import { useRouter } from 'next/navigation'
 

@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { auth } from '@/firebase/auth/client/config'
+import { auth } from '@/auth/client/config'
 import { ResidentData } from '@/types'
 import { onAuthStateChanged, User } from 'firebase/auth'
 import Link from 'next/link'

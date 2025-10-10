@@ -1,6 +1,6 @@
 'use server'
 
-import { createUserWithEmailAndPasswordWrapper } from '@/firebase/auth/client/definitions'
+import { createUserWithEmailAndPasswordWrapper } from '@/auth/client/definitions'
 
 export async function addAdmin(data: { email: string; password: string }) {
   return createUserWithEmailAndPasswordWrapper(data.email, data.password)

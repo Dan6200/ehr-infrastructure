@@ -6,7 +6,7 @@ import { getAllResidentsData } from '@/actions/residents/get'
 import { ResidentData } from '@/types'
 import Search from './search/index'
 import { toast } from '@/components/ui/use-toast'
-import { auth } from '@/firebase/auth/client/config'
+import { auth } from '@/auth/client/config'
 import { UserMenu } from './user-menu'
 
 export const SEARCHBOX_WIDTH = 'w-full md:w-[40vw]'
