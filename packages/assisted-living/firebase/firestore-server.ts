@@ -1,3 +1,4 @@
+'use server'
 import { FirebaseApp } from 'firebase/app'
 import {
   getFirestore,
@@ -17,12 +18,11 @@ import {
   connectFirestoreEmulator,
   Firestore,
 } from 'firebase/firestore'
-export { startAfter, limit as limitQuery } from 'firebase/firestore'
 
 // Firestore instance for server-side operations within a user's context
 let _db: ReturnType<typeof getFirestore> | undefined
 
-export function getFirestoreServer(app: FirebaseApp) {
+function getFirestoreServer(app: FirebaseApp) {
   if (!_db) {
     _db = getFirestore(app)
 
@@ -46,10 +46,10 @@ export function getFirestoreServer(app: FirebaseApp) {
   return _db
 }
 
-export const collectionWrapper = <T = DocumentData>(
+export const collectionWrapper = async <T = DocumentData>(
   app: FirebaseApp,
   path: string,
-): CollectionReference<T> => {
+) => {
   try {
     const db = getFirestoreServer(app)
     return collection(db, path) as CollectionReference<T>
@@ -128,7 +128,7 @@ export const deleteDocWrapper = async <T, U extends DocumentData>(
   })
 }
 
-export const queryWrapper = <T, U extends DocumentData>(
+export const queryWrapper = async <T, U extends DocumentData>(
   _query: Query<T, U>,
   ...constraints: QueryConstraint[]
 ) => {
