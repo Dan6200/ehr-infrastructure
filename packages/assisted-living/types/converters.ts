@@ -27,7 +27,7 @@ import {
 
 // --- Converters ---
 // Synchronous converter for Facility data
-export const facilityConverter: FirestoreDataConverter<Facility> = {
+const facilityConverter: FirestoreDataConverter<Facility> = {
   toFirestore(facility: Facility): DocumentData {
     return FacilitySchema.parse(facility)
   },
