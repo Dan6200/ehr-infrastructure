@@ -513,3 +513,12 @@ export const createResidentConverter = (
     return ResidentSchema.parse(decryptedData)
   },
 })
+
+export const facilityConverter: FirestoreDataConverter<Facility> = {
+  toFirestore(contact: Facility): DocumentData {
+    return FacilitySchema.parse(contact)
+  },
+  fromFirestore(snapshot: QueryDocumentSnapshot): Facility {
+    return FacilitySchema.parse(snapshot.data())
+  },
+}
