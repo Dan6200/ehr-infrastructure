@@ -25,160 +25,162 @@ import {
   ResidentSchema,
 } from '.'
 
-export const getResidentConverter = async (): Promise<
-  FirestoreDataConverter<Resident | EncryptedResident>
-> => ({
-  async toFirestore(resident: Resident): Promise<DocumentData> {
-    // <--- Made async
-    const dataToEncrypt: any = { ...resident }
-    const encryptedData: any = {}
-
-    // Unencrypted fields
-    encryptedData.facility_id = dataToEncrypt.facility_id
-    encryptedData.room_no = dataToEncrypt.room_no
-
-    // Generate DEKs and encrypt them
-    const { plaintextDek: generalDek, encryptedDek: encryptedDekGeneral } =
-      await generateDataKey(KEK_GENERAL_PATH)
-    const { plaintextDek: contactDek, encryptedDek: encryptedDekContact } =
-      await generateDataKey(KEK_CONTACT_PATH)
-    const { plaintextDek: clinicalDek, encryptedDek: encryptedDekClinical } =
-      await generateDataKey(KEK_CLINICAL_PATH)
-
-    encryptedData.encrypted_dek_general = encryptedDekGeneral.toString('base64')
-    encryptedData.encrypted_dek_contact = encryptedDekContact.toString('base64')
-    encryptedData.encrypted_dek_clinical =
-      encryptedDekClinical.toString('base64')
-
-    // Encrypt General Data
-    if (dataToEncrypt.resident_name) {
-      const { ciphertext, iv, authTag } = encryptData(
-        dataToEncrypt.resident_name,
-        generalDek,
-      )
-      encryptedData.encrypted_resident_name = {
-        ciphertext: ciphertext.toString('base64'),
-        iv: iv.toString('base64'),
-        authTag: authTag.toString('base64'),
-      }
-    }
-    if (dataToEncrypt.avatar_url) {
-      const { ciphertext, iv, authTag } = encryptData(
-        dataToEncrypt.avatar_url,
-        generalDek,
-      )
-      encryptedData.encrypted_avatar_url = {
-        ciphertext: ciphertext.toString('base64'),
-        iv: iv.toString('base64'),
-        authTag: authTag.toString('base64'),
-      }
-    }
-
-    // Encrypt Contact Data
-    if (dataToEncrypt.dob) {
-      const { ciphertext, iv, authTag } = encryptData(
-        dataToEncrypt.dob,
-        contactDek,
-      )
-      encryptedData.encrypted_dob = {
-        ciphertext: ciphertext.toString('base64'),
-        iv: iv.toString('base64'),
-        authTag: authTag.toString('base64'),
-      }
-    }
-    if (dataToEncrypt.emergency_contacts) {
-      encryptedData.emergency_contacts = await Promise.all(
-        dataToEncrypt.emergency_contacts.map(async (contact: any) => {
-          const encryptedContact: any = {}
-          if (contact.contact_name) {
-            const { ciphertext, iv, authTag } = encryptData(
-              contact.contact_name,
-              contactDek,
-            )
-            encryptedContact.encrypted_contact_name = {
-              ciphertext: ciphertext.toString('base64'),
-              iv: iv.toString('base64'),
-              authTag: authTag.toString('base64'),
-            }
-          }
-          if (contact.cell_phone) {
-            const { ciphertext, iv, authTag } = encryptData(
-              contact.cell_phone,
-              contactDek,
-            )
-            encryptedContact.encrypted_cell_phone = {
-              ciphertext: ciphertext.toString('base64'),
-              iv: iv.toString('base64'),
-              authTag: authTag.toString('base64'),
-            }
-          }
-          if (contact.work_phone) {
-            const { ciphertext, iv, authTag } = encryptData(
-              contact.work_phone,
-              contactDek,
-            )
-            encryptedContact.encrypted_work_phone = {
-              ciphertext: ciphertext.toString('base64'),
-              iv: iv.toString('base64'),
-              authTag: authTag.toString('base64'),
-            }
-          }
-          if (contact.home_phone) {
-            const { ciphertext, iv, authTag } = encryptData(
-              contact.home_phone,
-              contactDek,
-            )
-            encryptedContact.encrypted_home_phone = {
-              ciphertext: ciphertext.toString('base64'),
-              iv: iv.toString('base64'),
-              authTag: authTag.toString('base64'),
-            }
-          }
-          if (contact.relationship) {
-            encryptedContact.encrypted_relationship = contact.relationship.map(
-              (r: string) => {
-                const { ciphertext, iv, authTag } = encryptData(r, contactDek)
-                return {
-                  ciphertext: ciphertext.toString('base64'),
-                  iv: iv.toString('base64'),
-                  authTag: authTag.toString('base64'),
-                }
-              },
-            )
-          }
-          return EncryptedEmergencyContactSchema.parse(encryptedContact)
-        }),
-      )
-    }
-
-    // Encrypt Clinical Data
-    if (dataToEncrypt.pcp) {
-      const { ciphertext, iv, authTag } = encryptData(
-        dataToEncrypt.pcp,
-        clinicalDek,
-      )
-      encryptedData.encrypted_pcp = {
-        ciphertext: ciphertext.toString('base64'),
-        iv: iv.toString('base64'),
-        authTag: authTag.toString('base64'),
-      }
-    }
-
-    return EncryptedResidentSchema.parse(encryptedData)
+// --- Converters ---
+// Synchronous converter for Facility data
+export const facilityConverter: FirestoreDataConverter<Facility> = {
+  toFirestore(facility: Facility): DocumentData {
+    return FacilitySchema.parse(facility)
   },
-
-  fromFirestore(
-    snapshot: QueryDocumentSnapshot<DocumentData>,
-  ): EncryptedResident {
-    const data = snapshot.data()
-    return EncryptedResidentSchema.parse(data)
+  fromFirestore(snapshot: QueryDocumentSnapshot): Facility {
+    return FacilitySchema.parse(snapshot.data())
   },
-})
+}
 
+// Asynchronous function to encrypt a Resident object
+export async function encryptResident(
+  resident: Resident,
+): Promise<EncryptedResident> {
+  const dataToEncrypt: any = { ...resident }
+  const encryptedData: any = {}
+
+  // Unencrypted fields
+  encryptedData.facility_id = dataToEncrypt.facility_id
+  encryptedData.room_no = dataToEncrypt.room_no
+
+  // Generate DEKs and encrypt them
+  const { plaintextDek: generalDek, encryptedDek: encryptedDekGeneral } =
+    await generateDataKey(KEK_GENERAL_PATH)
+  const { plaintextDek: contactDek, encryptedDek: encryptedDekContact } =
+    await generateDataKey(KEK_CONTACT_PATH)
+  const { plaintextDek: clinicalDek, encryptedDek: encryptedDekClinical } =
+    await generateDataKey(KEK_CLINICAL_PATH)
+
+  encryptedData.encrypted_dek_general = encryptedDekGeneral.toString('base64')
+  encryptedData.encrypted_dek_contact = encryptedDekContact.toString('base64')
+  encryptedData.encrypted_dek_clinical = encryptedDekClinical.toString('base64')
+
+  // Encrypt General Data
+  if (dataToEncrypt.resident_name) {
+    const { ciphertext, iv, authTag } = encryptData(
+      dataToEncrypt.resident_name,
+      generalDek,
+    )
+    encryptedData.encrypted_resident_name = {
+      ciphertext: ciphertext.toString('base64'),
+      iv: iv.toString('base64'),
+      authTag: authTag.toString('base64'),
+    }
+  }
+  if (dataToEncrypt.avatar_url) {
+    const { ciphertext, iv, authTag } = encryptData(
+      dataToEncrypt.avatar_url,
+      generalDek,
+    )
+    encryptedData.encrypted_avatar_url = {
+      ciphertext: ciphertext.toString('base64'),
+      iv: iv.toString('base64'),
+      authTag: authTag.toString('base64'),
+    }
+  }
+
+  // Encrypt Contact Data
+  if (dataToEncrypt.dob) {
+    const { ciphertext, iv, authTag } = encryptData(
+      dataToEncrypt.dob,
+      contactDek,
+    )
+    encryptedData.encrypted_dob = {
+      ciphertext: ciphertext.toString('base64'),
+      iv: iv.toString('base64'),
+      authTag: authTag.toString('base64'),
+    }
+  }
+  if (dataToEncrypt.emergency_contacts) {
+    encryptedData.emergency_contacts = await Promise.all(
+      dataToEncrypt.emergency_contacts.map(async (contact: any) => {
+        const encryptedContact: any = {}
+        if (contact.contact_name) {
+          const { ciphertext, iv, authTag } = encryptData(
+            contact.contact_name,
+            contactDek,
+          )
+          encryptedContact.encrypted_contact_name = {
+            ciphertext: ciphertext.toString('base64'),
+            iv: iv.toString('base64'),
+            authTag: authTag.toString('base64'),
+          }
+        }
+        if (contact.cell_phone) {
+          const { ciphertext, iv, authTag } = encryptData(
+            contact.cell_phone,
+            contactDek,
+          )
+          encryptedContact.encrypted_cell_phone = {
+            ciphertext: ciphertext.toString('base64'),
+            iv: iv.toString('base64'),
+            authTag: authTag.toString('base64'),
+          }
+        }
+        if (contact.work_phone) {
+          const { ciphertext, iv, authTag } = encryptData(
+            contact.work_phone,
+            contactDek,
+          )
+          encryptedContact.encrypted_work_phone = {
+            ciphertext: ciphertext.toString('base64'),
+            iv: iv.toString('base64'),
+            authTag: authTag.toString('base64'),
+          }
+        }
+        if (contact.home_phone) {
+          const { ciphertext, iv, authTag } = encryptData(
+            contact.home_phone,
+            contactDek,
+          )
+          encryptedContact.encrypted_home_phone = {
+            ciphertext: ciphertext.toString('base64'),
+            iv: iv.toString('base64'),
+            authTag: authTag.toString('base64'),
+          }
+        }
+        if (contact.relationship) {
+          encryptedContact.encrypted_relationship = contact.relationship.map(
+            (r: string) => {
+              const { ciphertext, iv, authTag } = encryptData(r, contactDek)
+              return {
+                ciphertext: ciphertext.toString('base64'),
+                iv: iv.toString('base64'),
+                authTag: authTag.toString('base64'),
+              }
+            },
+          )
+        }
+        return EncryptedEmergencyContactSchema.parse(encryptedContact)
+      }),
+    )
+  }
+
+  // Encrypt Clinical Data
+  if (dataToEncrypt.pcp) {
+    const { ciphertext, iv, authTag } = encryptData(
+      dataToEncrypt.pcp,
+      clinicalDek,
+    )
+    encryptedData.encrypted_pcp = {
+      ciphertext: ciphertext.toString('base64'),
+      iv: iv.toString('base64'),
+      authTag: authTag.toString('base64'),
+    }
+  }
+
+  return EncryptedResidentSchema.parse(encryptedData)
+}
+
+// Asynchronous function to decrypt a Resident object based on user roles
 export async function decryptResidentData(
   data: EncryptedResident,
   roles: string[],
-) {
+): Promise<Resident> {
   // Unencrypted fields
   const decryptedData: Resident = {} as Resident
   decryptedData.facility_id = data.facility_id
@@ -192,12 +194,7 @@ export async function decryptResidentData(
   // convert to uppercase if not...
   const userRoles = roles.map((role) => role.toUpperCase())
 
-  // Role-based DEK decryption (simplified for demonstration)
-  // In a real app, userRoles would come from authenticated context (e.g., Firebase Auth custom claims)
-  // and permissions would be checked against KMS IAM policies.
-  // For now, we'll assume userRoles are passed to the converter.
-
-  // General Data (accessible by all roles)
+  // Role-based DEK decryption
   if (
     userRoles.includes('ADMIN') ||
     userRoles.includes('CLINICIAN') ||
@@ -216,7 +213,6 @@ export async function decryptResidentData(
     }
   }
 
-  // Contact Data (accessible by ADMIN, CLINICIAN, CAREGIVER)
   if (
     userRoles.includes('ADMIN') ||
     userRoles.includes('CLINICIAN') ||
@@ -234,7 +230,6 @@ export async function decryptResidentData(
     }
   }
 
-  // Clinical Data (accessible by ADMIN, CLINICIAN)
   if (userRoles.includes('ADMIN') || userRoles.includes('CLINICIAN')) {
     if (data.encrypted_dek_clinical) {
       try {
@@ -387,7 +382,7 @@ export async function decryptResidentData(
             console.error('Failed to decrypt home_phone:', e)
           }
         }
-        if (contact.relationship) {
+        if (contact.encrypted_relationship) {
           decryptedContact.relationship = contact.encrypted_relationship
             .map((r: any) => {
               try {
@@ -430,14 +425,24 @@ export async function decryptResidentData(
   return ResidentSchema.parse(decryptedData)
 }
 
-const facilityConverter: FirestoreDataConverter<Facility> = {
-  toFirestore(contact: Facility): DocumentData {
-    return FacilitySchema.parse(contact)
+export const getResidentConverter = async (): Promise<
+  FirestoreDataConverter<EncryptedResident, Resident>
+> => ({
+  toFirestore(resident: unknown): Resident {
+    // This is now synchronous and will not encrypt the data.
+    // Encryption must be handled by calling `encryptResident` before `toFirestore`.
+    return ResidentSchema.parse(resident)
   },
-  fromFirestore(snapshot: QueryDocumentSnapshot): Facility {
-    return FacilitySchema.parse(snapshot.data())
+
+  fromFirestore(
+    snapshot: QueryDocumentSnapshot<DocumentData>,
+  ): EncryptedResident {
+    // This is now synchronous and will not decrypt the data.
+    // Encryption must be handled by calling `decryptResident` before `fromFirestore`.
+    const data = snapshot.data()
+    return EncryptedResidentSchema.parse(data)
   },
-}
+})
 
 export const getFacilityConverter = async function () {
   return facilityConverter
