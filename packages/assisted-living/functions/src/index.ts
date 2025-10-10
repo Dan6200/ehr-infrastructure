@@ -18,7 +18,7 @@ export const setCustomUserRole = onRequest(async (request, response) => {
   const role = request.query.role as string
 
   if (!uid || !role) {
-    response.status(400).send('Missing UID or Role parameter.')
+    response.status(400).send({ error: 'Missing UID or Role parameter.' })
     return
   }
 
@@ -39,10 +39,14 @@ export const setCustomUserRole = onRequest(async (request, response) => {
     const user = await admin.auth().getUser(uid)
     logger.info(`Custom claims set for user ${uid}:`, user.customClaims)
 
-    response.status(200).send(`Custom role '${role}' set for user ${uid}.`)
+    response
+      .status(200)
+      .send({ error: `Custom role '${role}' set for user ${uid}.` })
   } catch (error: any) {
     logger.error('Error setting custom user claims:', error)
-    response.status(500).send(`Error setting custom role: ${error.message}`)
+    response
+      .status(500)
+      .send({ error: `Error setting custom role: ${error.message}` })
   }
 })
 
@@ -53,13 +57,13 @@ export const revokeAllSessionsFunction = onRequest(
     })
 
     if (request.method !== 'POST') {
-      response.status(405).send('Method Not Allowed')
+      response.status(405).json({ error: 'Method Not Allowed' })
       return
     }
 
     const uid = request.body.uid
     if (!uid) {
-      response.status(400).send('Missing UID in request body.')
+      response.status(400).json({ error: 'Missing UID in request body.' })
       return
     }
 
@@ -86,14 +90,16 @@ export const verifySessionCookieFunction = onRequest(
     })
 
     if (request.method !== 'POST') {
-      response.status(405).send('Method Not Allowed')
+      response.status(405).json({ error: 'Method Not Allowed' })
       return
     }
 
     const sessionCookie = request.body.sessionCookie
 
     if (!sessionCookie) {
-      response.status(400).send('Missing sessionCookie in request body.')
+      response
+        .status(400)
+        .json({ error: 'Missing sessionCookie in request body.' })
       return
     }
 
@@ -118,14 +124,16 @@ export const verifySessionCookieAndCreateCustomTokenFunction = onRequest(
     })
 
     if (request.method !== 'POST') {
-      response.status(405).send('Method Not Allowed')
+      response.status(405).send({ error: 'Method Not Allowed' })
       return
     }
 
     const sessionCookie = request.body.sessionCookie
 
     if (!sessionCookie) {
-      response.status(400).send('Missing sessionCookie in request body.')
+      response
+        .status(400)
+        .send({ error: 'Missing sessionCookie in request body.' })
       return
     }
 
