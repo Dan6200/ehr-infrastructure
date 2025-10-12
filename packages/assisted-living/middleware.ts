@@ -14,7 +14,10 @@ const PROTECTED_PATHS = ['/admin']
  */
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
-  const sessionVerified = !!(await getVerifiedSessionCookie())
+  const authorizationHeader = request.headers.get('Authorization')
+  const sessionVerified = authorizationHeader
+    ? true
+    : !!(await getVerifiedSessionCookie())
 
   const isPublicPath = PUBLIC_PATHS.includes(pathname)
   const isProtectedPath = PROTECTED_PATHS.some((path) =>
