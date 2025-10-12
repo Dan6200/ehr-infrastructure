@@ -1,12 +1,43 @@
 import { NextResponse, NextRequest } from 'next/server'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
+import { initializeServerApp } from 'firebase/app'
+import { firebaseConfig } from '@/firebase/config'
+import { connectAuthEmulator, getAuth } from 'firebase/auth'
 
 const SESSION_EXPIRY_MS = 3600 * 1000
 const CREATE_SESSION_COOKIE_FUNCTION_URL =
   process.env.CREATE_SESSION_COOKIE_FUNCTION_URL!
+const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!
 
 export async function POST(request: NextRequest) {
+  // 1. Try to get ID token from Authorization header (Service Worker path)
+  const authorizationHeader = (await headers()).get('Authorization')
+  const authIdToken = authorizationHeader?.split('Bearer ')[1]
+  if (authIdToken) {
+    try {
+      const serverApp = initializeServerApp(firebaseConfig, {
+        authIdToken,
+        releaseOnDeref: headers(),
+      })
+
+      const serverAuth = getAuth(serverApp)
+      if (process.env.NODE_ENV === 'development')
+        try {
+          connectAuthEmulator(serverAuth, authHost) // Always throws an error due to race-conditions
+        } catch {}
+
+      await serverAuth.authStateReady()
+      return NextResponse.json(
+        { message: 'Session cookie set successfully' },
+        { status: 200 },
+      )
+    } catch (error) {
+      console.error('Failed to initialize FirebaseServerApp: ', error)
+    }
+  }
+
   try {
+    console.log('using session cookies instead')
     const { idToken } = await request.json()
     const cookieStore = await cookies()
 
@@ -30,7 +61,7 @@ export async function POST(request: NextRequest) {
     const sessionCookie = result
     cookieStore.set('__session', sessionCookie, {
       maxAge: SESSION_EXPIRY_MS / 1000, // Convert MS to seconds
-      httpOnly: true, // Crucial: Prevents client-side JS access (XSS mitigation)
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // Use secure in production
       path: '/',
       sameSite: 'strict',
