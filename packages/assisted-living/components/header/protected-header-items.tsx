@@ -25,7 +25,13 @@ export default function ProtectedHeaderItems() {
       if (currentUser) {
         // User is logged in, fetch the rooms
         const { residents } = await getAllResidentsData(0, 1000).catch((e) => {
-          if (e.toString().match(/(session|cookie)/i)) router.push('/sign-in')
+          if (e.toString().match(/(session|cookie)/i)) {
+            return fetch('/api/auth/logout', {
+              method: 'post',
+            }).then(async (result) => {
+              if (result.status === 200) router.push('/sign-in') // Navigate to the login page
+            })
+          }
           console.error('Failed to Fetch Residents -- Tag:14.\n\t' + e)
           return null
         })
@@ -33,8 +39,12 @@ export default function ProtectedHeaderItems() {
       } else {
         // User is not logged in
         setResidentsData(null)
-        if (!pathname.startsWith('/admin') && pathname !== '/sign-in') {
-          router.push('/sign-in')
+        if (pathname.startsWith('/admin') && pathname !== '/sign-in') {
+          return fetch('/api/auth/logout', {
+            method: 'post',
+          }).then(async (result) => {
+            if (result.status === 200) router.push('/sign-in') // Navigate to the login page
+          })
         }
       }
     })
