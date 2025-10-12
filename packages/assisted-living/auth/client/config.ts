@@ -1,6 +1,10 @@
-import { getAuth, connectAuthEmulator } from 'firebase/auth'
+import { getAuth, connectAuthEmulator, Auth } from 'firebase/auth'
 import { getApp, getApps, initializeApp } from 'firebase/app'
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
+import {
+  getFirestore,
+  connectFirestoreEmulator,
+  Firestore,
+} from 'firebase/firestore'
 import { getAnalytics, isSupported } from 'firebase/analytics'
 
 const appName = 'lean-ehr-assisted-living-client'
@@ -23,10 +27,15 @@ export const analytics = (async () => {
   return null
 })()
 
-export const auth = getAuth(getApp(appName))
-export const db = databaseId
-  ? getFirestore(getApp(appName), databaseId)
-  : getFirestore(getApp(appName))
+export let auth: Auth | null = null,
+  db: Firestore | null = null
+
+if (typeof window !== 'undefined') {
+  auth = getAuth(getApp(appName))
+  db = databaseId
+    ? getFirestore(getApp(appName), databaseId)
+    : getFirestore(getApp(appName))
+}
 
 // Connect to Firestore Emulator in development
 if (process.env.NODE_ENV === 'development') {
@@ -34,15 +43,17 @@ if (process.env.NODE_ENV === 'development') {
   const firestorePort = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_PORT
   const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!
 
-  connectFirestoreEmulator(db, firestoreHost!, Number(firestorePort!))
-  connectAuthEmulator(auth, authHost)
-  console.log('Client: Connected to Firestore and Auth emulators!')
+  if (typeof window !== 'undefined' && auth && db) {
+    connectFirestoreEmulator(db, firestoreHost!, Number(firestorePort!))
+    connectAuthEmulator(auth, authHost)
+    console.log('Client: Connected to Firestore and Auth emulators!')
+  }
 }
 
 // Register the service worker
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
   navigator.serviceWorker
-    .register('/auth-service-workers.js', { scope: '/' })
+    .register('/auth-service-worker.js', { scope: '/' })
     .then((registration) => {
       console.log('Service Worker registered with scope:', registration.scope)
     })
