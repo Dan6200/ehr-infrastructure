@@ -6,7 +6,7 @@
   "module": "nodenext",
   "scripts": {
     "dev": "NODE_OPTIONS=--max-old-space-size=4096 next dev --turbopack",
-    "dev:https": "node server.js",
+    "dev:https": "node server.cjs",
     "build": "next build",
     "build:prod": "env-cmd -f .env.production next build",
     "start": "next start",
@@ -15,7 +15,7 @@
     "lint-staged": "lint-staged",
     "prepare": "husky",
     "test": "FIRESTORE_EMULATOR_HOST=\"localhost:1027\" jest",
-    "build-service-worker": "pnpx esbuild auth-service-worker.ts --bundle --outfile=public/auth-service-worker.js",
+    "build-service-worker": "node build-sw.cjs",
     "build-web-worker": "pnpx esbuild workers/pdfWorker.ts --bundle --outfile=public/pdfWorker.js"
   },
   "lint-staged": {
@@ -50,7 +50,6 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.5.4",
     "firebase": "^10.12.2",
-    "firebase-admin": "^12.2.0",
     "firebaseui": "^6.1.0",
     "ioredis": "^5.4.1",
     "jotai": "^2.8.3",
@@ -90,6 +89,7 @@
     "@types/react-dom": "^18",
     "dotenv": "^16.4.5",
     "env-cmd": "^10.1.0",
+    "esbuild": "^0.25.10",
     "fast-csv": "^5.0.1",
     "husky": "^9.1.7",
     "jest": "^30.0.5",
