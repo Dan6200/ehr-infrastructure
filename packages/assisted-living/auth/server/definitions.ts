@@ -2,6 +2,7 @@
 import { initializeServerApp } from 'firebase/app'
 import { cookies, headers } from 'next/headers'
 import { firebaseConfig } from '@/firebase/config'
+import { connectAuthEmulator, getAuth } from 'firebase/auth'
 
 // Environment variables for Cloud Function URLs
 const REVOKE_SESSIONS_FUNCTION_URL = process.env.REVOKE_SESSIONS_FUNCTION_URL
@@ -9,6 +10,7 @@ const VERIFY_SESSION_COOKIE_AND_CREATE_CUSTOM_TOKEN_FUNCTION_URL =
   process.env.VERIFY_SESSION_COOKIE_AND_CREATE_CUSTOM_TOKEN_FUNCTION_URL
 const VERIFY_SESSION_COOKIE_FUNCTION_URL =
   process.env.VERIFY_SESSION_COOKIE_FUNCTION_URL
+const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!
 
 /**
  * Revokes all sessions for the given user by calling a Cloud Function.
@@ -31,7 +33,7 @@ export async function getRevokeSessions(uid: string) {
         result.error || 'Failed to revoke sessions via Cloud Function',
       )
     }
-    console.log(`Sessions revoked for user: ${uid}`)
+    console.info(`Sessions revoked for user: ${uid}`)
     return { success: true, message: 'Sessions revoked successfully.' }
   } catch (error: any) {
     console.error(`Error calling ${REVOKE_SESSIONS_FUNCTION_URL}:`, error)
@@ -98,8 +100,6 @@ export async function getAuthenticatedAppAndClaims(): Promise<{
   const authorizationHeader = (await headers()).get('Authorization')
   const idTokenFromHeader = authorizationHeader?.split('Bearer ')[1]
 
-  console.log('authorization header', authorizationHeader)
-
   if (idTokenFromHeader) {
     authIdToken = idTokenFromHeader // Use the original ID token for FirebaseServerApp
   }
@@ -151,6 +151,25 @@ export async function getAuthenticatedAppAndClaims(): Promise<{
         authIdToken,
         releaseOnDeref: headers(),
       })
+
+      const serverAuth = getAuth(serverApp)
+      if (process.env.NODE_ENV === 'development')
+        try {
+          connectAuthEmulator(serverAuth, authHost) // Always throws an error due to race-conditions
+        } catch {}
+
+      await serverAuth.authStateReady()
+
+      // if (!serverAuth.currentUser) { // Don't make this check
+      //   throw new Error('FirebaseServerApp: User authentication failed.')
+      // }
+
+      // If we used the session cookie path, we already have the claims.
+      // If we used the header path, we need to get them now.
+      if (!decodedIdToken) {
+        const idTokenResult = await serverAuth.currentUser.getIdTokenResult()
+        decodedIdToken = idTokenResult.claims
+      }
 
       return { app: serverApp, idToken: decodedIdToken }
     } catch (error: any) {
