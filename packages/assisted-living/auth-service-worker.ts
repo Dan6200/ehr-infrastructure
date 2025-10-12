@@ -26,6 +26,19 @@ const getBodyContent = (req) => {
   })
 }
 
+self.addEventListener('install', (event: ExtendableEvent) => {
+  // Force the waiting service worker to become the active service worker.
+  console.log('[SW] Installing new version...')
+  self.skipWaiting()
+})
+
+self.addEventListener('message', (event) => {
+  const { type } = event.data || {}
+  if (type === 'SKIP_WAITING') {
+    self.skipWaiting()
+  }
+})
+
 self.addEventListener('fetch', (event: FetchEvent) => {
   const evt = event
 
@@ -60,6 +73,7 @@ self.addEventListener('fetch', (event: FetchEvent) => {
           })
           // Add ID token to header.
           headers.append('Authorization', `Bearer ${idToken}`)
+          console.log('headers', headers.get('Authorization'))
 
           // Recreate the request with the new headers and potentially the body
           try {
@@ -93,5 +107,6 @@ self.addEventListener('fetch', (event: FetchEvent) => {
 
 // Activate event listener for the service worker
 self.addEventListener('activate', (event: ExtendableEvent) => {
+  console.log('[SW] Activating new version...')
   event.waitUntil(clients.claim())
 })
