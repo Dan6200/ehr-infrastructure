@@ -43,7 +43,7 @@ self.addEventListener('message', (event) => {
 const auth = getAuth(firebaseApp)
 const getIdTokenWrapper = async () => {
   const unsubscribe = await onAuthStateChanged(auth, (user) => {
-    unsuscribe()
+    unsubscribe()
     if (user) return getIdToken(user)
     return null
   })
