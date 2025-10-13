@@ -2,7 +2,7 @@
 // to headers for SSR authentication.
 // @ts-nocheck
 import { initializeApp, getApps } from 'firebase/app'
-import { getAuth, getIdToken, onAuthStateChanged } from 'firebase/auth'
+import { getAuth, getIdToken, onIdTokenChanged } from 'firebase/auth'
 import { firebaseConfig } from './firebase/config'
 
 const appName = 'lean-ehr-assisted-living-client'
@@ -43,7 +43,7 @@ self.addEventListener('message', (event) => {
 const auth = getAuth(firebaseApp)
 const getIdTokenWrapper = () =>
   new Promise((res) => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onIdTokenChanged(auth, async (user) => {
       unsubscribe()
       if (user) {
         const idToken = await getIdToken(user)
