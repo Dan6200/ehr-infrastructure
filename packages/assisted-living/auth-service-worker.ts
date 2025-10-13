@@ -35,6 +35,7 @@ self.addEventListener('install', (event: ExtendableEvent) => {
 self.addEventListener('message', (event) => {
   const { type } = event.data || {}
   if (type === 'SKIP_WAITING') {
+    console.log('[SW] Skipping waiting...')
     self.skipWaiting()
   }
 })
