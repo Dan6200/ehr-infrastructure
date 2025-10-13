@@ -23,7 +23,10 @@ export async function POST(request: NextRequest) {
 
     process.nextTick(() => {
       const serverAuth = getAuth(serverApp)
-      if (process.env.NODE_ENV === 'development')
+      if (
+        process.env.NODE_ENV === 'development' ||
+        process.env.APP_ENV === 'development'
+      )
         try {
           connectAuthEmulator(serverAuth, authHost) // Always throws an error due to race-conditions
         } catch {}

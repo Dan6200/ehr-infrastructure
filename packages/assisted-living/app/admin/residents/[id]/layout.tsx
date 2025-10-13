@@ -14,19 +14,13 @@ export default async function ResidentLayout({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const rawResidentData = await getResidentData(id).catch((e) => {
+  const residentData = await getResidentData(id).catch((e) => {
     if (e.message.match(/not_found/i)) throw notFound()
     if (e.message.match(/insufficient permissions/)) redirect('/admin/sign-in')
     throw new Error(
       `Unable to pass props to Resident Component -- Tag:22.\n\t${e.message}`,
     )
   })
-  let validatedResidentData: ResidentType
-  try {
-    validatedResidentData = ResidentSchema.parse(rawResidentData)
-  } catch (error: any) {
-    throw new Error('Invalid Resident Data -- Tag:31: ' + error.message)
-  }
 
   return (
     <main className="bg-background flex flex-col items-start gap-4 container md:px-4 text-center py-24 sm:py-4 lg:py-24 h-fit">
@@ -36,7 +30,7 @@ export default async function ResidentLayout({
       >
         Go To Previous Page
       </GoBackLink>
-      <Resident residentData={validatedResidentData} id={id} />
+      <Resident residentData={residentData} id={id} />
       <ResidentNav residentId={id} />
       <div className="mt-8 w-full">{children}</div>
     </main>
