@@ -36,6 +36,7 @@ export default function ProtectedHeaderItems() {
             return null
           })
           setResidentsData(res?.residents ?? null)
+          if (pathname === '/sign-in') router.push('/admin') // navigate away if middleware gets stuck
         } else {
           // User is not logged in
           setResidentsData(null)
