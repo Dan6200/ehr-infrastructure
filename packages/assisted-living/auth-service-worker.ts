@@ -2,7 +2,7 @@
 // to headers for SSR authentication.
 // @ts-nocheck
 import { initializeApp, getApps } from 'firebase/app'
-import { getAuth } from 'firebase/auth'
+import { getAuth, getIdToken, onAuthStateChanged } from 'firebase/auth'
 import { firebaseConfig } from './firebase/config'
 
 const appName = 'lean-ehr-assisted-living-client'
@@ -40,6 +40,15 @@ self.addEventListener('message', (event) => {
   }
 })
 
+const auth = getAuth(firebaseApp)
+const getIdTokenWrapper = async () => {
+  const unsubscribe = await onAuthStateChanged(auth, (user) => {
+    unsuscribe()
+    if (user) return getIdToken(user)
+    return null
+  })
+}
+
 self.addEventListener('fetch', (event: FetchEvent) => {
   const evt = event
 
@@ -52,17 +61,14 @@ self.addEventListener('fetch', (event: FetchEvent) => {
   if (evt.request.url.startsWith(self.location.origin) && !isStatic) {
     evt.respondWith(
       (async function () {
-        const auth = getAuth(firebaseApp)
-        const user = auth.currentUser
         let idToken = null
 
-        if (user) {
-          try {
-            // Get the ID token, refreshing it if necessary
-            idToken = await user.getIdToken() // Do not force a refresh
-          } catch (error) {
-            console.error('Service Worker: Failed to get ID token:', error) // Error: failed to get ID token: FirebaseError: Firebase: Error (auth/invalid-refresh-token).
-          }
+        try {
+          // Get the ID token, refreshing it if necessary
+          idToken = await getIdTokenWrapper() // Do not force a refresh
+          console.log('id token: ', idToken)
+        } catch (error) {
+          console.error('Service Worker: Failed to get ID token:', error) // Error: failed to get ID token: FirebaseError: Firebase: Error (auth/invalid-refresh-token).
         }
 
         let req = evt.request
@@ -74,7 +80,6 @@ self.addEventListener('fetch', (event: FetchEvent) => {
           })
           // Add ID token to header.
           headers.append('Authorization', `Bearer ${idToken}`)
-          console.log('headers', headers.get('Authorization'))
 
           // Recreate the request with the new headers and potentially the body
           try {
