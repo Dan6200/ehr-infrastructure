@@ -1,7 +1,12 @@
 'use server'
-import { collectionWrapper } from '@/firebase/firestore-server'
-import { notFound } from 'next/navigation'
+import {
+  collectionWrapper,
+  deleteDocWrapper,
+  docWrapper,
+} from '@/firebase/firestore-server'
 import { getAuthenticatedAppAndClaims } from '@/auth/server/definitions'
+import { EncryptedResident } from '@/types'
+import { getResidentConverter } from '@/types/converters'
 
 export async function deleteResidentData(documentId: string) {
   try {
@@ -9,9 +14,14 @@ export async function deleteResidentData(documentId: string) {
     if (!authenticatedApp) throw new Error('Failed to authenticate session')
     const { app } = authenticatedApp
 
-    const residentDocRef = collectionWrapper(app, 'residents').doc(documentId)
-
-    await residentDocRef.delete()
+    await deleteDocWrapper(
+      await docWrapper(
+        (
+          await collectionWrapper<EncryptedResident>(app, 'residents')
+        ).withConverter(await getResidentConverter()),
+        documentId,
+      ),
+    )
 
     return { success: true, message: 'Successfully Deleted Resident' }
   } catch (error: any) {

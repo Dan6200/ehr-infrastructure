@@ -1,5 +1,10 @@
 'use server'
-import { collectionWrapper } from '@/firebase/firestore-server'
+import {
+  collectionWrapper,
+  docWrapper,
+  getDocWrapper,
+  updateDocWrapper,
+} from '@/firebase/firestore-server'
 import { Resident, EncryptedResident } from '@/types'
 import { getAuthenticatedAppAndClaims } from '@/auth/server/definitions'
 import { encryptResident, getResidentConverter } from '@/types/converters'
@@ -15,11 +20,15 @@ export async function updateResident(
 
     const encryptedResident = await encryptResident(newResidentData)
 
-    const residentRef = collectionWrapper<EncryptedResident>(app, 'residents')
-      .withConverter(await getResidentConverter())
-      .doc(documentId)
-
-    await residentRef.update(encryptedResident)
+    await updateDocWrapper(
+      await docWrapper(
+        (
+          await collectionWrapper<EncryptedResident>(app, 'residents')
+        ).withConverter(await getResidentConverter()),
+        documentId,
+      ),
+      encryptedResident,
+    )
 
     return {
       success: true,

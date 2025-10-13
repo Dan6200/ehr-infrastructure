@@ -1,5 +1,9 @@
 'use server'
-import { collectionWrapper } from '@/firebase/firestore-server'
+import {
+  addDocWrapper,
+  collectionWrapper,
+  docWrapper,
+} from '@/firebase/firestore-server'
 import { Resident, EncryptedResident } from '@/types'
 import { getAuthenticatedAppAndClaims } from '@/auth/server/definitions'
 import { encryptResident, getResidentConverter } from '@/types/converters'
@@ -12,27 +16,16 @@ export async function addNewResident(
     if (!authenticatedApp) throw new Error('Failed to authenticate session')
     const { app } = authenticatedApp
 
-    const metadataRef = collectionWrapper(app, 'metadata').doc('lastResidentID')
-    const metadataSnap = await metadataRef.get()
-    if (!metadataSnap.exists())
-      throw new Error('lastResidentID metadata not found')
-    const { resident_id: oldResidentId } = metadataSnap.data() as {
-      resident_id: string
-    }
-    const resident_id = (parseInt(oldResidentId) + 1).toString()
-    const resident: Resident = {
-      ...residentData,
-      resident_id,
-    }
+    const resident: Resident = residentData
 
     const encryptedResident = await encryptResident(resident)
 
-    const residentRef = collectionWrapper<EncryptedResident>(app, 'residents')
-      .withConverter(await getResidentConverter())
-      .doc()
-
-    await residentRef.set(encryptedResident)
-    await metadataRef.update({ resident_id })
+    await addDocWrapper(
+      (
+        await collectionWrapper<EncryptedResident>(app, 'residents')
+      ).withConverter(await getResidentConverter()),
+      encryptedResident,
+    )
 
     return {
       message: 'Successfully Added a New Resident',
