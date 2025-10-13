@@ -41,17 +41,16 @@ self.addEventListener('message', (event) => {
 })
 
 const auth = getAuth(firebaseApp)
-const getIdTokenWrapper = new Promise((res) => {
-  const unsubscribe = onAuthStateChanged(auth, async (user) => {
-    unsubscribe()
-    console.log('user in observer: ', user)
-    if (user) {
-      const idToken = await getIdToken(user)
-      console.log('idToken in observer: ', idToken)
-      res(idToken)
-    } else res(null)
+const getIdTokenWrapper = () =>
+  new Promise((res) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      unsubscribe()
+      if (user) {
+        const idToken = await getIdToken(user)
+        res(idToken)
+      } else res(null)
+    })
   })
-})
 
 self.addEventListener('fetch', (event: FetchEvent) => {
   const evt = event
@@ -70,9 +69,8 @@ self.addEventListener('fetch', (event: FetchEvent) => {
         try {
           // Get the ID token, refreshing it if necessary
           idToken = await getIdTokenWrapper() // Do not force a refresh
-          console.log('id token: ', idToken)
         } catch (error) {
-          console.error('Service Worker: Failed to get ID token:', error) // Error: failed to get ID token: FirebaseError: Firebase: Error (auth/invalid-refresh-token).
+          console.error('Service Worker: Failed to get ID token:', error)
         }
 
         let req = evt.request
