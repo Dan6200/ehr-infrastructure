@@ -52,6 +52,13 @@ export async function getSessionCookie() {
 }
 
 /**
+ * Clears the Authorization Header.
+ */
+export async function clearAuthHeader() {
+  ;(await headers()).delete('Authorization')
+}
+
+/**
  * Deletes the session cookie and returns a NextResponse to apply the change.
  * @returns A NextResponse that clears the session cookie.
  */
