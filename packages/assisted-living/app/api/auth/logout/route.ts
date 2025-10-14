@@ -16,7 +16,6 @@ export async function POST(_request: NextRequest) {
         { status: 200 },
       )
     }
-    console.log('clearing session cookies...')
     // 2. Decode the session cookie to get the UID
     // Use checkRevoked: true to ensure the cookie hasn't been manually revoked already
     const result = await getVerifiedSessionCookie()
