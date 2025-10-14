@@ -23,7 +23,6 @@ import {
 } from '@/types/converters'
 import {
   QueryConstraint,
-  documentId,
   endBefore,
   limit as limitQuery,
   limitToLast,
@@ -145,7 +144,10 @@ export async function getAllResidentsData({
       )
     ).withConverter(await getResidentConverter())
 
-    const constraints: QueryConstraint[] = [orderBy(documentId())]
+    const constraints: QueryConstraint[] = [
+      orderBy('facility_id'),
+      orderBy('encrypted_resident_name'),
+    ]
     let isPrev = false
 
     if (nextCursorId) {
