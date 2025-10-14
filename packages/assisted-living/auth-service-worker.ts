@@ -27,17 +27,7 @@ const getBodyContent = (req: Request) => {
 }
 
 self.addEventListener('install', () => {
-  // Force the waiting service worker to become the active service worker.
-  console.log('[SW] Installing new version...')
-  self.skipWaiting()
-})
-
-self.addEventListener('message', (event) => {
-  const { type } = event.data || {}
-  if (type === 'SKIP_WAITING') {
-    console.log('[SW] Skipping waiting...')
-    self.skipWaiting()
-  }
+  console.log('[SW] Installing new version')
 })
 
 const auth = getAuth(firebaseApp)
