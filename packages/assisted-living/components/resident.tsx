@@ -7,21 +7,6 @@ import { Button } from './ui/button'
 import { onAuthStateChanged, User } from 'firebase/auth'
 import { auth } from '@/auth/client/config'
 
-export function ResidentInfoRow({
-  label,
-  value,
-}: {
-  label: string
-  value: string | number | undefined | null
-}) {
-  if (!value) return null // Only render if value is present
-  return (
-    <p className="text-base">
-      {label}:<span className="text-base font-semibold ml-4">{value}</span>
-    </p>
-  )
-}
-
 export default function Resident({
   id,
   residentData,
@@ -29,11 +14,10 @@ export default function Resident({
   id: string
   residentData: ResidentData
 }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [, setUser] = useState<User | null>(null)
   const router = useRouter()
 
-  const { resident_name, room_no, facility_id, address, dob, pcp } =
-    residentData
+  const { resident_name } = residentData
 
   useEffect(() => {
     if (auth) {

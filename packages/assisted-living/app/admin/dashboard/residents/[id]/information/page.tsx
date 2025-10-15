@@ -1,5 +1,5 @@
 import { getResidentData } from '@/actions/residents/get'
-import { ResidentInfoRow } from '@/components/resident'
+import { ResidentInfoRow } from '@/components/resident-info'
 import { notFound } from 'next/navigation'
 
 export default async function ResidentInformationPage({
@@ -17,7 +17,7 @@ export default async function ResidentInformationPage({
 
   return (
     <article className="text-left flex flex-col gap-2 pt-4">
-      <h2 className="text-2xl font-bold mb-4 border-b pb-2">
+      <h2 className="text-center text-2xl font-bold mb-4 pb-2">
         Resident Information
       </h2>
       <ResidentInfoRow label="Room" value={residentData.room_no} />
