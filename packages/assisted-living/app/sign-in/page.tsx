@@ -1,16 +1,11 @@
-import { SignInForm } from '@/components/signin-form/'
-//import Link from "next/link";
+import { LoginForm } from '@/components/login/login-form'
 
-export default async function SignInPage() {
+export default function LoginPage() {
   return (
-    <main className="bg-background container md:w-2/3 mx-auto py-32 max-h-screen">
-      <h1 className="text-2xl font-bold my-8">
-        Please Sign In Before You Proceed...
-      </h1>
-      <SignInForm />
-      {/*      <Link href="/admin/new" className="underline text-blue-700">
-        Don't have an account? Sign up instead.
-      </Link>*/}
-    </main>
+    <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
+      <div className="w-full max-w-sm md:max-w-4xl">
+        <LoginForm />
+      </div>
+    </div>
   )
 }
