@@ -9,6 +9,7 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
+import { cn } from './lib/utils'
 
 const navLinks = [
   { name: 'Emergency Contacts', href: '/emergency-contacts' },
@@ -22,14 +23,20 @@ export function ResidentNav({ residentId }: { residentId: string }) {
 
   return (
     <NavigationMenu>
-      <NavigationMenuList>
+      <NavigationMenuList className="">
         {navLinks.map((link) => {
-          const fullHref = `/admin/residents/${residentId}${link.href}`
+          const fullHref = `/admin/dashboard/residents/${residentId}${link.href}`
           const isActive = pathname === fullHref
           return (
             <NavigationMenuItem key={link.name}>
-              <Link href={fullHref} legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()} active={isActive}>
+              <Link href={fullHref} passHref>
+                <NavigationMenuLink
+                  className={cn(
+                    navigationMenuTriggerStyle(),
+                    'rounded-none hover:border-b-accent-foreground/50 hover:bg-transparent text-muted-foreground hover:text-primary-foreground hover:border-b-2 border-b py-2',
+                  )}
+                  active={isActive}
+                >
                   {link.name}
                 </NavigationMenuLink>
               </Link>

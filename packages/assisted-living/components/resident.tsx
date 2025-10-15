@@ -45,9 +45,9 @@ export default function Resident({
   }, [setUser])
 
   return (
-    <div className="py-8 md:py-8 w-full">
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
-        <div className="md:col-span-1 flex flex-col items-center md:items-center self-center gap-4">
+    <div className="py-2 md:py-4 w-full">
+      <section className="grid grid-cols-1 lg:grid-cols-4 gap-8 md:gap-12">
+        <div className="lg:col-span-1 flex flex-col items-center lg:items-center self-center gap-4">
           {residentData.avatar_url ? (
             <Image
               src={residentData.avatar_url}
