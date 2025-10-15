@@ -23,16 +23,16 @@ export const GoBackLink: FC<GoBackLinkProps> = ({
   return (
     <a
       className={cn(
-        'cursor-pointer text-blue-500 flex w-full gap-5 sm:gap-5 items-center',
+        'cursor-pointer flex w-full gap-5 text-primary-foreground sm:gap-5 items-center',
         className,
       )}
       href="#"
       onClick={url ? () => router.push(url) : () => router.back()}
     >
-      <span className="rounded-full bg-blue-700/20 p-1">
-        <ArrowLeft className="text-blue-700" />
+      <span className="flex gap-2 rounded-full hover:bg-accent p-1">
+        <ArrowLeft className="" />
+        <span className="block sm:hidden">{children}</span>
       </span>
-      {children}
     </a>
   )
 }
