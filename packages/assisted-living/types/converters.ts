@@ -84,6 +84,50 @@ export async function encryptResident(
   }
 
   // Encrypt Contact Data
+  if (dataToEncrypt.resident_email) {
+    const { ciphertext, iv, authTag } = encryptData(
+      dataToEncrypt.resident_email,
+      contactDek,
+    )
+    encryptedData.encrypted_resident_email = {
+      ciphertext: ciphertext.toString('base64'),
+      iv: iv.toString('base64'),
+      authTag: authTag.toString('base64'),
+    }
+  }
+  if (dataToEncrypt.cell_phone) {
+    const { ciphertext, iv, authTag } = encryptData(
+      dataToEncrypt.cell_phone,
+      contactDek,
+    )
+    encryptedData.encrypted_cell_phone = {
+      ciphertext: ciphertext.toString('base64'),
+      iv: iv.toString('base64'),
+      authTag: authTag.toString('base64'),
+    }
+  }
+  if (dataToEncrypt.work_phone) {
+    const { ciphertext, iv, authTag } = encryptData(
+      dataToEncrypt.work_phone,
+      contactDek,
+    )
+    encryptedData.encrypted_work_phone = {
+      ciphertext: ciphertext.toString('base64'),
+      iv: iv.toString('base64'),
+      authTag: authTag.toString('base64'),
+    }
+  }
+  if (dataToEncrypt.home_phone) {
+    const { ciphertext, iv, authTag } = encryptData(
+      dataToEncrypt.home_phone,
+      contactDek,
+    )
+    encryptedData.encrypted_home_phone = {
+      ciphertext: ciphertext.toString('base64'),
+      iv: iv.toString('base64'),
+      authTag: authTag.toString('base64'),
+    }
+  }
   if (dataToEncrypt.dob) {
     const { ciphertext, iv, authTag } = encryptData(
       dataToEncrypt.dob,
@@ -280,6 +324,75 @@ export async function decryptResidentData(
   }
 
   // Decrypt Contact Data
+  if (contactDek && data.encrypted_resident_email) {
+    try {
+      decryptedData.resident_email = decryptData(
+        {
+          ciphertext: Buffer.from(
+            data.encrypted_resident_email.ciphertext,
+            'base64',
+          ),
+          iv: Buffer.from(data.encrypted_resident_email.iv, 'base64'),
+          authTag: Buffer.from(data.encrypted_resident_email.authTag, 'base64'),
+        },
+        contactDek,
+      )
+    } catch (e) {
+      console.error('Failed to decrypt resident_email:', e)
+    }
+  }
+  if (contactDek && data.encrypted_cell_phone) {
+    try {
+      decryptedData.cell_phone = decryptData(
+        {
+          ciphertext: Buffer.from(
+            data.encrypted_cell_phone.ciphertext,
+            'base64',
+          ),
+          iv: Buffer.from(data.encrypted_cell_phone.iv, 'base64'),
+          authTag: Buffer.from(data.encrypted_cell_phone.authTag, 'base64'),
+        },
+        contactDek,
+      )
+    } catch (e) {
+      console.error('Failed to decrypt cell_phone:', e)
+    }
+  }
+  if (contactDek && data.encrypted_work_phone) {
+    try {
+      decryptedData.work_phone = decryptData(
+        {
+          ciphertext: Buffer.from(
+            data.encrypted_work_phone.ciphertext,
+            'base64',
+          ),
+          iv: Buffer.from(data.encrypted_work_phone.iv, 'base64'),
+          authTag: Buffer.from(data.encrypted_work_phone.authTag, 'base64'),
+        },
+        contactDek,
+      )
+    } catch (e) {
+      console.error('Failed to decrypt work_phone:', e)
+    }
+  }
+  if (contactDek && data.encrypted_home_phone) {
+    try {
+      decryptedData.home_phone = decryptData(
+        {
+          ciphertext: Buffer.from(
+            data.encrypted_home_phone.ciphertext,
+            'base64',
+          ),
+          iv: Buffer.from(data.encrypted_home_phone.iv, 'base64'),
+          authTag: Buffer.from(data.encrypted_home_phone.authTag, 'base64'),
+        },
+        contactDek,
+      )
+    } catch (e) {
+      console.error('Failed to decrypt home_phone:', e)
+    }
+  }
+
   if (contactDek && data.encrypted_dob) {
     try {
       decryptedData.dob = decryptData(

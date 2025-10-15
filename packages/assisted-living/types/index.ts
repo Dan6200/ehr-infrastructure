@@ -36,6 +36,10 @@ export const ResidentSchema = z.object({
   avatar_url: z.string(),
   dob: z.string(),
   pcp: z.string(),
+  resident_email: z.string().nullable().optional(),
+  cell_phone: z.string().nullable().optional(),
+  work_phone: z.string().nullable().optional(),
+  home_phone: z.string().nullable().optional(),
   emergency_contacts: z.array(EmergencyContactSchema).nullable().optional(),
 })
 
@@ -70,6 +74,10 @@ export const EncryptedResidentSchema = z.object({
   encrypted_resident_name: EncryptedFieldSchema.nullable().optional(),
   encrypted_dob: EncryptedFieldSchema.nullable().optional(),
   encrypted_pcp: EncryptedFieldSchema.nullable().optional(),
+  encrypted_resident_email: EncryptedFieldSchema.nullable().optional(),
+  encrypted_cell_phone: EncryptedFieldSchema.nullable().optional(),
+  encrypted_work_phone: EncryptedFieldSchema.nullable().optional(),
+  encrypted_home_phone: EncryptedFieldSchema.nullable().optional(),
   emergency_contacts: z
     .array(EncryptedEmergencyContactSchema)
     .nullable()
@@ -96,6 +104,10 @@ export const ResidentDataSchema = z.object({
   avatar_url: z.string(),
   dob: z.string(),
   pcp: z.string(),
+  resident_email: z.string().nullable().optional(),
+  cell_phone: z.string().nullable().optional(),
+  work_phone: z.string().nullable().optional(),
+  home_phone: z.string().nullable().optional(),
   emergency_contacts: z.array(EmergencyContactSchema).nullable().optional(),
 })
 export type ResidentData = z.infer<typeof ResidentDataSchema>
