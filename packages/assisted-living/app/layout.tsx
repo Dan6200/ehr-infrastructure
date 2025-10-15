@@ -3,7 +3,6 @@ import { Toaster } from '@/components/ui/toaster'
 // Replacing with Google Analytics...
 // import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
-import Header from '@/components/header/index'
 // import Providers from './providers'
 
 import { Inter } from 'next/font/google'
@@ -23,7 +22,6 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Header />
         {children}
         <Toaster />
         {/*<Analytics />*/}
