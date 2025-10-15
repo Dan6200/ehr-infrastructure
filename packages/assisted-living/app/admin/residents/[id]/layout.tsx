@@ -25,8 +25,8 @@ export default async function ResidentLayout({
   return (
     <main className="bg-background flex flex-col items-start gap-4 container md:px-4 text-center py-24 sm:py-4 lg:py-24 h-fit">
       <GoBackLink
-        url={`/admin/`}
-        className="cursor-pointer text-blue-500 flex w-full gap-2 sm:gap-5"
+        url={`/admin/dashboard`}
+        className="cursor-pointer flex w-full gap-2 sm:gap-5"
       >
         Go To Previous Page
       </GoBackLink>

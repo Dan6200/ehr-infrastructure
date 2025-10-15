@@ -7,7 +7,7 @@ export default function NotFound() {
   useLayoutEffect(() => {
     let t: any
     t = setTimeout(() => {
-      router.push('/admin')
+      router.push('/admin/dashboard')
     }, 2000)
     return () => t
   }, [])
