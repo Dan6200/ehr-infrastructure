@@ -11,7 +11,7 @@ import {
 export function DataTableSkeleton() {
   return (
     <div className="w-full flex-col justify-start gap-6">
-      <div className="flex items-center justify-between lg:px-6">
+      <div className="flex items-center justify-between px-2 lg:px-6">
         <PulsingDiv className="h-9 w-24" />
         <div className="flex items-center gap-2">
           <PulsingDiv className="h-9 w-28" />

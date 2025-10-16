@@ -220,7 +220,7 @@ export function DataTable<TData, TValue>({
       defaultValue="overview"
       className="w-full flex-col justify-start gap-6"
     >
-      <div className="flex items-center justify-between lg:px-6">
+      <div className="flex items-center justify-between px-2 lg:px-6">
         <Label htmlFor="view-selector" className="sr-only">
           View
         </Label>
@@ -287,7 +287,7 @@ export function DataTable<TData, TValue>({
         value="overview"
         className="relative flex flex-col gap-4 overflow-auto lg:px-6"
       >
-        <div className="overflow-hidden sm:rounded-lg border">
+        <div className="overflow-hidden rounded-lg border">
           <DndContext
             collisionDetection={closestCenter}
             modifiers={[restrictToVerticalAxis]}
