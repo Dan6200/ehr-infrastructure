@@ -19,7 +19,7 @@ export default async function EmergencyContactsPage({
 
   return (
     <div className="space-y-8">
-      <div className="md:col-span-2 flex justify-between items-center border-b pb-2 mb-8">
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-center border-b pb-2 mb-8">
         <h2 className="text-xl font-semibold">Emergency Contacts</h2>
         <EditEmergencyContactsDialog
           documentId={id}

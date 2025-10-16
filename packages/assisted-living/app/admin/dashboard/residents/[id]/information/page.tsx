@@ -18,7 +18,7 @@ export default async function ResidentInformationPage({
 
   return (
     <article className="text-left grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-      <div className="md:col-span-2 flex justify-between items-center border-b pb-2 mb-8">
+      <div className="md:col-span-2 flex flex-col md:flex-row gap-4 justify-between items-center border-b pb-2 mb-8">
         <h2 className="text-xl font-semibold">Resident Information</h2>
         <EditResidentDialog residentData={residentData} />
       </div>
