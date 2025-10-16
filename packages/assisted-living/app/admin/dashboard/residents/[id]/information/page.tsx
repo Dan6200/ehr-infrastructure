@@ -1,4 +1,5 @@
 import { getResidentData } from '@/actions/residents/get'
+import { EditResidentDialog } from '@/components/dashboard/residents/edit-resident-dialog'
 import { ResidentInfoRow } from '@/components/resident-info'
 import { notFound } from 'next/navigation'
 
@@ -17,9 +18,10 @@ export default async function ResidentInformationPage({
 
   return (
     <article className="text-left grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-      <h2 className="text-center md:col-span-2 text-xl font-semibold mb-8 pb-2">
-        Resident Information
-      </h2>
+      <div className="md:col-span-2 flex justify-between items-center border-b pb-2 mb-8">
+        <h2 className="text-xl font-semibold">Resident Information</h2>
+        <EditResidentDialog residentData={residentData} />
+      </div>
       <ResidentInfoRow label="Room" value={residentData.room_no} />
       <ResidentInfoRow label="Facility ID" value={residentData.facility_id} />
       <ResidentInfoRow label="Facility Address" value={residentData.address} />

@@ -4,38 +4,35 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { Edit } from 'lucide-react'
-import { getAuth, onAuthStateChanged } from 'firebase/auth' // Added imports
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '@/auth/client/config'
 
 import { toast } from '@/components/ui/use-toast'
 import { isError } from '@/app/utils'
 import { updateResident } from '@/actions/residents/update'
 import { ResidentFormBase } from './ResidentFormBase'
-import {
-  type Resident,
-  type Nullable,
-  type ResidentData,
-  ResidentDataSchema,
-} from '@/types'
+import { type ResidentData, ResidentDataSchema } from '@/types'
 
 export function ResidentFormEdit({
+  onFinished,
   ...residentData
-}: Omit<ResidentData, 'address'>) {
+}: Omit<ResidentData, 'address'> & { onFinished: () => void }) {
   const { resident_name, id, facility_id, emergency_contacts } = residentData
   const router = useRouter()
   const [idToken, setIdToken] = useState<string | null>(null) // State to hold idToken
 
   useEffect(() => {
-    const auth = getAuth()
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const token = await user.getIdToken()
-        setIdToken(token)
-      } else {
-        setIdToken(null)
-      }
-    })
-    return () => unsubscribe()
+    if (auth) {
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const token = await user.getIdToken()
+          setIdToken(token)
+        } else {
+          setIdToken(null)
+        }
+      })
+      return () => unsubscribe()
+    }
   }, [])
 
   const form = useForm<ResidentData>({
@@ -97,7 +94,10 @@ export function ResidentFormEdit({
         title: message,
         variant: success ? 'default' : 'destructive',
       })
-      router.back()
+      if (success) {
+        router.refresh()
+        onFinished()
+      }
     } catch (err) {
       if (isError(err)) toast({ title: err.message, variant: 'destructive' })
     }
