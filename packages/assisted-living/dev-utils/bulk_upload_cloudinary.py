@@ -1,83 +1,83 @@
 import cloudinary
 import cloudinary.uploader
 import os
+from dotenv import load_dotenv
 
-def bulk_upload_to_cloudinary(local_folder_path, cloudinary_folder_path):
+def bulk_upload_to_cloudinary(local_folder_path, cloudinary_folder_path, already_uploaded_file):
     """
-    Uploads all files from a local folder to a specified Cloudinary folder.
+    Uploads files from a local folder to a specified Cloudinary folder,
+    skipping files that are already listed as uploaded.
+    """
+    load_dotenv()
 
-    Args:
-        local_folder_path (str): The path to the local folder containing files to upload.
-        cloudinary_folder_path (str): The target folder path in Cloudinary.
-    """
-    # Configure Cloudinary (replace with your actual cloud name, API key, and API secret)
-    # It's recommended to set these as environment variables for security.
-    # For example:
-    # export CLOUDINARY_CLOUD_NAME="your_cloud_name"
-    # export CLOUDINARY_API_KEY="your_api_key"
-    # export CLOUDINARY_API_SECRET="your_api_secret"
+    # Configure Cloudinary
     cloudinary.config(
         cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
         api_key=os.environ.get('CLOUDINARY_API_KEY'),
         api_secret=os.environ.get('CLOUDINARY_API_SECRET')
     )
 
-    if not cloudinary.config().cloud_name or not cloudinary.config().api_key or not cloudinary.config().api_secret:
-        print("Cloudinary API credentials are not set. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET environment variables.")
+    if not (cloudinary.config().cloud_name and cloudinary.config().api_key and cloudinary.config().api_secret):
+        print("Cloudinary API credentials are not set.")
         return
+
+    # Read already uploaded files
+    uploaded_filenames = set()
+    try:
+        with open(already_uploaded_file, 'r') as f:
+            for line in f:
+                if line.startswith('- https://'):
+                    # Extract filename from URL, e.g., '.../image.png' -> 'image.png'
+                    filename = line.strip().split('/')[-1]
+                    uploaded_filenames.add(filename)
+        print(f"Found {len(uploaded_filenames)} already uploaded files.")
+    except FileNotFoundError:
+        print(f"Warning: {already_uploaded_file} not found. Will attempt to upload all files.")
 
     if not os.path.isdir(local_folder_path):
         print(f"Error: Local folder '{local_folder_path}' does not exist.")
         return
 
-    print(f"Starting bulk upload from '{local_folder_path}' to Cloudinary folder '{cloudinary_folder_path}'...")
+    print(f"Starting selective upload from '{local_folder_path}' to Cloudinary folder '{cloudinary_folder_path}'...")
 
     uploaded_count = 0
+    skipped_count = 0
     failed_uploads = []
 
     for root, _, files in os.walk(local_folder_path):
         for filename in files:
-            local_file_path = os.path.join(root, filename)
-            
-            # Construct the public_id for Cloudinary
-            # This will create a public_id like "cloudinary_folder_path/subfolder/filename_without_extension"
-            relative_path = os.path.relpath(local_file_path, local_folder_path)
-            public_id_base = os.path.splitext(relative_path)[0]
-            
-            # Replace backslashes with forward slashes for Cloudinary public_id
-            public_id_base = public_id_base.replace(os.sep, '/')
+            if filename in uploaded_filenames:
+                skipped_count += 1
+                continue
 
-            # Combine with the target Cloudinary folder path
-            full_public_id = f"{cloudinary_folder_path}/{public_id_base}"
+            local_file_path = os.path.join(root, filename)
+            public_id_base = os.path.splitext(os.path.relpath(local_file_path, local_folder_path))[0].replace(os.sep, '/')
 
             try:
-                print(f"Uploading {local_file_path} to {full_public_id}...")
-                response = cloudinary.uploader.upload(
+                print(f"Uploading {filename}...")
+                cloudinary.uploader.upload(
                     local_file_path,
                     folder=cloudinary_folder_path,
-                    public_id=public_id_base, # Use public_id_base for the actual public_id within the folder
-                    resource_type="auto" # Automatically detect resource type (image, video, raw)
+                    public_id=public_id_base,
+                    resource_type="auto"
                 )
                 uploaded_count += 1
-                print(f"Successfully uploaded {filename}. URL: {response['secure_url']}")
             except Exception as e:
                 failed_uploads.append(f"{local_file_path}: {e}")
                 print(f"Failed to upload {filename}: {e}")
 
     print("\n--- Upload Summary ---")
-    print(f"Total files processed: {uploaded_count + len(failed_uploads)}")
     print(f"Successfully uploaded: {uploaded_count}")
+    print(f"Skipped (already uploaded): {skipped_count}")
     if failed_uploads:
         print(f"Failed uploads: {len(failed_uploads)}")
         for failure in failed_uploads:
             print(f"- {failure}")
     else:
-        print("All files uploaded successfully!")
+        print("No failed uploads.")
 
 if __name__ == "__main__":
-    # Example usage:
-    # Replace with your actual local folder path and desired Cloudinary folder
-    local_folder = "/home/darealestninja/dev-projects/lean-ehr/packages/assisted-living/public/avatars"
+    local_folder = "public/avatars"
     cloudinary_target_folder = "lean-ehr/assisted-living/avatars"
-
-    bulk_upload_to_cloudinary(local_folder, cloudinary_target_folder)
+    already_uploaded_file = "dev-utils/already_uploaded_avatars.txt"
+    bulk_upload_to_cloudinary(local_folder, cloudinary_target_folder, already_uploaded_file)
