@@ -1,19 +1,16 @@
 'use client'
-import { useForm, useFieldArray } from 'react-hook-form'
-import { v4 as uuid } from 'uuid'
-
+import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
-import { Minus, Plus } from 'lucide-react'
 import { EditableFormField } from './EditableFormField'
-import { EmergencyContactBlock } from './EmergencyContactBlock'
+import { UploadButton } from '@/components/cloudinary/upload-button'
 
 interface ResidentFormBaseProps {
   form: ReturnType<typeof useForm<any>>
   onSubmit: (data: any) => Promise<void>
   formTitle: string | React.ReactNode
   isResidentNameEditableByDefault: boolean // Renamed from alwaysEditable
-  originalNoOfEmContacts: number
+  handleUpload: (result: any) => void
 }
 
 export function ResidentFormBase({
@@ -21,18 +18,8 @@ export function ResidentFormBase({
   onSubmit,
   isResidentNameEditableByDefault,
   formTitle,
-  originalNoOfEmContacts,
+  handleUpload,
 }: ResidentFormBaseProps) {
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: 'emergency_contacts',
-  })
-
-  const handleRemoveEmergencyContact = (indexToRemove: number) => {
-    remove(indexToRemove)
-  }
-
-  /* TODO: Separate into different resident forms */
   return (
     <Form {...form}>
       <h1 className="font-semibold mb-8 text-2xl ">{formTitle}</h1>
@@ -46,41 +33,9 @@ export function ResidentFormBase({
           description="Residents Name."
           isInputDisabled={!isResidentNameEditableByDefault} // Pass as isInputDisabled
         />
-        <div className="flex justify-end border-b w-full">
-          <h4 className="gap-2 flex items-center pb-4">
-            {(fields.length < 1 ? 'Add ' : '') + 'Emergency Contacts'}
-            <span
-              onClick={() =>
-                append({
-                  contact_name: '',
-                  cell_phone: '',
-                  home_phone: '',
-                  work_phone: '',
-                  relationship: '',
-                  id: uuid(),
-                })
-              }
-              className={`p-1 border hover:bg-primary/10 rounded-md cursor-pointer`}
-            >
-              <Plus />
-            </span>
-            {fields.length > originalNoOfEmContacts && (
-              <span
-                onClick={() => remove(fields.length - 1)}
-                className={`p-1 border hover:bg-primary/10 rounded-md cursor-pointer`}
-              >
-                <Minus />
-              </span>
-            )}
-          </h4>
+        <div className="flex w-full">
+          <UploadButton onUpload={handleUpload} />
         </div>
-        {fields.map((field, i) => (
-          <EmergencyContactBlock
-            key={field.id}
-            index={i}
-            onDelete={handleRemoveEmergencyContact}
-          />
-        ))}
         <Button type="submit" className="w-full sm:w-[10vw]">
           Submit
         </Button>

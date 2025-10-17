@@ -5,10 +5,10 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { toast } from '@/components/ui/use-toast'
 import { isError } from '@/app/utils'
-import { ResidentFormBase } from './ResidentFormBase'
 import { EmergencyContact, ResidentDataSchema } from '@/types'
 import { updateEmergencyContacts } from '@/actions/residents/update-emergency-contacts'
 import { useRef } from 'react'
+import { EmergencyContactsFormBase } from './EmergencyContactsFormBase'
 
 // Create a schema that only validates the emergency_contacts array
 const EmergencyContactsFormSchema = z.object({
@@ -17,7 +17,7 @@ const EmergencyContactsFormSchema = z.object({
   ),
 })
 
-export function EmergencyContactsForm({
+export function EmergencyContactsFormEdit({
   documentId,
   initialContacts,
   onFinished,
@@ -56,11 +56,10 @@ export function EmergencyContactsForm({
   }
 
   return (
-    <ResidentFormBase
+    <EmergencyContactsFormBase
       form={form}
       onSubmit={onSubmit}
       formTitle="Edit Emergency Contacts"
-      isResidentNameEditableByDefault={false} // This will hide the name field
       originalNoOfEmContacts={originalNoOfEmContacts.current}
     />
   )

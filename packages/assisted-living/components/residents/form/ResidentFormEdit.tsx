@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/auth/client/config'
 
@@ -11,8 +11,7 @@ import { toast } from '@/components/ui/use-toast'
 import { isError } from '@/app/utils'
 import { updateResident } from '@/actions/residents/update'
 import { ResidentFormBase } from './ResidentFormBase'
-import { type ResidentData, ResidentDataSchema, Resident } from '@/types'
-import { UploadButton } from '@/components/cloudinary/upload-button'
+import { type ResidentData, ResidentDataSchema } from '@/types'
 
 export function ResidentFormEdit({
   onFinished,
@@ -86,17 +85,12 @@ export function ResidentFormEdit({
   }
 
   return (
-    <>
-      <ResidentFormBase
-        form={form}
-        onSubmit={onSubmit}
-        formTitle="Edit Resident Information"
-        isResidentNameEditableByDefault={false}
-        originalNoOfEmContacts={0} // No contacts in this form
-      />
-      <div className="mt-4">
-        <UploadButton onUpload={handleUpload} />
-      </div>
-    </>
+    <ResidentFormBase
+      form={form}
+      onSubmit={onSubmit}
+      formTitle="Edit Resident Information"
+      isResidentNameEditableByDefault={false}
+      handleUpload={handleUpload}
+    />
   )
 }
