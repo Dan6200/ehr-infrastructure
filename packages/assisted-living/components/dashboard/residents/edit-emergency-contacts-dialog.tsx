@@ -18,7 +18,7 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer'
 import { EmergencyContact } from '@/types'
-import { EmergencyContactsForm } from '@/components/residents/form/EmergencyContactsForm'
+import { EmergencyContactsFormEdit } from '@/components/residents/form/EmergencyContactsFormEdit'
 
 interface EditEmergencyContactsDialogProps {
   documentId: string
@@ -49,7 +49,7 @@ export function EditEmergencyContactsDialog({
             <DrawerTitle>Edit Emergency Contacts</DrawerTitle>
           </DrawerHeader>
           <div className="p-4 overflow-y-auto max-h-[80vh]">
-            <EmergencyContactsForm
+            <EmergencyContactsFormEdit
               documentId={documentId}
               initialContacts={initialContacts}
               onFinished={handleFinished}
@@ -69,7 +69,7 @@ export function EditEmergencyContactsDialog({
         <DialogHeader>
           <DialogTitle>Edit Emergency Contacts</DialogTitle>
         </DialogHeader>
-        <EmergencyContactsForm
+        <EmergencyContactsFormEdit
           documentId={documentId}
           initialContacts={initialContacts}
           onFinished={handleFinished}
