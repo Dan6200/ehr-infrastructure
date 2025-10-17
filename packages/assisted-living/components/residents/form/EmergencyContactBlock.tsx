@@ -5,14 +5,7 @@ import { useState } from 'react'
 
 import { EditableFormField } from './EditableFormField'
 import { LegalRelationshipEnum, PersonalRelationshipEnum } from '@/types'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
+import { MultiSelect } from '@/components/ui/multi-select'
 
 interface EmergencyContactBlockProps {
   index: number
@@ -41,6 +34,16 @@ export function EmergencyContactBlock({
   const [isEmContactBlockEditing, setIsEmContactBlockEditing] = useState(
     initialIsEmContactBlockEditing,
   )
+
+  const personalOptions = PersonalRelationshipEnum.options.map((opt) => ({
+    value: opt,
+    label: opt.replace(/_/g, ' '),
+  }))
+
+  const legalOptions = LegalRelationshipEnum.options.map((opt) => ({
+    value: opt,
+    label: opt.replace(/_/g, ' '),
+  }))
 
   return (
     <div className="mb-8 border-b py-4">
@@ -75,66 +78,44 @@ export function EmergencyContactBlock({
         <Controller
           control={control}
           name={`emergency_contacts.${index}.personal_relationships`}
+          defaultValue={[]}
           render={({ field }) => (
-            <EditableFormField
-              name={field.name}
-              label="Personal Relationship"
-              description="Select the personal relationship(s)."
-              isInputDisabled={!isEmContactBlockEditing}
-              showLocalEditingControls={false}
-              renderInput={(fieldProps) => (
-                <Select
-                  {...fieldProps}
-                  multiple
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger disabled={!isEmContactBlockEditing}>
-                    <SelectValue placeholder="Select personal relationships..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PersonalRelationshipEnum.options.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option.replace(/_/g, ' ')}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Personal Relationships
+              </label>
+              <MultiSelect
+                options={personalOptions}
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+                placeholder="Select..."
+                disabled={!isEmContactBlockEditing}
+              />
+              <p className="text-sm text-muted-foreground">
+                Select the personal relationship(s).
+              </p>
+            </div>
           )}
         />
 
         <Controller
           control={control}
           name={`emergency_contacts.${index}.legal_relationships`}
+          defaultValue={[]}
           render={({ field }) => (
-            <EditableFormField
-              name={field.name}
-              label="Legal Relationship"
-              description="Select the legal relationship(s)."
-              isInputDisabled={!isEmContactBlockEditing}
-              showLocalEditingControls={false}
-              renderInput={(fieldProps) => (
-                <Select
-                  {...fieldProps}
-                  multiple
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger disabled={!isEmContactBlockEditing}>
-                    <SelectValue placeholder="Select legal relationships..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {LegalRelationshipEnum.options.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option.replace(/_/g, ' ')}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Legal Relationships</label>
+              <MultiSelect
+                options={legalOptions}
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+                placeholder="Select..."
+                disabled={!isEmContactBlockEditing}
+              />
+              <p className="text-sm text-muted-foreground">
+                Select the legal relationship(s).
+              </p>
+            </div>
           )}
         />
 
