@@ -3,12 +3,15 @@ export type Nullable<T> = T | null | undefined
 import { z } from 'zod'
 
 // --- Enums ---
-export const RelationshipEnum = z.enum([
+export const LegalRelationshipEnum = z.enum([
   'HCP_AGENT_DURABLE',
   'POA_FINANCIAL',
   'GUARDIAN_OF_PERSON',
   'GUARDIAN_OF_ESTATE',
   'TRUSTEE',
+])
+
+export const PersonalRelationshipEnum = z.enum([
   'SPOUSE',
   'DOMESTIC_PARTNER',
   'PARENT',
@@ -20,14 +23,31 @@ export const RelationshipEnum = z.enum([
   'OTHER_RELATIVE',
 ])
 
+export const RelationshipEnum = z.union([
+  LegalRelationshipEnum,
+  PersonalRelationshipEnum,
+])
+
 // --- Plaintext Schemas (for Application Use) ---
-export const EmergencyContactSchema = z.object({
-  contact_name: z.string().nullable().optional(),
-  cell_phone: z.string(),
-  work_phone: z.string().nullable().optional(),
-  home_phone: z.string().nullable().optional(),
-  relationship: z.array(RelationshipEnum).nullable().optional(),
-})
+export const EmergencyContactSchema = z
+  .object({
+    contact_name: z.string().nullable().optional(),
+    cell_phone: z.string(),
+    work_phone: z.string().nullable().optional(),
+    home_phone: z.string().nullable().optional(),
+    legal_relationships: z.array(LegalRelationshipEnum).nullable().optional(),
+    personal_relationships: z
+      .array(PersonalRelationshipEnum)
+      .nullable()
+      .optional(),
+  })
+  .transform((data) => ({
+    ...data,
+    relationship: [
+      ...(data.legal_relationships || []),
+      ...(data.personal_relationships || []),
+    ],
+  }))
 
 export const ResidentSchema = z.object({
   resident_name: z.string().nullable().optional(),
