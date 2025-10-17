@@ -123,7 +123,7 @@ export async function getAllFacilities(): Promise<Facility[]> {
 }
 
 export async function getAllResidentsData({
-  limit = 250,
+  limit = 100,
   nextCursorId,
   prevCursorId,
 }: {
