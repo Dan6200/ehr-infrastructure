@@ -21,6 +21,8 @@ import {
   EncryptedResidentSchema,
   Facility,
   FacilitySchema,
+  LegalRelationshipEnum,
+  PersonalRelationshipEnum,
   Resident,
   ResidentSchema,
 } from '.'
@@ -496,7 +498,7 @@ export async function decryptResidentData(
           }
         }
         if (contact.encrypted_relationship) {
-          decryptedContact.relationship = contact.encrypted_relationship
+          const decryptedRelationships = contact.encrypted_relationship
             .map((r: any) => {
               try {
                 return decryptData(
@@ -509,10 +511,18 @@ export async function decryptResidentData(
                 )
               } catch (e) {
                 console.error('Failed to decrypt relationship item:', e)
-                return undefined // Or handle as appropriate
+                return undefined
               }
             })
-            .filter(Boolean) // Remove undefined entries
+            .filter(Boolean)
+
+          decryptedContact.legal_relationships = decryptedRelationships.filter(
+            (r: any) => LegalRelationshipEnum.safeParse(r).success,
+          )
+          decryptedContact.personal_relationships =
+            decryptedRelationships.filter(
+              (r: any) => PersonalRelationshipEnum.safeParse(r).success,
+            )
         }
         return EmergencyContactSchema.parse(decryptedContact)
       },

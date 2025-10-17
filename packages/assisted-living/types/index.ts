@@ -35,6 +35,7 @@ export const EmergencyContactSchema = z
     cell_phone: z.string(),
     work_phone: z.string().nullable().optional(),
     home_phone: z.string().nullable().optional(),
+    relationship: z.array(RelationshipEnum).nullable().optional(),
     legal_relationships: z.array(LegalRelationshipEnum).nullable().optional(),
     personal_relationships: z
       .array(PersonalRelationshipEnum)
