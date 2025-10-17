@@ -112,6 +112,7 @@ export type EncryptedResident = z.infer<typeof EncryptedResidentSchema>
 
 // --- Other Schemas & Types (unchanged) ---
 export const FacilitySchema = z.object({
+  id: z.string().nullable().optional(),
   address: z.string(),
 })
 export type Facility = z.infer<typeof FacilitySchema>

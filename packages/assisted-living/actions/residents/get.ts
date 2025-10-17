@@ -114,7 +114,7 @@ export async function getAllFacilities(): Promise<Facility[]> {
     if (facilitiesSnap.empty) throw notFound()
 
     return facilitiesSnap.docs.map((doc) => {
-      const facility = { document_id: doc.id, ...doc.data() }
+      const facility = { id: doc.id, ...doc.data() }
       return FacilitySchema.parse(facility)
     })
   } catch (error: any) {
