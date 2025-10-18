@@ -16,10 +16,21 @@ import { type ResidentData, ResidentDataSchema } from '@/types'
 export function ResidentFormEdit({
   ...residentData
 }: Omit<ResidentData, 'address'>) {
-  const { resident_name, id, facility_id } = residentData
   const router = useRouter()
   const [idToken, setIdToken] = useState<string | null>(null)
   const [newAvatarUrl, setNewAvatarUrl] = useState<string | null>(null)
+
+  const {
+    id,
+    resident_name,
+    dob,
+    pcp,
+    resident_email,
+    facility_id,
+    cell_phone,
+    work_phone,
+    home_phone,
+  } = residentData
 
   useEffect(() => {
     if (auth) {
@@ -41,6 +52,13 @@ export function ResidentFormEdit({
     ),
     defaultValues: {
       resident_name: resident_name ?? undefined,
+      dob: dob ?? undefined,
+      pcp: pcp ?? undefined,
+      resident_email: resident_email ?? undefined,
+      cell_phone: cell_phone ?? undefined,
+      work_phone: work_phone ?? undefined,
+      home_phone: home_phone ?? undefined,
+      facility_id: facility_id ?? undefined,
     },
   })
 
@@ -56,14 +74,22 @@ export function ResidentFormEdit({
       return
     }
 
-    let residentUpdateData: Partial<ResidentData> = {}
-    residentUpdateData.resident_name = data.resident_name ?? null
+    let residentUpdateData: Partial<ResidentData> = {
+      resident_name: data.resident_name ?? null,
+      dob: data.dob ?? null,
+      pcp: data.pcp ?? null,
+      resident_email: data.resident_email ?? null,
+      cell_phone: data.cell_phone ?? null,
+      work_phone: data.work_phone ?? null,
+      home_phone: data.home_phone ?? null,
+      facility_id: facility_id ?? null,
+    }
     if (newAvatarUrl) {
       residentUpdateData.avatar_url = newAvatarUrl
     }
 
     try {
-      if (!id) throw new Error("Can't find the resource to edit")
+      if (!residentData.id) throw new Error("Can't find the resource to edit")
       const { message, success } = await updateResident(residentUpdateData, id)
       toast({
         title: message,
@@ -71,7 +97,6 @@ export function ResidentFormEdit({
       })
       if (success) {
         router.refresh()
-        onFinished()
       }
     } catch (err) {
       if (isError(err)) toast({ title: err.message, variant: 'destructive' })
@@ -88,8 +113,9 @@ export function ResidentFormEdit({
       form={form}
       onSubmit={onSubmit}
       formTitle="Edit Resident Information"
-      isResidentNameEditableByDefault={false}
+      isEditableByDefault={false}
       handleUpload={handleUpload}
+      includeEmergencyContacts={false}
     />
   )
 }
