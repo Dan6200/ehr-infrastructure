@@ -30,7 +30,7 @@ export const EditableFormField = memo(function EditableFormField({
   showLocalEditingControls = true,
   renderInput,
 }: EditableFormFieldProps) {
-  const { control, getValues, setValue } = useFormContext()
+  const { control } = useFormContext()
   // isFieldEditing is only relevant if showLocalEditingControls is true
   const [isFieldEditing, setIsFieldEditing] = useState(
     showLocalEditingControls ? !isInputDisabled : true,
@@ -44,6 +44,7 @@ export const EditableFormField = memo(function EditableFormField({
     <FormField
       control={control}
       name={name}
+      disabled={isDisabled}
       render={({ field }) => (
         <FormItem>
           <div className="flex items-center justify-between">
