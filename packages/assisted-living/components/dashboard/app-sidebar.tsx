@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth'
+import { onAuthStateChanged, User } from 'firebase/auth'
 import {
   IconDashboard,
   IconDatabase,
@@ -10,6 +10,7 @@ import {
   IconReport,
   IconSearch,
   IconSettings,
+  IconUserPlus,
   IconUsers,
 } from '@tabler/icons-react'
 
@@ -39,6 +40,11 @@ const data = {
       title: 'Residents',
       url: '/admin/dashboard/residents',
       icon: IconUsers,
+    },
+    {
+      title: 'Add Resident',
+      url: '/admin/dashboard/residents/add',
+      icon: IconUserPlus,
     },
   ],
   navSecondary: [
