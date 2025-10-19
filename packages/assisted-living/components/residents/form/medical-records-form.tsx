@@ -106,11 +106,22 @@ export function MedicalRecordsForm({
                     <FormControl>
                       <Autocomplete
                         value={field.value || ''}
-                        onValueChange={field.onChange}
+                        onValueChange={(option) => {
+                          if (option) {
+                            form.setValue(
+                              `medical_records.${index}.snomed_code`,
+                              option.value,
+                            )
+                            form.setValue(
+                              `medical_records.${index}.title`,
+                              option.label,
+                            )
+                          }
+                        }}
                         onSearch={searchSnomed}
                         placeholder="Search SNOMED..."
                         options={[]}
-                      />
+                      />{' '}
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -118,7 +118,18 @@ export function MedicationsForm({
                   <FormControl>
                     <Autocomplete
                       value={field.value || ''}
-                      onValueChange={field.onChange}
+                      onValueChange={(option) => {
+                        if (option) {
+                          form.setValue(
+                            `medications.${index}.rxnorm_code`,
+                            option.value,
+                          )
+                          form.setValue(
+                            `medications.${index}.name`,
+                            option.label,
+                          )
+                        }
+                      }}
                       onSearch={searchRxNorm}
                       placeholder="Search RxNorm..."
                       options={[]}

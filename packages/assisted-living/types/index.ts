@@ -42,6 +42,7 @@ export const MedicalRecordTypeEnum = z.enum([
 export const VitalSchema = z.object({
   date: z.string(), // ISO 8601 date string
   loinc_code: z.string(),
+  name: z.string(), // The display name for the LOINC code
   value: z.string(),
   unit: z.string().optional(),
 })
@@ -55,13 +56,13 @@ export const MedicalRecordSchema = z.object({
 
 export const AllergySchema = z.object({
   name: z.string(),
-  snomed_code: z.string().optional(),
+  snomed_code: z.string(),
   reaction: z.string().optional(),
 })
 
 export const MedicationSchema = z.object({
   name: z.string(),
-  rxnorm_code: z.string().optional(),
+  rxnorm_code: z.string(),
   dosage: z.string().optional(),
   frequency: z.string().optional(),
 })

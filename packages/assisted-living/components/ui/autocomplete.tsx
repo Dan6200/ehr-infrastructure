@@ -22,7 +22,7 @@ import { useDebounce } from '@/hooks/use-debounce' // Assuming you have a deboun
 interface AutocompleteProps {
   options: { value: string; label: string }[]
   value: string
-  onValueChange: (value: string) => void
+  onValueChange: (option: { value: string; label: string } | null) => void
   onSearch: (searchTerm: string) => Promise<{ code: string; name: string }[]>
   placeholder?: string
   emptyMessage?: string
@@ -89,9 +89,10 @@ export function Autocomplete({
                       key={option.value}
                       value={option.value}
                       onSelect={(currentValue) => {
-                        onValueChange(
-                          currentValue === value ? '' : currentValue,
+                        const option = searchResults.find(
+                          (opt) => opt.value === currentValue,
                         )
+                        onValueChange(option || null)
                         setOpen(false)
                       }}
                     >

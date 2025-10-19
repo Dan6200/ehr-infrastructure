@@ -105,7 +105,15 @@ export function AllergiesForm({
                   <FormControl>
                     <Autocomplete
                       value={field.value || ''}
-                      onValueChange={field.onChange}
+                      onValueChange={(option) => {
+                        if (option) {
+                          form.setValue(
+                            `allergies.${index}.snomed_code`,
+                            option.value,
+                          )
+                          form.setValue(`allergies.${index}.name`, option.label)
+                        }
+                      }}
                       onSearch={searchSnomed}
                       placeholder="Search SNOMED..."
                       options={[]}
