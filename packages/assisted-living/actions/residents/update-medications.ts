@@ -1,5 +1,13 @@
 'use server'
-import { collection, doc, writeBatch } from 'firebase/firestore'
+import { collection, doc, getDoc, writeBatch } from 'firebase/firestore'
+import { db } from '@/firebase/firestore-server'
+import { Medication, EncryptedMedicationSchema } from '@/types'
+import { getAuthenticatedAppForUser } from '@/auth/server/auth'
+import {
+  decryptDataKey,
+  encryptData,
+  KEK_CLINICAL_PATH,
+} from '@/lib/encryption'
 
 export async function updateMedications(
   medications: Medication[],
@@ -12,6 +20,22 @@ export async function updateMedications(
   }
 
   try {
+    const residentRef = doc(db, 'residents', residentId)
+    const residentSnap = await getDoc(residentRef)
+    if (!residentSnap.exists()) {
+      throw new Error('Resident not found')
+    }
+
+    const encryptedDek = residentSnap.data().encrypted_dek_clinical
+    if (!encryptedDek) {
+      throw new Error('Clinical DEK not found for resident')
+    }
+
+    const clinicalDek = await decryptDataKey(
+      Buffer.from(encryptedDek, 'base64'),
+      KEK_CLINICAL_PATH,
+    )
+
     const batch = writeBatch(db)
     const medicationsRef = collection(
       db,
@@ -23,7 +47,33 @@ export async function updateMedications(
     medications.forEach((med) => {
       const { id, ...medData } = med
       const docRef = id ? doc(medicationsRef, id) : doc(medicationsRef)
-      batch.set(docRef, medData, { merge: true })
+
+      const encryptedMedication: any = {}
+      if (medData.name)
+        encryptedMedication.encrypted_name = encryptData(
+          medData.name,
+          clinicalDek,
+        )
+      if (medData.rxnorm_code)
+        encryptedMedication.encrypted_rxnorm_code = encryptData(
+          medData.rxnorm_code,
+          clinicalDek,
+        )
+      if (medData.dosage)
+        encryptedMedication.encrypted_dosage = encryptData(
+          medData.dosage,
+          clinicalDek,
+        )
+      if (medData.frequency)
+        encryptedMedication.encrypted_frequency = encryptData(
+          medData.frequency,
+          clinicalDek,
+        )
+      // Administrations are handled separately, not directly encrypted here
+
+      batch.set(docRef, EncryptedMedicationSchema.parse(encryptedMedication), {
+        merge: true,
+      })
     })
 
     deletedMedicationIds.forEach((id) => {

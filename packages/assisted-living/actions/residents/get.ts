@@ -39,12 +39,15 @@ import {
 import { notFound } from 'next/navigation'
 import { z } from 'zod'
 
-// --- Subcollection Getters ---
+import { decryptData } from '@/lib/encryption'
 
-async function getSubcollection<T>(
+// --- Subcollection Getters ---
+async function getSubcollection<T extends z.ZodTypeAny>(
   residentId: string,
   collectionName: string,
-): Promise<T[]> {
+  dek: Buffer,
+  schema: T,
+): Promise<z.infer<T>[]> {
   const authenticatedApp = await getAuthenticatedAppAndClaims()
   if (!authenticatedApp) throw new Error('Failed to authenticate session')
   const { app } = authenticatedApp
@@ -54,21 +57,30 @@ async function getSubcollection<T>(
     `providers/GYRHOME/residents/${residentId}/${collectionName}`,
   )
   const snapshot = await getDocsWrapper(subcollectionRef)
-  return snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as T[]
+
+  return snapshot.docs.map((doc) => {
+    const encryptedData = doc.data()
+    const decryptedData: { [key: string]: any } = { id: doc.id }
+    for (const key in encryptedData) {
+      if (key.startsWith('encrypted_')) {
+        const newKey = key.replace('encrypted_', '')
+        decryptedData[newKey] = decryptData(encryptedData[key], dek)
+      }
+    }
+    // Special handling for financial amounts which are numbers
+    if (collectionName === 'financials' && decryptedData.amount) {
+      decryptedData.amount = parseFloat(decryptedData.amount)
+    }
+    return schema.parse(decryptedData)
+  })
 }
 
-export const getResidentAllergies = (residentId: string) =>
-  getSubcollection<Allergy>(residentId, 'allergies')
-export const getResidentMedications = (residentId: string) =>
-  getSubcollection<Medication>(residentId, 'medications')
-export const getResidentVitals = (residentId: string) =>
-  getSubcollection<Vital>(residentId, 'vitals')
-export const getResidentMedicalRecords = (residentId: string) =>
-  getSubcollection<MedicalRecord>(residentId, 'medical_records')
-export const getResidentEmergencyContacts = (residentId: string) =>
-  getSubcollection<EmergencyContact>(residentId, 'emergency_contacts')
-export const getResidentFinancials = (residentId: string) =>
-  getSubcollection<FinancialTransaction>(residentId, 'financials')
+import {
+  decryptDataKey,
+  KEK_CONTACT_PATH,
+  KEK_CLINICAL_PATH,
+  KEK_FINANCIAL_PATH,
+} from '@/lib/encryption'
 
 // Use a DTO for resident data
 export async function getResidentData(
@@ -94,8 +106,23 @@ export async function getResidentData(
     if (!residentSnap.exists()) throw notFound()
 
     const resident = await decryptResidentData(residentSnap.data(), userRoles)
+    const encryptedResidentData = residentSnap.data()
 
-    // Fetch subcollections in parallel
+    // Decrypt DEKs
+    const contactDek = await decryptDataKey(
+      Buffer.from(encryptedResidentData.encrypted_dek_contact, 'base64'),
+      KEK_CONTACT_PATH,
+    )
+    const clinicalDek = await decryptDataKey(
+      Buffer.from(encryptedResidentData.encrypted_dek_clinical, 'base64'),
+      KEK_CLINICAL_PATH,
+    )
+    const financialDek = await decryptDataKey(
+      Buffer.from(encryptedResidentData.encrypted_dek_financial, 'base64'),
+      KEK_FINANCIAL_PATH,
+    )
+
+    // Fetch and decrypt subcollections in parallel
     const [
       allergies,
       medications,
@@ -104,12 +131,32 @@ export async function getResidentData(
       emergency_contacts,
       financials,
     ] = await Promise.all([
-      getResidentAllergies(documentId),
-      getResidentMedications(documentId),
-      getResidentVitals(documentId),
-      getResidentMedicalRecords(documentId),
-      getResidentEmergencyContacts(documentId),
-      getResidentFinancials(documentId),
+      getSubcollection(documentId, 'allergies', clinicalDek, AllergySchema),
+      getSubcollection(
+        documentId,
+        'medications',
+        clinicalDek,
+        MedicationSchema,
+      ),
+      getSubcollection(documentId, 'vitals', clinicalDek, VitalSchema),
+      getSubcollection(
+        documentId,
+        'medical_records',
+        clinicalDek,
+        MedicalRecordSchema,
+      ),
+      getSubcollection(
+        documentId,
+        'emergency_contacts',
+        contactDek,
+        EmergencyContactSchema,
+      ),
+      getSubcollection(
+        documentId,
+        'financials',
+        financialDek,
+        FinancialTransactionSchema,
+      ),
     ])
 
     const facilityDocRef = await docWrapper(
