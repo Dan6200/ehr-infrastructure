@@ -30,7 +30,22 @@ export const RelationshipEnum = z.union([
 
 export const FinancialTransactionTypeEnum = z.enum(['PAYMENT', 'CHARGE'])
 
+export const MedicalRecordTypeEnum = z.enum([
+  'NURSING_NOTE',
+  'PHYSICIAN_ORDER',
+  'INCIDENT_REPORT',
+  'CONSULTATION',
+  'OTHER',
+])
+
 // --- Plaintext Schemas (for Application Use) ---
+export const VitalSchema = z.object({
+  date: z.string(), // ISO 8601 date string
+  loinc_code: z.string(),
+  value: z.string(),
+  unit: z.string().optional(),
+})
+
 export const MedicalRecordSchema = z.object({
   date: z.string(), // ISO 8601 date string
   title: z.string(),
@@ -95,6 +110,7 @@ export const ResidentSchema = z.object({
   medications: z.array(MedicationSchema).nullable().optional(),
   financials: z.array(FinancialTransactionSchema).nullable().optional(),
   medical_records: z.array(MedicalRecordSchema).nullable().optional(),
+  vitals: z.array(VitalSchema).nullable().optional(),
 })
 
 // --- Encrypted Field Schema ---
@@ -105,6 +121,13 @@ export const EncryptedFieldSchema = z.object({
 })
 
 // --- Encrypted Schemas (for Firestore Storage) ---
+export const EncryptedVitalSchema = z.object({
+  encrypted_date: EncryptedFieldSchema,
+  encrypted_loinc_code: EncryptedFieldSchema,
+  encrypted_value: EncryptedFieldSchema,
+  encrypted_unit: EncryptedFieldSchema.optional(),
+})
+
 export const EncryptedMedicalRecordSchema = z.object({
   encrypted_date: EncryptedFieldSchema,
   encrypted_title: EncryptedFieldSchema,
@@ -177,9 +200,11 @@ export const EncryptedResidentSchema = z.object({
     .array(EncryptedMedicalRecordSchema)
     .nullable()
     .optional(),
+  encrypted_vitals: z.array(EncryptedVitalSchema).nullable().optional(),
 })
 
 // --- Types ---
+export type Vital = z.infer<typeof VitalSchema>
 export type MedicalRecord = z.infer<typeof MedicalRecordSchema>
 export type Allergy = z.infer<typeof AllergySchema>
 export type Medication = z.infer<typeof MedicationSchema>

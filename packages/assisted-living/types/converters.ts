@@ -203,6 +203,22 @@ export async function encryptResident(
       },
     )
   }
+  if (dataToEncrypt.vitals) {
+    encryptedData.encrypted_vitals = dataToEncrypt.vitals.map(
+      (vital: Vital) => {
+        const enc: any = {}
+        if (vital.date)
+          enc.encrypted_date = encryptData(vital.date, clinicalDek)
+        if (vital.loinc_code)
+          enc.encrypted_loinc_code = encryptData(vital.loinc_code, clinicalDek)
+        if (vital.value)
+          enc.encrypted_value = encryptData(vital.value, clinicalDek)
+        if (vital.unit)
+          enc.encrypted_unit = encryptData(vital.unit, clinicalDek)
+        return EncryptedVitalSchema.parse(enc)
+      },
+    )
+  }
 
   // Encrypt Financial Data
   if (dataToEncrypt.financials) {
@@ -432,6 +448,20 @@ export async function decryptResidentData(
           return dec
         },
       )
+    }
+    if (data.encrypted_vitals) {
+      decryptedData.vitals = data.encrypted_vitals.map((vital: any) => {
+        const dec: any = {}
+        if (vital.encrypted_date)
+          dec.date = decryptData(vital.encrypted_date, clinicalDek)
+        if (vital.encrypted_loinc_code)
+          dec.loinc_code = decryptData(vital.encrypted_loinc_code, clinicalDek)
+        if (vital.encrypted_value)
+          dec.value = decryptData(vital.encrypted_value, clinicalDek)
+        if (vital.encrypted_unit)
+          dec.unit = decryptData(vital.encrypted_unit, clinicalDek)
+        return dec
+      })
     }
   }
 
