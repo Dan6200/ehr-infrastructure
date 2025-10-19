@@ -20,6 +20,9 @@ import { Input } from '@/components/ui/input'
 import { Trash2 } from 'lucide-react'
 import { updateMedications } from '@/actions/residents/update-medications'
 
+import { Autocomplete } from '@/components/ui/autocomplete'
+import { searchRxNorm } from '@/actions/lookups/search-rxnorm'
+
 const FormSchema = z.object({
   medications: z.array(MedicationSchema).nullable().optional(),
 })
@@ -113,7 +116,13 @@ export function MedicationsForm({
                 <FormItem>
                   <FormLabel>RxNorm Code</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., 314076" {...field} />
+                    <Autocomplete
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                      onSearch={searchRxNorm}
+                      placeholder="Search RxNorm..."
+                      options={[]}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

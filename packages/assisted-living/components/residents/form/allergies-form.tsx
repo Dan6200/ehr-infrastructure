@@ -20,6 +20,9 @@ import { Input } from '@/components/ui/input'
 import { Trash2 } from 'lucide-react'
 import { updateAllergies } from '@/actions/residents/update-allergies'
 
+import { Autocomplete } from '@/components/ui/autocomplete'
+import { searchSnomed } from '@/actions/lookups/search-snomed'
+
 const FormSchema = z.object({
   allergies: z.array(AllergySchema).nullable().optional(),
 })
@@ -100,7 +103,13 @@ export function AllergiesForm({
                 <FormItem>
                   <FormLabel>SNOMED Code</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., 91936005" {...field} />
+                    <Autocomplete
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                      onSearch={searchSnomed}
+                      placeholder="Search SNOMED..."
+                      options={[]}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

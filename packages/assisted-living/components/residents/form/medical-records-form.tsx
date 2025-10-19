@@ -20,6 +20,8 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Trash2 } from 'lucide-react'
 import { updateMedicalRecords } from '@/actions/residents/update-medical-records'
+import { Autocomplete } from '@/components/ui/autocomplete'
+import { searchSnomed } from '@/actions/lookups/search-snomed'
 
 const FormSchema = z.object({
   medical_records: z.array(MedicalRecordSchema).nullable().optional(),
@@ -102,7 +104,13 @@ export function MedicalRecordsForm({
                   <FormItem>
                     <FormLabel>Record Type (SNOMED)</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., 185349003" {...field} />
+                      <Autocomplete
+                        value={field.value || ''}
+                        onValueChange={field.onChange}
+                        onSearch={searchSnomed}
+                        placeholder="Search SNOMED..."
+                        options={[]}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
