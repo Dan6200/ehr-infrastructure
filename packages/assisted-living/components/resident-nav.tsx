@@ -17,6 +17,8 @@ const navLinks = [
   { name: 'Allergies', href: '/allergies' },
   { name: 'Current Medications', href: '/medications' },
   { name: 'Medical Records', href: '/records' },
+  { name: 'Vitals', href: '/vitals' },
+  { name: 'Billing', href: '/billing' },
 ]
 
 export function ResidentNav({ residentId }: { residentId: string }) {
