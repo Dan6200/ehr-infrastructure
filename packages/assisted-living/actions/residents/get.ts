@@ -51,7 +51,7 @@ import { decryptData } from '@/lib/encryption'
 async function getSubcollection<T extends z.ZodTypeAny>(
   residentId: string,
   collectionName: string,
-  dek: Buffer,
+  kekPath: string, // Pass KEK path instead of DEK
   schema: T,
 ): Promise<z.infer<T>[]> {
   const authenticatedApp = await getAuthenticatedAppAndClaims()
@@ -64,21 +64,33 @@ async function getSubcollection<T extends z.ZodTypeAny>(
   )
   const snapshot = await getDocsWrapper(subcollectionRef)
 
-  return snapshot.docs.map((doc) => {
-    const encryptedData = doc.data()
-    const decryptedData: { [key: string]: any } = { id: doc.id }
-    for (const key in encryptedData) {
-      if (key.startsWith('encrypted_')) {
-        const newKey = key.replace('encrypted_', '')
-        decryptedData[newKey] = decryptData(encryptedData[key], dek)
+  return Promise.all(
+    snapshot.docs.map(async (doc) => {
+      const encryptedData = doc.data()
+
+      // Decrypt the document-specific DEK
+      const dek = await decryptDataKey(
+        Buffer.from(encryptedData.encrypted_dek, 'base64'),
+        kekPath,
+      )
+
+      const decryptedData: { [key: string]: any } = {
+        id: doc.id,
+        resident_id: encryptedData.resident_id,
       }
-    }
-    // Special handling for financial amounts which are numbers
-    if (collectionName === 'financials' && decryptedData.amount) {
-      decryptedData.amount = parseFloat(decryptedData.amount)
-    }
-    return schema.parse(decryptedData)
-  })
+      for (const key in encryptedData) {
+        if (key.startsWith('encrypted_') && key !== 'encrypted_dek') {
+          const newKey = key.replace('encrypted_', '')
+          decryptedData[newKey] = decryptData(encryptedData[key], dek)
+        }
+      }
+      // Special handling for financial amounts which are numbers
+      if (collectionName === 'financials' && decryptedData.amount) {
+        decryptedData.amount = parseFloat(decryptedData.amount)
+      }
+      return schema.parse(decryptedData)
+    }),
+  )
 }
 
 import {
@@ -112,21 +124,6 @@ export async function getResidentData(
     if (!residentSnap.exists()) throw notFound()
 
     const resident = await decryptResidentData(residentSnap.data(), userRoles)
-    const encryptedResidentData = residentSnap.data()
-
-    // Decrypt DEKs
-    const contactDek = await decryptDataKey(
-      Buffer.from(encryptedResidentData.encrypted_dek_contact, 'base64'),
-      KEK_CONTACT_PATH,
-    )
-    const clinicalDek = await decryptDataKey(
-      Buffer.from(encryptedResidentData.encrypted_dek_clinical, 'base64'),
-      KEK_CLINICAL_PATH,
-    )
-    const financialDek = await decryptDataKey(
-      Buffer.from(encryptedResidentData.encrypted_dek_financial, 'base64'),
-      KEK_FINANCIAL_PATH,
-    )
 
     // Fetch and decrypt subcollections in parallel
     const [
@@ -136,37 +133,49 @@ export async function getResidentData(
       diagnostic_history,
       emergency_contacts,
       financials,
+      emar,
     ] = await Promise.all([
-      getSubcollection(documentId, 'allergies', clinicalDek, AllergySchema),
+      getSubcollection(
+        documentId,
+        'allergies',
+        KEK_CLINICAL_PATH,
+        AllergySchema,
+      ),
       getSubcollection(
         documentId,
         'medications',
-        clinicalDek,
+        KEK_CLINICAL_PATH,
         MedicationSchema,
       ),
       getSubcollection(
         documentId,
         'observations',
-        clinicalDek,
+        KEK_CLINICAL_PATH,
         ObservationSchema,
       ),
       getSubcollection(
         documentId,
         'diagnostic_history',
-        clinicalDek,
+        KEK_CLINICAL_PATH,
         DiagnosticHistorySchema,
       ),
       getSubcollection(
         documentId,
         'emergency_contacts',
-        contactDek,
+        KEK_CONTACT_PATH,
         EmergencyContactSchema,
       ),
       getSubcollection(
         documentId,
         'financials',
-        financialDek,
+        KEK_FINANCIAL_PATH,
         FinancialTransactionSchema,
+      ),
+      getSubcollection(
+        documentId,
+        'medication_administration',
+        KEK_CLINICAL_PATH,
+        EmarRecordSchema,
       ),
     ])
 
@@ -191,6 +200,7 @@ export async function getResidentData(
       diagnostic_history,
       emergency_contacts,
       financials,
+      emar,
     })
   } catch (error: any) {
     throw new Error(`Failed to fetch resident: ${error.message}`)
