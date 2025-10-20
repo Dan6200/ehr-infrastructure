@@ -4,18 +4,85 @@ import {
   KEK_GENERAL_PATH,
   KEK_CONTACT_PATH,
   KEK_CLINICAL_PATH,
-} from '../tmp_build/lib/encryption.js'
+  KEK_FINANCIAL_PATH, // Import new financial KEK
+} from '../lib/encryption.js'
 import * as fs from 'fs'
 import * as path from 'path'
 
-const rawDataPath = path.join(
-  process.cwd(),
-  'demo-data/residents/data-plain.json',
-)
-const outputPath = path.join(process.cwd(), 'demo-data/residents/data.json')
-const rawData = JSON.parse(fs.readFileSync(rawDataPath, 'utf-8'))
+// --- Helper to encrypt a single field's value ---
+function encryptField(value: string | number | boolean, dek: Buffer) {
+  if (value === null || typeof value === 'undefined') {
+    return null
+  }
+  const { ciphertext, iv, authTag } = encryptData(String(value), dek)
+  return {
+    ciphertext: ciphertext.toString('base64'),
+    iv: iv.toString('base64'),
+    authTag: authTag.toString('base64'),
+  }
+}
 
-async function encryptResidentData(residentData: any) {
+// --- Generic Subcollection Encryption Function ---
+async function encryptSubcollection(collectionName: string, kekPath: string) {
+  console.log(`Starting encryption for ${collectionName}...`)
+  const rawDataPath = path.join(
+    process.cwd(),
+    `demo-data/${collectionName}/data-plain.json`,
+  )
+  const outputPath = path.join(
+    process.cwd(),
+    `demo-data/${collectionName}/data.json`,
+  )
+
+  if (!fs.existsSync(rawDataPath)) {
+    console.warn(
+      `Warning: Plaintext data file not found for ${collectionName} at ${rawDataPath}. Skipping.`,
+    )
+    return
+  }
+
+  const rawItems = JSON.parse(fs.readFileSync(rawDataPath, 'utf-8'))
+  const encryptedItems = []
+
+  for (const item of rawItems) {
+    // Generate a unique, per-item DEK
+    const { plaintextDek, encryptedDek } = await generateDataKey(kekPath)
+
+    const encryptedItemData: any = {
+      resident_id: item.data.resident_id, // Keep resident_id unencrypted
+      encrypted_dek: encryptedDek.toString('base64'),
+    }
+
+    // Encrypt all other fields within the 'data' object
+    for (const field in item.data) {
+      if (
+        field !== 'resident_id' &&
+        field !== 'medication_statement_id' &&
+        field !== 'recorder_id'
+      ) {
+        encryptedItemData[`encrypted_${field}`] = encryptField(
+          item.data[field],
+          plaintextDek,
+        )
+      }
+    }
+
+    encryptedItems.push({
+      id: item.id, // Keep top-level ID unencrypted
+      data: encryptedItemData,
+    })
+  }
+
+  fs.writeFileSync(outputPath, JSON.stringify(encryptedItems, null, 2), {
+    encoding: 'utf-8',
+  })
+  console.log(
+    `✅ Successfully encrypted ${encryptedItems.length} items for ${collectionName}.`,
+  )
+}
+
+// --- Resident Data Encryption (Main Object) ---
+async function encryptResident(residentData: any) {
   const encryptedData: any = {
     id: residentData.id, // Keep ID unencrypted
     data: {
@@ -24,13 +91,15 @@ async function encryptResidentData(residentData: any) {
     },
   }
 
-  // Generate DEKs and encrypt them
+  // 1. Generate all four DEKs for the main resident object
   const { plaintextDek: generalDek, encryptedDek: encryptedDekGeneral } =
     await generateDataKey(KEK_GENERAL_PATH)
   const { plaintextDek: contactDek, encryptedDek: encryptedDekContact } =
     await generateDataKey(KEK_CONTACT_PATH)
   const { plaintextDek: clinicalDek, encryptedDek: encryptedDekClinical } =
     await generateDataKey(KEK_CLINICAL_PATH)
+  const { plaintextDek: financialDek, encryptedDek: encryptedDekFinancial } =
+    await generateDataKey(KEK_FINANCIAL_PATH)
 
   encryptedData.data.encrypted_dek_general =
     encryptedDekGeneral.toString('base64')
@@ -38,180 +107,95 @@ async function encryptResidentData(residentData: any) {
     encryptedDekContact.toString('base64')
   encryptedData.data.encrypted_dek_clinical =
     encryptedDekClinical.toString('base64')
+  encryptedData.data.encrypted_dek_financial =
+    encryptedDekFinancial.toString('base64')
 
-  // Encrypt General Data (resident_name, avatar_url)
-  if (residentData.data.resident_name) {
-    const { ciphertext, iv, authTag } = encryptData(
-      residentData.data.resident_name,
-      generalDek,
-    )
-    encryptedData.data.encrypted_resident_name = {
-      ciphertext: ciphertext.toString('base64'),
-      iv: iv.toString('base64'),
-      authTag: authTag.toString('base64'),
-    }
-  }
-  if (residentData.data.avatar_url) {
-    const { ciphertext, iv, authTag } = encryptData(
-      residentData.data.avatar_url,
-      generalDek,
-    )
-    encryptedData.data.encrypted_avatar_url = {
-      ciphertext: ciphertext.toString('base64'),
-      iv: iv.toString('base64'),
-      authTag: authTag.toString('base64'),
-    }
+  // 2. Define which fields are encrypted by which DEK
+  const dekMapping = {
+    general: ['resident_name', 'avatar_url'],
+    contact: [
+      'dob',
+      'resident_email',
+      'cell_phone',
+      'work_phone',
+      'home_phone',
+    ],
+    clinical: ['pcp'],
+    financial: [], // No direct financial fields on the resident object itself
   }
 
-  // Encrypt Contact Data (dob, emergency_contacts, resident_email, cell_phone, work_phone, home_phone)
-  if (residentData.data.dob) {
-    const { ciphertext, iv, authTag } = encryptData(
-      residentData.data.dob,
-      contactDek,
-    )
-    encryptedData.data.encrypted_dob = {
-      ciphertext: ciphertext.toString('base64'),
-      iv: iv.toString('base64'),
-      authTag: authTag.toString('base64'),
+  // 3. Encrypt fields based on the mapping
+  for (const dekType in dekMapping) {
+    let dek: Buffer
+    switch (dekType) {
+      case 'general':
+        dek = generalDek
+        break
+      case 'contact':
+        dek = contactDek
+        break
+      case 'clinical':
+        dek = clinicalDek
+        break
+      case 'financial':
+        dek = financialDek
+        break
+      default:
+        throw new Error('Invalid DEK type')
     }
-  }
-  if (residentData.data.resident_email) {
-    const { ciphertext, iv, authTag } = encryptData(
-      residentData.data.resident_email,
-      contactDek,
-    )
-    encryptedData.data.encrypted_resident_email = {
-      ciphertext: ciphertext.toString('base64'),
-      iv: iv.toString('base64'),
-      authTag: authTag.toString('base64'),
-    }
-  }
-  if (residentData.data.cell_phone) {
-    const { ciphertext, iv, authTag } = encryptData(
-      residentData.data.cell_phone,
-      contactDek,
-    )
-    encryptedData.data.encrypted_cell_phone = {
-      ciphertext: ciphertext.toString('base64'),
-      iv: iv.toString('base64'),
-      authTag: authTag.toString('base64'),
-    }
-  }
-  if (residentData.data.work_phone) {
-    const { ciphertext, iv, authTag } = encryptData(
-      residentData.data.work_phone,
-      contactDek,
-    )
-    encryptedData.data.encrypted_work_phone = {
-      ciphertext: ciphertext.toString('base64'),
-      iv: iv.toString('base64'),
-      authTag: authTag.toString('base64'),
-    }
-  }
-  if (residentData.data.home_phone) {
-    const { ciphertext, iv, authTag } = encryptData(
-      residentData.data.home_phone,
-      contactDek,
-    )
-    encryptedData.data.encrypted_home_phone = {
-      ciphertext: ciphertext.toString('base64'),
-      iv: iv.toString('base64'),
-      authTag: authTag.toString('base64'),
-    }
-  }
 
-  if (
-    residentData.data.emergency_contacts &&
-    residentData.data.emergency_contacts.length > 0
-  ) {
-    encryptedData.data.emergency_contacts = await Promise.all(
-      residentData.data.emergency_contacts.map(async (contact: any) => {
-        const encryptedContact: any = {}
-        if (contact.contact_name) {
-          const { ciphertext, iv, authTag } = encryptData(
-            contact.contact_name,
-            contactDek,
-          )
-          encryptedContact.encrypted_contact_name = {
-            ciphertext: ciphertext.toString('base64'),
-            iv: iv.toString('base64'),
-            authTag: authTag.toString('base64'),
-          }
-        }
-        if (contact.cell_phone) {
-          const { ciphertext, iv, authTag } = encryptData(
-            contact.cell_phone,
-            contactDek,
-          )
-          encryptedContact.encrypted_cell_phone = {
-            ciphertext: ciphertext.toString('base64'),
-            iv: iv.toString('base64'),
-            authTag: authTag.toString('base64'),
-          }
-        }
-        if (contact.work_phone) {
-          const { ciphertext, iv, authTag } = encryptData(
-            contact.work_phone,
-            contactDek,
-          )
-          encryptedContact.encrypted_work_phone = {
-            ciphertext: ciphertext.toString('base64'),
-            iv: iv.toString('base64'),
-            authTag: authTag.toString('base64'),
-          }
-        }
-        if (contact.home_phone) {
-          const { ciphertext, iv, authTag } = encryptData(
-            contact.home_phone,
-            contactDek,
-          )
-          encryptedContact.encrypted_home_phone = {
-            ciphertext: ciphertext.toString('base64'),
-            iv: iv.toString('base64'),
-            authTag: authTag.toString('base64'),
-          }
-        }
-        if (contact.relationship && contact.relationship.length > 0) {
-          encryptedContact.encrypted_relationship = contact.relationship.map(
-            (r: string) => {
-              const { ciphertext, iv, authTag } = encryptData(r, contactDek)
-              return {
-                ciphertext: ciphertext.toString('base64'),
-                iv: iv.toString('base64'),
-                authTag: authTag.toString('base64'),
-              }
-            },
-          )
-        }
-        return encryptedContact
-      }),
-    )
-  }
-
-  // Encrypt Clinical Data (pcp)
-  if (residentData.data.pcp) {
-    const { ciphertext, iv, authTag } = encryptData(
-      residentData.data.pcp,
-      clinicalDek,
-    )
-    encryptedData.data.encrypted_pcp = {
-      ciphertext: ciphertext.toString('base64'),
-      iv: iv.toString('base64'),
-      authTag: authTag.toString('base64'),
+    for (const field of (dekMapping as any)[dekType]) {
+      if (residentData.data[field]) {
+        encryptedData.data[`encrypted_${field}`] = encryptField(
+          residentData.data[field],
+          dek,
+        )
+      }
     }
   }
 
   return encryptedData
 }
 
-async function processAllResidents() {
+async function processResidents() {
+  console.log('Starting encryption for residents...')
+  const rawDataPath = path.join(
+    process.cwd(),
+    'demo-data/residents/data-plain.json',
+  )
+  const outputPath = path.join(process.cwd(), 'demo-data/residents/data.json')
+  const rawData = JSON.parse(fs.readFileSync(rawDataPath, 'utf-8'))
+
   const encryptedResidents = []
   for (const resident of rawData) {
-    encryptedResidents.push(await encryptResidentData(resident))
+    encryptedResidents.push(await encryptResident(resident))
   }
+
   fs.writeFileSync(outputPath, JSON.stringify(encryptedResidents, null, 2), {
     encoding: 'utf-8',
   })
+  console.log(
+    `✅ Successfully encrypted ${encryptedResidents.length} resident records.`,
+  )
 }
 
-processAllResidents().catch(console.error)
+// --- Main Orchestrator Function ---
+async function processAllData() {
+  console.log('--- Starting Full Demo Data Encryption Process ---')
+
+  // Encrypt the main resident objects first
+  await processResidents()
+
+  // Encrypt all subcollections
+  await encryptSubcollection('emergency_contacts', KEK_CONTACT_PATH)
+  await encryptSubcollection('allergies', KEK_CLINICAL_PATH)
+  await encryptSubcollection('medications', KEK_CLINICAL_PATH)
+  await encryptSubcollection('medication_administration', KEK_CLINICAL_PATH)
+  await encryptSubcollection('observations', KEK_CLINICAL_PATH)
+  await encryptSubcollection('diagnostic_history', KEK_CLINICAL_PATH)
+  await encryptSubcollection('financials', KEK_FINANCIAL_PATH)
+
+  console.log('\n--- All data encrypted successfully! ---')
+}
+
+processAllData().catch(console.error)
