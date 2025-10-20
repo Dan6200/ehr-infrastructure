@@ -1,12 +1,10 @@
-'use client'
-
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { toast } from '@/components/ui/use-toast'
 import { isError } from '@/app/utils'
-import { MedicalRecordSchema, ResidentData } from '@/types'
+import { DiagnosticHistorySchema, ResidentData } from '@/types'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -19,17 +17,17 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Trash2 } from 'lucide-react'
-import { updateMedicalRecords } from '@/actions/residents/update-medical-records'
+import { updateDiagnosticHistory } from '@/actions/residents/update-diagnostic-history'
 import { Autocomplete } from '@/components/ui/autocomplete'
 import { searchSnomed } from '@/actions/lookups/search-snomed'
 
 import * as React from 'react'
 
 const FormSchema = z.object({
-  medical_records: z.array(MedicalRecordSchema).nullable().optional(),
+  diagnostic_history: z.array(DiagnosticHistorySchema).nullable().optional(),
 })
 
-export function MedicalRecordsForm({
+export function DiagnosticHistoryForm({
   residentData,
 }: {
   residentData: ResidentData
@@ -40,17 +38,17 @@ export function MedicalRecordsForm({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      medical_records: residentData.medical_records || [],
+      diagnostic_history: residentData.diagnostic_history || [],
     },
   })
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: 'medical_records',
+    name: 'diagnostic_history',
   })
 
   const handleRemove = (index: number) => {
-    const recordId = residentData.medical_records?.[index]?.id
+    const recordId = residentData.diagnostic_history?.[index]?.id
     if (recordId) {
       setDeletedRecordIds((prev) => [...prev, recordId])
     }
@@ -59,8 +57,8 @@ export function MedicalRecordsForm({
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      const { message, success } = await updateMedicalRecords(
-        data.medical_records || [],
+      const { message, success } = await updateDiagnosticHistory(
+        data.diagnostic_history || [],
         residentData.id!,
         deletedRecordIds,
       )
@@ -77,7 +75,7 @@ export function MedicalRecordsForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <h2 className="text-xl font-semibold">Edit Medical Records</h2>
+        <h2 className="text-xl font-semibold">Edit Diagnostic History</h2>
         {fields.map((field, index) => (
           <div
             key={field.id}
@@ -86,7 +84,7 @@ export function MedicalRecordsForm({
             <div className="flex items-end gap-4">
               <FormField
                 control={form.control}
-                name={`medical_records.${index}.date`}
+                name={`diagnostic_history.${index}.date`}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Date</FormLabel>
@@ -99,7 +97,7 @@ export function MedicalRecordsForm({
               />
               <FormField
                 control={form.control}
-                name={`medical_records.${index}.title`}
+                name={`diagnostic_history.${index}.title`}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Title</FormLabel>
@@ -112,7 +110,7 @@ export function MedicalRecordsForm({
               />
               <FormField
                 control={form.control}
-                name={`medical_records.${index}.snomed_code`}
+                name={`diagnostic_history.${index}.snomed_code`}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Record Type (SNOMED)</FormLabel>
@@ -122,11 +120,11 @@ export function MedicalRecordsForm({
                         onValueChange={(option) => {
                           if (option) {
                             form.setValue(
-                              `medical_records.${index}.snomed_code`,
+                              `diagnostic_history.${index}.snomed_code`,
                               option.value,
                             )
                             form.setValue(
-                              `medical_records.${index}.title`,
+                              `diagnostic_history.${index}.title`,
                               option.label,
                             )
                           }
@@ -150,7 +148,7 @@ export function MedicalRecordsForm({
             </div>
             <FormField
               control={form.control}
-              name={`medical_records.${index}.notes`}
+              name={`diagnostic_history.${index}.notes`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Notes</FormLabel>
@@ -178,7 +176,7 @@ export function MedicalRecordsForm({
             })
           }
         >
-          Add Medical Record
+          Add Diagnostic History
         </Button>
         <Button type="submit">Save Changes</Button>
       </form>

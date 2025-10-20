@@ -1,12 +1,10 @@
-'use client'
-
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { toast } from '@/components/ui/use-toast'
 import { isError } from '@/app/utils'
-import { VitalSchema, ResidentData } from '@/types'
+import { ObservationSchema, ResidentData } from '@/types'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -18,44 +16,50 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Trash2 } from 'lucide-react'
-import { updateVitals } from '@/actions/residents/update-vitals'
+import { updateObservations } from '@/actions/residents/update-observations'
 
 import * as React from 'react'
 
 const FormSchema = z.object({
-  vitals: z.array(VitalSchema).nullable().optional(),
+  observations: z.array(ObservationSchema).nullable().optional(),
 })
 
-export function VitalsForm({ residentData }: { residentData: ResidentData }) {
+export function ObservationsForm({
+  residentData,
+}: {
+  residentData: ResidentData
+}) {
   const router = useRouter()
-  const [deletedVitalIds, setDeletedVitalIds] = React.useState<string[]>([])
+  const [deletedObservationIds, setDeletedObservationIds] = React.useState<
+    string[]
+  >([])
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      vitals: residentData.vitals || [],
+      observations: residentData.observations || [],
     },
   })
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: 'vitals',
+    name: 'observations',
   })
 
   const handleRemove = (index: number) => {
-    const vitalId = residentData.vitals?.[index]?.id
-    if (vitalId) {
-      setDeletedVitalIds((prev) => [...prev, vitalId])
+    const observationId = residentData.observations?.[index]?.id
+    if (observationId) {
+      setDeletedObservationIds((prev) => [...prev, observationId])
     }
     remove(index)
   }
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      const { message, success } = await updateVitals(
-        data.vitals || [],
+      const { message, success } = await updateObservations(
+        data.observations || [],
         residentData.id!,
-        deletedVitalIds,
+        deletedObservationIds,
       )
       toast({ title: message, variant: success ? 'default' : 'destructive' })
       if (success) {
@@ -70,7 +74,7 @@ export function VitalsForm({ residentData }: { residentData: ResidentData }) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <h2 className="text-xl font-semibold">Edit Vitals</h2>
+        <h2 className="text-xl font-semibold">Edit Observations</h2>
         {fields.map((field, index) => (
           <div
             key={field.id}
@@ -78,7 +82,7 @@ export function VitalsForm({ residentData }: { residentData: ResidentData }) {
           >
             <FormField
               control={form.control}
-              name={`vitals.${index}.date`}
+              name={`observations.${index}.date`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Date</FormLabel>
@@ -91,7 +95,7 @@ export function VitalsForm({ residentData }: { residentData: ResidentData }) {
             />
             <FormField
               control={form.control}
-              name={`vitals.${index}.loinc_code`}
+              name={`observations.${index}.loinc_code`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>LOINC Code</FormLabel>
@@ -104,7 +108,7 @@ export function VitalsForm({ residentData }: { residentData: ResidentData }) {
             />
             <FormField
               control={form.control}
-              name={`vitals.${index}.value`}
+              name={`observations.${index}.value`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Value</FormLabel>
@@ -117,7 +121,7 @@ export function VitalsForm({ residentData }: { residentData: ResidentData }) {
             />
             <FormField
               control={form.control}
-              name={`vitals.${index}.unit`}
+              name={`observations.${index}.unit`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Unit</FormLabel>
@@ -150,7 +154,7 @@ export function VitalsForm({ residentData }: { residentData: ResidentData }) {
             })
           }
         >
-          Add Vital
+          Add Observation
         </Button>
         <Button type="submit">Save Changes</Button>
       </form>

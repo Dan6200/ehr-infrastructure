@@ -9,11 +9,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { MedicalRecord } from '@/types'
+import { Observation } from '@/types'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-export default async function MedicalRecordsPage({
+export default async function ObservationsPage({
   params,
 }: {
   params: { id: string }
@@ -21,45 +21,45 @@ export default async function MedicalRecordsPage({
   const residentData = await getResidentData(params.id).catch((e) => {
     if (e.message.match(/not_found/i)) notFound()
     throw new Error(
-      `Unable to fetch resident data for medical records page: ${e.message}`,
+      `Unable to fetch resident data for observations page: ${e.message}`,
     )
   })
 
-  const { medical_records, id } = residentData
+  const { observations, id } = residentData
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row gap-4 justify-between items-center border-b pb-2 mb-8">
-        <h2 className="text-xl font-semibold">Medical Records</h2>
+        <h2 className="text-xl font-semibold">Observations</h2>
         <Button asChild>
-          <Link href={`/admin/dashboard/residents/${id}/medical-records/edit`}>
-            Edit Medical Records
+          <Link href={`/admin/dashboard/residents/${id}/observations/edit`}>
+            Edit Observations
           </Link>
         </Button>
       </div>
-      {medical_records && medical_records.length > 0 ? (
+      {observations && observations.length > 0 ? (
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Date</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Type (SNOMED)</TableHead>
-              <TableHead>Notes</TableHead>
+              <TableHead>Observation (LOINC)</TableHead>
+              <TableHead>Value</TableHead>
+              <TableHead>Unit</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {medical_records.map((record: MedicalRecord, index: number) => (
+            {observations.map((observation: Observation, index: number) => (
               <TableRow key={index}>
-                <TableCell>{record.date}</TableCell>
-                <TableCell>{record.title}</TableCell>
-                <TableCell>{record.snomed_code}</TableCell>
-                <TableCell>{record.notes}</TableCell>
+                <TableCell>{observation.date}</TableCell>
+                <TableCell>{observation.loinc_code}</TableCell>
+                <TableCell>{observation.value}</TableCell>
+                <TableCell>{observation.unit || 'N/A'}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       ) : (
-        <p>No medical records found for this resident.</p>
+        <p>No observations recorded for this resident.</p>
       )}
     </div>
   )

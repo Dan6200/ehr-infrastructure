@@ -47,7 +47,7 @@ export const AdministrationSchema = z.object({
   administered_by: z.string(), // User ID
 })
 
-export const VitalSchema = z.object({
+export const ObservationSchema = z.object({
   date: z.string(), // ISO 8601 date string
   loinc_code: z.string(),
   name: z.string(), // The display name for the LOINC code
@@ -55,7 +55,7 @@ export const VitalSchema = z.object({
   unit: z.string().optional(),
 })
 
-export const MedicalRecordSchema = z.object({
+export const DiagnosticHistorySchema = z.object({
   date: z.string(), // ISO 8601 date string
   title: z.string(),
   notes: z.string(),
@@ -131,14 +131,14 @@ export const EncryptedAdministrationSchema = z.object({
   encrypted_administered_by: EncryptedFieldSchema,
 })
 
-export const EncryptedVitalSchema = z.object({
+export const EncryptedObservationSchema = z.object({
   encrypted_date: EncryptedFieldSchema,
   encrypted_loinc_code: EncryptedFieldSchema,
   encrypted_value: EncryptedFieldSchema,
   encrypted_unit: EncryptedFieldSchema.optional(),
 })
 
-export const EncryptedMedicalRecordSchema = z.object({
+export const EncryptedDiagnosticHistorySchema = z.object({
   encrypted_date: EncryptedFieldSchema,
   encrypted_title: EncryptedFieldSchema,
   encrypted_notes: EncryptedFieldSchema,
@@ -201,8 +201,8 @@ export const EncryptedResidentSchema = z.object({
 
 // --- Types ---
 export type Administration = z.infer<typeof AdministrationSchema>
-export type Vital = z.infer<typeof VitalSchema>
-export type MedicalRecord = z.infer<typeof MedicalRecordSchema>
+export type Observation = z.infer<typeof ObservationSchema>
+export type DiagnosticHistory = z.infer<typeof DiagnosticHistorySchema>
 export type Allergy = z.infer<typeof AllergySchema>
 export type Medication = z.infer<typeof MedicationSchema>
 export type FinancialTransaction = z.infer<typeof FinancialTransactionSchema>

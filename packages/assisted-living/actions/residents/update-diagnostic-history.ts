@@ -1,7 +1,7 @@
 'use server'
 import { collection, doc, getDoc, writeBatch } from 'firebase/firestore'
 import { db } from '@/firebase/firestore-server'
-import { MedicalRecord, EncryptedMedicalRecordSchema } from '@/types'
+import { DiagnosticHistory, EncryptedDiagnosticHistorySchema } from '@/types'
 import { getAuthenticatedAppForUser } from '@/auth/server/auth'
 import {
   decryptDataKey,
@@ -9,8 +9,8 @@ import {
   KEK_CLINICAL_PATH,
 } from '@/lib/encryption'
 
-export async function updateMedicalRecords(
-  records: MedicalRecord[],
+export async function updateDiagnosticHistory(
+  records: DiagnosticHistory[],
   residentId: string,
   deletedRecordIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
@@ -41,7 +41,7 @@ export async function updateMedicalRecords(
       db,
       'residents',
       residentId,
-      'medical_records',
+      'diagnostic_history',
     )
 
     records.forEach((record) => {
@@ -70,9 +70,11 @@ export async function updateMedicalRecords(
           clinicalDek,
         )
 
-      batch.set(docRef, EncryptedMedicalRecordSchema.parse(encryptedRecord), {
-        merge: true,
-      })
+      batch.set(
+        docRef,
+        EncryptedDiagnosticHistorySchema.parse(encryptedRecord),
+        { merge: true },
+      )
     })
 
     deletedRecordIds.forEach((id) => {
@@ -82,9 +84,12 @@ export async function updateMedicalRecords(
 
     await batch.commit()
 
-    return { success: true, message: 'Medical records updated successfully.' }
+    return {
+      success: true,
+      message: 'Diagnostic history updated successfully.',
+    }
   } catch (error) {
-    console.error('Error updating medical records: ', error)
-    return { success: false, message: 'Failed to update medical records.' }
+    console.error('Error updating diagnostic history: ', error)
+    return { success: false, message: 'Failed to update diagnostic history.' }
   }
 }

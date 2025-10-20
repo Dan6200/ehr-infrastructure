@@ -1,8 +1,8 @@
 import { getResidentData } from '@/actions/residents/get'
-import { VitalsForm } from '@/components/residents/form/vitals-form'
+import { DiagnosticHistoryForm } from '@/components/residents/form/diagnostic-history-form'
 import { notFound } from 'next/navigation'
 
-export default async function EditVitalsPage({
+export default async function EditDiagnosticHistoryPage({
   params,
 }: {
   params: { id: string }
@@ -14,7 +14,7 @@ export default async function EditVitalsPage({
 
   return (
     <div className="py-8">
-      <VitalsForm residentData={residentData} />
+      <DiagnosticHistoryForm residentData={residentData} />
     </div>
   )
 }

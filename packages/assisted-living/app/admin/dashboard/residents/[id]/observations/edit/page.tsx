@@ -1,8 +1,8 @@
 import { getResidentData } from '@/actions/residents/get'
-import { MedicalRecordsForm } from '@/components/residents/form/medical-records-form'
+import { ObservationsForm } from '@/components/residents/form/observations-form'
 import { notFound } from 'next/navigation'
 
-export default async function EditMedicalRecordsPage({
+export default async function EditObservationsPage({
   params,
 }: {
   params: { id: string }
@@ -14,7 +14,7 @@ export default async function EditMedicalRecordsPage({
 
   return (
     <div className="py-8">
-      <MedicalRecordsForm residentData={residentData} />
+      <ObservationsForm residentData={residentData} />
     </div>
   )
 }
