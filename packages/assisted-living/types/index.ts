@@ -73,7 +73,18 @@ export const MedicationSchema = z.object({
   rxnorm_code: z.string(),
   dosage: z.string().optional(),
   frequency: z.string().optional(),
-  administrations: z.array(AdministrationSchema).nullable().optional(),
+})
+
+export const EmarRecordSchema = z.object({
+  id: z.string(),
+  resident_id: z.string(),
+  medication_statement_id: z.string(),
+  medication_name: z.string(),
+  recorder_id: z.string(),
+  status: z.string(),
+  administration_route: z.string(),
+  administered_dosage: z.string(),
+  administration_datetime: z.string(),
 })
 
 export const FinancialTransactionSchema = z.object({
@@ -220,5 +231,12 @@ export type Facility = z.infer<typeof FacilitySchema>
 export const ResidentDataSchema = ResidentSchema.extend({
   id: z.string().optional(),
   address: z.string(),
+  allergies: z.array(AllergySchema),
+  medications: z.array(MedicationSchema),
+  observations: z.array(ObservationSchema),
+  diagnostic_history: z.array(DiagnosticHistorySchema),
+  emergency_contacts: z.array(EmergencyContactSchema),
+  financials: z.array(FinancialTransactionSchema),
+  emar: z.array(EmarRecordSchema),
 })
 export type ResidentData = z.infer<typeof ResidentDataSchema>
