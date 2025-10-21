@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { toast } from '@/components/ui/use-toast'
 import { isError } from '@/app/utils'
-import { MedicationSchema, ResidentData } from '@/types'
+import { PrescriptionSchema, ResidentData } from '@/types'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Trash2 } from 'lucide-react'
-import { updateMedications } from '@/actions/residents/update-medications'
+import { updatePrescriptions } from '@/actions/residents/update-prescriptions'
 
 import { Autocomplete } from '@/components/ui/autocomplete'
 import { searchRxNorm } from '@/actions/lookups/search-rxnorm'
@@ -26,45 +26,45 @@ import { searchRxNorm } from '@/actions/lookups/search-rxnorm'
 import * as React from 'react'
 
 const FormSchema = z.object({
-  medications: z.array(MedicationSchema).nullable().optional(),
+  prescriptions: z.array(PrescriptionSchema).nullable().optional(),
 })
 
-export function MedicationsForm({
+export function PrescriptionsForm({
   residentData,
 }: {
   residentData: ResidentData
 }) {
   const router = useRouter()
-  const [deletedMedicationIds, setDeletedMedicationIds] = React.useState<
+  const [deletedPrescriptionIds, setDeletedPrescriptionIds] = React.useState<
     string[]
   >([])
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      medications: residentData.medications || [],
+      prescriptions: residentData.prescriptions || [],
     },
   })
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: 'medications',
+    name: 'prescriptions',
   })
 
   const handleRemove = (index: number) => {
-    const medicationId = residentData.medications?.[index]?.id
-    if (medicationId) {
-      setDeletedMedicationIds((prev) => [...prev, medicationId])
+    const prescriptionId = residentData.prescriptions?.[index]?.id
+    if (prescriptionId) {
+      setDeletedPrescriptionIds((prev) => [...prev, prescriptionId])
     }
     remove(index)
   }
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      const { message, success } = await updateMedications(
-        data.medications || [],
+      const { message, success } = await updatePrescriptions(
+        data.prescriptions || [],
         residentData.id!,
-        deletedMedicationIds,
+        deletedPrescriptionIds,
       )
       toast({ title: message, variant: success ? 'default' : 'destructive' })
       if (success) {
@@ -79,7 +79,7 @@ export function MedicationsForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <h2 className="text-xl font-semibold">Edit Medications</h2>
+        <h2 className="text-xl font-semibold">Edit Prescriptions</h2>
         {fields.map((field, index) => (
           <div
             key={field.id}
@@ -87,10 +87,10 @@ export function MedicationsForm({
           >
             <FormField
               control={form.control}
-              name={`medications.${index}.name`}
+              name={`prescriptions.${index}.name`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Medication Name</FormLabel>
+                  <FormLabel>Prescription Name</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g., Lisinopril" {...field} />
                   </FormControl>
@@ -100,7 +100,7 @@ export function MedicationsForm({
             />
             <FormField
               control={form.control}
-              name={`medications.${index}.dosage`}
+              name={`prescriptions.${index}.dosage`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Dosage</FormLabel>
@@ -113,7 +113,7 @@ export function MedicationsForm({
             />
             <FormField
               control={form.control}
-              name={`medications.${index}.frequency`}
+              name={`prescriptions.${index}.frequency`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Frequency</FormLabel>
@@ -126,7 +126,7 @@ export function MedicationsForm({
             />
             <FormField
               control={form.control}
-              name={`medications.${index}.rxnorm_code`}
+              name={`prescriptions.${index}.rxnorm_code`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>RxNorm Code</FormLabel>
@@ -136,11 +136,11 @@ export function MedicationsForm({
                       onValueChange={(option) => {
                         if (option) {
                           form.setValue(
-                            `medications.${index}.rxnorm_code`,
+                            `prescriptions.${index}.rxnorm_code`,
                             option.value,
                           )
                           form.setValue(
-                            `medications.${index}.name`,
+                            `prescriptions.${index}.name`,
                             option.label,
                           )
                         }
@@ -170,7 +170,7 @@ export function MedicationsForm({
             append({ name: '', dosage: '', frequency: '', rxnorm_code: '' })
           }
         >
-          Add Medication
+          Add Prescription
         </Button>
         <Button type="submit">Save Changes</Button>
       </form>

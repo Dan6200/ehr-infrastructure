@@ -57,7 +57,7 @@ export async function recordAdministration(
     // 3. Add the new encrypted document to the 'medication_administration' subcollection
     const emarCollectionRef = collectionWrapper(
       app,
-      `providers/GYRHOME/residents/${residentId}/medication_administration`,
+      `providers/GYRHOME/residents/${residentId}/prescription_administration`,
     )
     await addDoc(emarCollectionRef, encryptedAdminRecord)
 

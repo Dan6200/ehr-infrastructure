@@ -50,5 +50,5 @@ A hybrid approach will be used, leveraging the best available source for each te
     - It will render a dropdown/popover with the search results for the user to select from.
 
 2.  **Integrate into Forms:**
-    - The `snomed_code`, `rxnorm_code`, and `loinc_code` fields in the `AllergiesForm`, `MedicationsForm`, `MedicalRecordsForm`, and `VitalsForm` will be updated.
+    - The `snomed_code`, `rxnorm_code`, and `loinc_code` fields in the `AllergiesForm`, `PrescriptionsForm`, `MedicalRecordsForm`, and `VitalsForm` will be updated.
     - The plain `Input` will be replaced with the new `Autocomplete` component, passing the corresponding search action to it.

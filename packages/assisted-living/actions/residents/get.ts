@@ -16,14 +16,14 @@ import {
   FacilitySchema,
   FinancialTransaction,
   DiagnosticHistory,
-  Medication,
+  Prescription,
   Resident,
   ResidentDataSchema,
   ResidentSchema,
   Observation,
   EmergencyContact,
   AllergySchema,
-  MedicationSchema,
+  PrescriptionSchema,
   ObservationSchema,
   DiagnosticHistorySchema,
   EmergencyContactSchema,
@@ -128,7 +128,7 @@ export async function getResidentData(
     // Fetch and decrypt subcollections in parallel
     const [
       allergies,
-      medications,
+      prescriptions,
       observations,
       diagnostic_history,
       emergency_contacts,
@@ -143,10 +143,11 @@ export async function getResidentData(
       ),
       getSubcollection(
         documentId,
-        'medications',
+        'prescriptions',
         KEK_CLINICAL_PATH,
-        MedicationSchema,
+        PrescriptionSchema,
       ),
+
       getSubcollection(
         documentId,
         'observations',
@@ -195,7 +196,7 @@ export async function getResidentData(
       id: residentSnap.id,
       address,
       allergies,
-      medications,
+      prescriptions,
       observations,
       diagnostic_history,
       emergency_contacts,

@@ -1,6 +1,6 @@
 # Feature Plan: Clinical and Financial Data Integration
 
-This document outlines the high-level plan for integrating clinical data (allergies, medications with SNOMED/RxNorm codes) and financial data into the application.
+This document outlines the high-level plan for integrating clinical data (allergies, prescriptions with SNOMED/RxNorm codes) and financial data into the application.
 
 ---
 
@@ -13,17 +13,17 @@ This document outlines the high-level plan for integrating clinical data (allerg
     - This provides cryptographic separation between clinical, contact, and financial data, enhancing security.
 
 2.  **Update Data Type Definitions (`types/index.ts`):**
-    - Define new Zod schemas for `Allergy`, `Medication`, and `FinancialTransaction`.
+    - Define new Zod schemas for `Allergy`, `Prescription`, and `FinancialTransaction`.
     - `AllergySchema` will include a `snomed_code` field.
-    - `MedicationSchema` will include an `rxnorm_code` field.
+    - `PrescriptionSchema` will include an `rxnorm_code` field.
     - `FinancialTransactionSchema` will include `amount`, `date`, `type`, and `description`.
-    - Add `allergies`, `medications`, and `financials` arrays to the main `ResidentSchema`.
-    - Define corresponding `EncryptedAllergySchema`, `EncryptedMedicationSchema`, etc.
+    - Add `allergies`, `prescriptions`, and `financials` arrays to the main `ResidentSchema`.
+    - Define corresponding `EncryptedAllergySchema`, `EncryptedPrescriptionSchema`, etc.
     - Add `encrypted_dek_financial` and the new encrypted arrays to the `EncryptedResidentSchema`.
 
 3.  **Update Encryption Converters (`types/converters.ts`):**
     - Modify `encryptResident` to handle the new `financials` array, using the new `kek-financial` to generate and wrap a `dek_financial`.
-    - Update the encryption logic for `allergies` and `medications` to use the existing `dek_clinical`.
+    - Update the encryption logic for `allergies` and `prescriptions` to use the existing `dek_clinical`.
     - Modify `decryptResidentData` to decrypt these new fields based on user roles and the corresponding DEKs.
 
 ---
@@ -33,13 +33,13 @@ This document outlines the high-level plan for integrating clinical data (allerg
 **Goal:** Build the necessary pages and forms for users to view and manage the new data.
 
 1.  **Update Resident Navigation (`components/resident-nav.tsx`):**
-    - Add new links to the resident navigation bar for "Allergies", "Medications", and "Billing".
+    - Add new links to the resident navigation bar for "Allergies", "Prescriptions", and "Billing".
 
 2.  **Create "View" Pages:**
-    - Build dedicated pages for `.../allergies`, `.../medications`, and `.../billing` to display the respective data in a clear, read-only format.
+    - Build dedicated pages for `.../allergies`, `.../prescriptions`, and `.../billing` to display the respective data in a clear, read-only format.
 
 3.  **Create Dedicated "Edit" Pages:**
-    - Following the established pattern, create separate edit pages: `.../allergies/edit`, `.../medications/edit`, and `.../billing/edit`.
+    - Following the established pattern, create separate edit pages: `.../allergies/edit`, `.../prescriptions/edit`, and `.../billing/edit`.
     - Each edit page will contain a dedicated form for managing its data (e.g., adding an allergy, logging a payment).
     - The corresponding "View" page will link to its "Edit" page.
 
