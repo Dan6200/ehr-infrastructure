@@ -53,6 +53,20 @@ This is where the magic happens. Your `fromFirestore` converter would need to be
 
 The result is a `Resident` object that is "partially hydrated" with only the data the user is authorized to see.
 
+---
+
+### DEK Granularity: Per-Resident vs. Per-Document
+
+An important decision in this architecture is the granularity of Data Encryption Keys (DEKs).
+
+- **Per-Document DEK (Most Granular):** In this model, every single subcollection item (e.g., each individual allergy record) would have its own unique DEK. This offers the highest possible security segmentation, as a compromised DEK would only expose a single record. However, for bulk operations on hundreds of thousands of documents, this is extremely inefficient, as it requires a separate KMS operation for every document.
+
+- **Per-Resident, Per-Category DEK (Current Implemented Model):** This is the chosen model for this application. We generate a unique DEK for each data category (`clinical`, `contact`, etc.) **once per resident**. These encrypted DEKs are stored on the parent resident document. All subcollection items for that resident then use the corresponding resident's DEK.
+
+**Why this model was chosen:** It provides the best balance of security and performance. The "blast radius" of a compromised DEK is still very small (limited to one data category for one resident), while being orders of magnitude faster for both bulk processing and regular application use.
+
+---
+
 ### Enforcing the Rules: Application vs. KMS
 
 You can enforce the "who can decrypt what" rules in two places:
