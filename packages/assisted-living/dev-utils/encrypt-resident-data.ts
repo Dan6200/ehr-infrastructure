@@ -14,12 +14,7 @@ function encryptField(value: string | number | boolean, dek: Buffer) {
   if (value === null || typeof value === 'undefined') {
     return null
   }
-  const { ciphertext, iv, authTag } = encryptData(String(value), dek)
-  return {
-    ciphertext: ciphertext.toString('base64'),
-    iv: iv.toString('base64'),
-    authTag: authTag.toString('base64'),
-  }
+  return encryptData(String(value), dek)
 }
 
 // --- Generic Subcollection Encryption Function ---
@@ -48,16 +43,22 @@ async function encryptSubcollection(collectionName: string, kekPath: string) {
     // Generate a unique, per-item DEK
     const { plaintextDek, encryptedDek } = await generateDataKey(kekPath)
 
-    const encryptedItemData: any = {
+    let encryptedItemData: any = {
       resident_id: item.data.resident_id, // Keep resident_id unencrypted
       encrypted_dek: encryptedDek.toString('base64'),
     }
+    if (collectionName === 'prescriptions')
+      encryptedItemData = {
+        ...encryptedItemData,
+        prescription_id: item.data.prescription_id,
+        recorder_id: item.data.recorder_id,
+      }
 
     // Encrypt all other fields within the 'data' object
     for (const field in item.data) {
       if (
         field !== 'resident_id' &&
-        field !== 'medication_statement_id' &&
+        field !== 'prescription_id' &&
         field !== 'recorder_id'
       ) {
         encryptedItemData[`encrypted_${field}`] = encryptField(
@@ -121,7 +122,6 @@ async function encryptResident(residentData: any) {
       'home_phone',
     ],
     clinical: ['pcp'],
-    financial: [], // No direct financial fields on the resident object itself
   }
 
   // 3. Encrypt fields based on the mapping
@@ -183,17 +183,18 @@ async function processResidents() {
 async function processAllData() {
   console.log('--- Starting Full Demo Data Encryption Process ---')
 
-  // Encrypt the main resident objects first
-  await processResidents()
-
-  // Encrypt all subcollections
-  await encryptSubcollection('emergency_contacts', KEK_CONTACT_PATH)
-  await encryptSubcollection('allergies', KEK_CLINICAL_PATH)
-  await encryptSubcollection('medications', KEK_CLINICAL_PATH)
-  await encryptSubcollection('medication_administration', KEK_CLINICAL_PATH)
-  await encryptSubcollection('observations', KEK_CLINICAL_PATH)
-  await encryptSubcollection('diagnostic_history', KEK_CLINICAL_PATH)
-  await encryptSubcollection('financials', KEK_FINANCIAL_PATH)
+  await Promise.all([
+    // Encrypt the main resident objects first
+    processResidents(),
+    // Encrypt all subcollections
+    encryptSubcollection('emergency_contacts', KEK_CONTACT_PATH),
+    encryptSubcollection('allergies', KEK_CLINICAL_PATH),
+    encryptSubcollection('prescriptions', KEK_CLINICAL_PATH),
+    encryptSubcollection('observations', KEK_CLINICAL_PATH),
+    encryptSubcollection('diagnostic_history', KEK_CLINICAL_PATH),
+    encryptSubcollection('financials', KEK_FINANCIAL_PATH),
+    encryptSubcollection('prescription_administration', KEK_CLINICAL_PATH),
+  ])
 
   console.log('\n--- All data encrypted successfully! ---')
 }
