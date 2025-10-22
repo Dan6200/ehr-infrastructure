@@ -159,18 +159,28 @@ async function processAllData() {
     for (const sc of SUBCOLLECTIONS) {
       console.log(`\tProcessing ${sc.name} for ${residentId}...`)
       const residentItems = subcollectionData[sc.name]?.[residentId] || []
-      let dek: Buffer
-      if (sc.kekPath === KEK_CLINICAL_PATH) dek = clinicalDek
-      else if (sc.kekPath === KEK_CONTACT_PATH) dek = contactDek
-      else if (sc.kekPath === KEK_FINANCIAL_PATH) dek = financialDek
-      else dek = generalDek // Fallback, though should not happen with current config
+      let dek: Buffer, encrypted_dek: Buffer | string | Uint8Array
+      if (sc.kekPath === KEK_CLINICAL_PATH) {
+        dek = clinicalDek
+        encrypted_dek = encryptedDekClinical
+      } else if (sc.kekPath === KEK_CONTACT_PATH) {
+        dek = contactDek
+        encrypted_dek = encryptedDekContact
+      } else if (sc.kekPath === KEK_FINANCIAL_PATH) {
+        dek = financialDek
+        encrypted_dek = encryptedDekFinancial
+      } else {
+        // Fallback, though should not happen with current config
+        dek = generalDek
+        encrypted_dek = encryptedDekGeneral
+      }
 
       for (const item of residentItems) {
         const encryptedItemData: any = {
           resident_id: residentId,
           prescription_id: item.data.prescription_id,
           recorder_id: item.data.recorder_id,
-          dek,
+          encrypted_dek,
         }
         for (const field in item.data) {
           if (
