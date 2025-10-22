@@ -1,6 +1,8 @@
 import admin from 'firebase-admin'
 
 // This script requires Google Application Credentials to be set up.
+// It will automatically connect to the Firebase Auth Emulator if the
+// FIREBASE_AUTH_EMULATOR_HOST environment variable is set.
 // See: https://firebase.google.com/docs/admin/setup#initialize-sdk
 
 // Initialize Firebase Admin SDK
