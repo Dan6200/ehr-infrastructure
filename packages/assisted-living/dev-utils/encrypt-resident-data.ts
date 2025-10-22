@@ -183,17 +183,17 @@ async function processAllData() {
       let dek: Buffer, encrypted_dek: Buffer | string | Uint8Array
       if (sc.kekPath === KEK_CLINICAL_PATH) {
         dek = clinicalDek
-        encrypted_dek = encryptedDekClinical
+        encrypted_dek = encryptedDekClinical.toString('base64')
       } else if (sc.kekPath === KEK_CONTACT_PATH) {
         dek = contactDek
-        encrypted_dek = encryptedDekContact
+        encrypted_dek = encryptedDekContact.toString('base64')
       } else if (sc.kekPath === KEK_FINANCIAL_PATH) {
         dek = financialDek
-        encrypted_dek = encryptedDekFinancial
+        encrypted_dek = encryptedDekFinancial.toString('base64')
       } else {
         // Fallback, though should not happen with current config
         dek = generalDek
-        encrypted_dek = encryptedDekGeneral
+        encrypted_dek = encryptedDekGeneral.toString('base64')
       }
 
       for (const item of residentItems) {
