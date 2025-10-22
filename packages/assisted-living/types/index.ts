@@ -117,6 +117,7 @@ export const EmergencyContactSchema = z
 
 export const ResidentSchema = z.object({
   resident_name: z.string().nullable().optional(),
+  gender: z.string().optional(),
   facility_id: z.string(),
   room_no: z.string(),
   avatar_url: z.string(),
@@ -162,15 +163,22 @@ export const EncryptedAllergySchema = z.object({
   encrypted_reaction: EncryptedFieldSchema.optional(),
 })
 
-export const EncryptedMedicationSchema = z.object({
+export const EncryptedPrescriptionSchema = z.object({
   encrypted_name: EncryptedFieldSchema,
   encrypted_rxnorm_code: EncryptedFieldSchema.optional(),
   encrypted_dosage: EncryptedFieldSchema.optional(),
   encrypted_frequency: EncryptedFieldSchema.optional(),
-  encrypted_administrations: z
-    .array(EncryptedAdministrationSchema)
-    .nullable()
-    .optional(),
+})
+
+export const EncryptedEmarRecordSchema = z.object({
+  encrypted_resident_id: EncryptedFieldSchema,
+  encrypted_prescription_id: EncryptedFieldSchema,
+  encrypted_prescription_name: EncryptedFieldSchema,
+  encrypted_recorder_id: EncryptedFieldSchema,
+  encrypted_status: EncryptedFieldSchema,
+  encrypted_administration_route: EncryptedFieldSchema,
+  encrypted_administered_dosage: EncryptedFieldSchema,
+  encrypted_administration_datetime: EncryptedFieldSchema,
 })
 
 export const EncryptedFinancialTransactionSchema = z.object({
@@ -191,7 +199,6 @@ export const EncryptedEmergencyContactSchema = z.object({
 export const EncryptedResidentSchema = z.object({
   // Unencrypted fields
   facility_id: z.string(),
-  room_no: z.string(),
 
   // Encrypted DEKs
   encrypted_dek_general: z.string(),
@@ -201,9 +208,11 @@ export const EncryptedResidentSchema = z.object({
 
   // Encrypted data fields
   encrypted_avatar_url: EncryptedFieldSchema.nullable().optional(),
+  encrypted_gender: EncryptedFieldSchema.nullable().optional(),
   encrypted_resident_name: EncryptedFieldSchema.nullable().optional(),
   encrypted_dob: EncryptedFieldSchema.nullable().optional(),
   encrypted_pcp: EncryptedFieldSchema.nullable().optional(),
+  encrypted_room_no: EncryptedFieldSchema.nullable().optional(),
   encrypted_resident_email: EncryptedFieldSchema.nullable().optional(),
   encrypted_cell_phone: EncryptedFieldSchema.nullable().optional(),
   encrypted_work_phone: EncryptedFieldSchema.nullable().optional(),
