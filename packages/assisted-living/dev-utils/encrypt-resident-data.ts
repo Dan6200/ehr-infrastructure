@@ -118,6 +118,11 @@ async function processAllData() {
         resident.data.avatar_url,
         generalDek,
       )
+    if (resident.data.room_no)
+      encryptedResident.data.encrypted_room_no = encryptField(
+        resident.data.room_no,
+        generalDek,
+      )
     if (resident.data.dob)
       encryptedResident.data.encrypted_dob = encryptField(
         resident.data.dob,
@@ -165,6 +170,7 @@ async function processAllData() {
           resident_id: residentId,
           prescription_id: item.data.prescription_id,
           recorder_id: item.data.recorder_id,
+          dek,
         }
         for (const field in item.data) {
           if (
