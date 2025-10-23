@@ -5,7 +5,7 @@
 3723001 |Arthritis (disorder)|
 396331005 |Celiac disease (disorder)|
 233604007 |Pneumonia (disorder)|
-1163005009 |Hodgkin lymphoma (morphologic abnormality)|
+118599009 |Hodgkin's disease (disorder)|
 64859006 |Osteoporosis (disorder)|
 302231008 |Salmonella infection (disorder)|
 88092000 |Muscle atrophy (disorder)|
