@@ -1,4 +1,6 @@
 demo-data/residents/data.json
+demo-data/upload.log
+demo-data/tmp_split
 demo-data/allergies/
 demo-data/diagnostic_history/
 demo-data/emergency_contacts/data.json
