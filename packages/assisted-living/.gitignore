@@ -8,6 +8,7 @@ demo-data/financials/
 demo-data/observations/
 demo-data/prescription_administration/
 demo-data/prescriptions/
+demo-data/firestore-encrypted-payload.json*
 
 public/auth-service-worker.js*
 tmp_build/
