@@ -26,7 +26,7 @@ export async function middleware(request: NextRequest) {
 
   if (pathname === '/') {
     const url = request.nextUrl.clone()
-    url.pathname = !sessionVerified ? '/sign-in' : '/admin'
+    url.pathname = !sessionVerified ? '/sign-in' : '/admin/dashboard'
     return NextResponse.redirect(url)
   }
   // 1. User is trying to access a protected path (e.g., /dashboard)
