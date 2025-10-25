@@ -187,7 +187,7 @@ if __name__ == '__main__':
 
         for rx_record in resident_prescriptions:
             timing = rx_record['data']['dosageInstruction'][0]['timing']
-            doses_per_day = {'qd': 1, 'bid': 2, 'tid': 3, 'qid': 4, 'qam': 1, 'qpm': 1}.get(timing, 0)
+            doses_per_day = {'qd': 1, 'bid': 2, 'tid': 3, 'qid': 4, 'qam': 1, 'qpm': 1}.get(timing, 1)
             if doses_per_day == 0: continue
 
             start_date_str = rx_record['data']['effective_period_start']
