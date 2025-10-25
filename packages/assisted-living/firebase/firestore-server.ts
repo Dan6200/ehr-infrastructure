@@ -15,7 +15,7 @@ import {
   QueryConstraint,
   updateDoc,
   deleteDoc,
-  connectFirestoreEmulator,
+  // connectFirestoreEmulator,
   Firestore,
 } from 'firebase/firestore'
 
@@ -27,21 +27,21 @@ function getFirestoreServer(app: FirebaseApp) {
     _db = getFirestore(app)
 
     // Connect to Firestore Emulator in development
-    if (process.env.NODE_ENV === 'development') {
-      const firestoreHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST
-      const firestorePort = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_PORT
+    // if (process.env.NODE_ENV === 'development') {
+    //   const firestoreHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST
+    //   const firestorePort = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_PORT
 
-      if (firestoreHost && firestorePort) {
-        connectFirestoreEmulator(_db, firestoreHost, Number(firestorePort))
-        console.log(
-          'Server: Connected to Firestore emulator via FirebaseServerApp!',
-        )
-      } else {
-        console.warn(
-          'Server: Firestore emulator host or port not set for FirebaseServerApp.',
-        )
-      }
-    }
+    //   if (firestoreHost && firestorePort) {
+    //     connectFirestoreEmulator(_db, firestoreHost, Number(firestorePort))
+    //     console.log(
+    //       'Server: Connected to Firestore emulator via FirebaseServerApp!',
+    //     )
+    //   } else {
+    //     console.warn(
+    //       'Server: Firestore emulator host or port not set for FirebaseServerApp.',
+    //     )
+    //   }
+    // }
   }
   return _db
 }

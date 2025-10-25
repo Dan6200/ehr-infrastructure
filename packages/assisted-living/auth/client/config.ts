@@ -38,17 +38,17 @@ if (typeof window !== 'undefined') {
 }
 
 // Connect to Firestore Emulator in development
-if (process.env.NODE_ENV === 'development') {
-  const firestoreHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST
-  const firestorePort = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_PORT
-  const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!
+// if (process.env.NODE_ENV === 'development') {
+//   const firestoreHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST
+//   const firestorePort = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_PORT
+//   const authHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST!
 
-  if (typeof window !== 'undefined' && auth && db) {
-    connectFirestoreEmulator(db, firestoreHost!, Number(firestorePort!))
-    connectAuthEmulator(auth, authHost)
-    console.log('Client: Connected to Firestore and Auth emulators!')
-  }
-}
+//   if (typeof window !== 'undefined' && auth && db) {
+//     connectFirestoreEmulator(db, firestoreHost!, Number(firestorePort!))
+//     connectAuthEmulator(auth, authHost)
+//     console.log('Client: Connected to Firestore and Auth emulators!')
+//   }
+// }
 
 // Register the service workers
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {

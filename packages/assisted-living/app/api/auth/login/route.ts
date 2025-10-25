@@ -20,13 +20,13 @@ export async function POST(request: NextRequest) {
         releaseOnDeref: headers(),
       })
 
-      process.nextTick(() => {
-        const serverAuth = getAuth(serverApp)
-        if (process.env.NODE_ENV === 'development')
-          try {
-            connectAuthEmulator(serverAuth, authHost) // Always throws an error due to race-conditions
-          } catch {}
-      })
+      // process.nextTick(() => {
+      //   const serverAuth = getAuth(serverApp)
+      //   if (process.env.NODE_ENV === 'development')
+      //     try {
+      //       connectAuthEmulator(serverAuth, authHost) // Always throws an error due to race-conditions
+      //     } catch {}
+      // })
       return NextResponse.json(
         { message: 'Session cookie set successfully' },
         { status: 200 },
