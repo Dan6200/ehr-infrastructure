@@ -12,7 +12,7 @@ import * as path from 'path'
 
 // --- Configuration ---
 const PLAINTEXT_INPUT_DIR = 'demo-data'
-const ENCRYPTED_OUTPUT_FILE = 'demo-data/firestore-encrypted-payload.json'
+const ENCRYPTED_OUTPUT_FILE = 'demo-data/firestore-encrypted-payload.jsonl'
 const SUBCOLLECTIONS = [
   { name: 'emergency_contacts', kekPath: KEK_CONTACT_PATH },
   { name: 'allergies', kekPath: KEK_CLINICAL_PATH },
@@ -73,19 +73,17 @@ async function main() {
     path.join(process.cwd(), ENCRYPTED_OUTPUT_FILE),
     { encoding: 'utf-8' },
   )
-  outputStream.write('{\n')
-  let isFirstCollectionInFile = true
+  let isFirstEntryInFile = true
 
-  const writeComma = () => {
-    if (!isFirstCollectionInFile) {
-      outputStream.write(',\n')
+  const writeNewline = () => {
+    if (!isFirstEntryInFile) {
+      outputStream.write('\n')
     }
-    isFirstCollectionInFile = false
+    isFirstEntryInFile = false
   }
 
   console.log('Step 2: Encrypting and streaming residents...')
-  writeComma()
-  outputStream.write(`  "residents": [\n`)
+  writeNewline()
   residents.forEach((resident, index) => {
     const deks = dekMap.get(resident.id)
     const encryptedData: any = {
@@ -147,15 +145,12 @@ async function main() {
         deks.clinical.plaintextDek,
       )
 
-    const outputItem = { id: resident.id, data: encryptedData }
-    outputStream.write(
-      '    ' + JSON.stringify(outputItem, null, 2).replace(/\n/g, '\n    '),
-    )
+    const outputItem = { path: 'residents/' + resident.id, data: encryptedData }
+    outputStream.write(JSON.stringify(outputItem))
     if (index < residents.length - 1) {
-      outputStream.write(',\n')
+      writeNewline()
     }
   })
-  outputStream.write('\n  ]')
 
   console.log('Step 3: Encrypting and streaming subcollections...')
   const groupedSubcollectionData: { [key: string]: { [key: string]: any[] } } =
@@ -183,10 +178,9 @@ async function main() {
       if (!items || items.length === 0 || !scConfig) continue
 
       const collectionPath = `residents/${residentId}/${scName}`
-      console.log(`\tStreaming ${items.length} items to ${collectionPath}`)
+      console.log(`\tStreaming ${items.length} items from ${collectionPath}`)
 
-      writeComma()
-      outputStream.write(`  "${collectionPath}": [\n`)
+      writeNewline()
 
       let dek: Buffer, encrypted_dek: string
       if (scConfig.kekPath === KEK_CLINICAL_PATH) {
@@ -212,19 +206,18 @@ async function main() {
             dek,
           )
         }
-        const outputItem = { id: item.id, data: encryptedData }
-        outputStream.write(
-          '    ' + JSON.stringify(outputItem, null, 2).replace(/\n/g, '\n    '),
-        )
+        const outputItem = {
+          path: collectionPath + '/' + item.id,
+          data: encryptedData,
+        }
+        outputStream.write(JSON.stringify(outputItem))
         if (index < items.length - 1) {
-          outputStream.write(',\n')
+          writeNewline()
         }
       })
-      outputStream.write('\n  ]')
     }
   }
 
-  outputStream.write('\n}')
   outputStream.end()
 
   console.log(
