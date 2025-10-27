@@ -95,3 +95,22 @@ gcloud iam service-accounts keys create secret-key/assisted-living-app-key.json 
   --iam-account=assisted-living-app@lean-ehr.iam.gserviceaccount.com \
   --project=lean-ehr
 ```
+
+---
+
+## Memorystore Redis and VPC Peering
+
+**Requirement:** To connect your Firebase App Hosting service (e.g., Cloud Run, Cloud Functions) to a Google Cloud Memorystore for Redis instance, both services must be able to communicate within the same VPC network.
+
+Memorystore instances are only accessible via a private IP address within their VPC.
+
+**Action Required:**
+
+1.  **Create a Serverless VPC Access Connector:** This connector acts as a bridge, allowing your serverless service (the app) to send traffic into the target VPC network where Memorystore lives.
+2.  **Configure Your Service:** The Cloud Run or Cloud Function service that runs your application code must be configured to use this VPC connector for outbound traffic.
+
+This ensures that your application server can reach the Redis instance's private IP address.
+
+**Further Reading:**
+
+- [Official Documentation: Connect to a Redis instance from a serverless environment](https://cloud.google.com/memorystore/docs/redis/connect-redis-instance-serverless)
