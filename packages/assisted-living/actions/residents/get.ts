@@ -1,25 +1,18 @@
 'use server'
 
-import { getAuthenticatedAppAndClaims } from '@/auth/server/definitions'
+import { verifySession } from '@/auth/server/definitions'
 import {
   collectionWrapper,
   docWrapper,
   getDocWrapper,
   getDocsWrapper,
-  queryWrapper,
-} from '@/firebase/firestore-server'
+} from '@/firebase/admin'
 import {
-  Allergy,
   Facility,
   FacilitySchema,
-  FinancialTransaction,
-  DiagnosticHistory,
-  Prescription,
   Resident,
   ResidentDataSchema,
   ResidentSchema,
-  Observation,
-  EmergencyContact,
   AllergySchema,
   PrescriptionSchema,
   ObservationSchema,
@@ -27,26 +20,17 @@ import {
   EmergencyContactSchema,
   FinancialTransactionSchema,
   EmarRecordSchema,
-  SubCollectionMapType,
-  SubCollectionArgs,
+  EncryptedResidentSchema,
 } from '@/types'
 import {
   decryptResidentData,
   getFacilityConverter,
   getResidentConverter,
 } from '@/types/converters'
-import {
-  QueryConstraint,
-  endBefore,
-  limit as limitQuery,
-  limitToLast,
-  orderBy,
-  startAfter,
-} from 'firebase/firestore'
 import { notFound } from 'next/navigation'
 import { z } from 'zod'
 
-import { decryptData } from '@/lib/encryption'
+import { decryptData, decryptDataKey } from '@/lib/encryption'
 
 // --- Subcollection Getters ---
 async function getSubcollection<T extends z.ZodTypeAny>(
@@ -55,12 +39,9 @@ async function getSubcollection<T extends z.ZodTypeAny>(
   schema: T,
   kekPath: string,
 ): Promise<z.infer<T>[]> {
-  const authenticatedApp = await getAuthenticatedAppAndClaims()
-  if (!authenticatedApp) throw new Error('Failed to authenticate session')
-  const { app } = authenticatedApp
+  await verifySession() // Authenticate the request first
 
-  const subcollectionRef = await collectionWrapper(
-    app,
+  const subcollectionRef = collectionWrapper(
     `providers/GYRHOME/residents/${residentId}/${collectionName}`,
   )
   const snapshot = await getDocsWrapper(subcollectionRef)
@@ -95,7 +76,6 @@ async function getSubcollection<T extends z.ZodTypeAny>(
 }
 
 import {
-  decryptDataKey,
   KEK_CONTACT_PATH,
   KEK_CLINICAL_PATH,
   KEK_FINANCIAL_PATH,
@@ -126,23 +106,17 @@ export async function getResidentData(
   documentId: string,
 ): Promise<z.infer<typeof ResidentDataSchema>> {
   try {
-    const authenticatedApp = await getAuthenticatedAppAndClaims()
-    if (!authenticatedApp) throw new Error('Failed to authenticate session')
-    const { app, idToken } = authenticatedApp
+    const idToken = await verifySession()
     const userRoles: string[] = (idToken?.roles as string[]) || []
 
-    const residentRef = await docWrapper(
-      (
-        await collectionWrapper<EncryptedResident>(
-          app,
-          `providers/GYRHOME/residents`,
-        )
-      ).withConverter(await getResidentConverter()),
-      documentId,
-    )
+    const residentsCollection = collectionWrapper<
+      z.infer<typeof EncryptedResidentSchema>
+    >(`providers/GYRHOME/residents`).withConverter(await getResidentConverter())
+
+    const residentRef = docWrapper(residentsCollection, documentId)
     const residentSnap = await getDocWrapper(residentRef)
 
-    if (!residentSnap.exists()) throw notFound()
+    if (!residentSnap.exists) throw notFound()
 
     const resident = await decryptResidentData(residentSnap.data(), userRoles)
 
@@ -161,14 +135,15 @@ export async function getResidentData(
       ),
     )
 
-    const facilityDocRef = await docWrapper(
-      (
-        await collectionWrapper<Facility>(app, 'providers/GYRHOME/facilities')
-      ).withConverter(await getFacilityConverter()),
+    const facilitiesCollection = collectionWrapper<Facility>(
+      'providers/GYRHOME/facilities',
+    ).withConverter(await getFacilityConverter())
+    const facilityDocRef = docWrapper(
+      facilitiesCollection,
       resident.facility_id,
     )
     const facilitySnap = await getDocWrapper(facilityDocRef)
-    const address = facilitySnap.exists()
+    const address = facilitySnap.exists
       ? facilitySnap.data().address
       : 'Address not found'
 
@@ -191,13 +166,13 @@ export async function getResidentData(
 
 export async function getResidents(): Promise<Resident[]> {
   try {
-    const authenticatedApp = await getAuthenticatedAppAndClaims()
-    if (!authenticatedApp) throw new Error('Failed to authenticate session')
-    const { app, idToken } = authenticatedApp
-    const userRoles: string[] = (idToken.claims?.roles as string[]) || []
+    const idToken = await verifySession()
+    const userRoles: string[] = (idToken.roles as string[]) || []
 
     const residentsCollection = (
-      await collectionWrapper<EncryptedResident>(app, 'residents')
+      await collectionWrapper<z.infer<typeof EncryptedResidentSchema>>(
+        'providers/GYRHOME/residents',
+      )
     ).withConverter(await getResidentConverter())
     const residentsSnap = await getDocsWrapper(residentsCollection)
 
@@ -214,12 +189,10 @@ export async function getResidents(): Promise<Resident[]> {
 
 export async function getAllFacilities(): Promise<Facility[]> {
   try {
-    const authenticatedApp = await getAuthenticatedAppAndClaims()
-    if (!authenticatedApp) throw new Error('Failed to authenticate session')
-    const { app } = authenticatedApp
+    await verifySession()
 
     const facilitiesCollection = (
-      await collectionWrapper<Facility>(app, 'providers/GYRHOME/facilities')
+      await collectionWrapper<Facility>('providers/GYRHOME/facilities')
     ).withConverter(await getFacilityConverter())
     const facilitiesSnap = await getDocsWrapper(facilitiesCollection)
 
@@ -244,49 +217,44 @@ export async function getAllResidents({
   prevCursorId?: string
 }) {
   try {
-    const authenticatedApp = await getAuthenticatedAppAndClaims()
-    if (!authenticatedApp) throw new Error('Failed to authenticate session')
-    const { app, idToken } = authenticatedApp
+    const idToken = await verifySession()
     const userRoles: string[] = (idToken?.roles as string[]) || []
 
     const residentsCollection = (
-      await collectionWrapper<EncryptedResident>(
-        app,
+      await collectionWrapper<z.infer<typeof EncryptedResidentSchema>>(
         `providers/GYRHOME/residents`,
       )
     ).withConverter(await getResidentConverter())
 
-    const constraints: QueryConstraint[] = [
-      orderBy('facility_id'),
-      orderBy('encrypted_resident_name'),
-    ]
+    let query: Query<z.infer<typeof EncryptedResidentSchema>> =
+      residentsCollection
+        .orderBy('facility_id')
+        .orderBy('encrypted_resident_name')
+
     let isPrev = false
 
     if (nextCursorId) {
-      const cursorDocRef = await docWrapper(residentsCollection, nextCursorId)
-      const cursorDoc = await getDocWrapper(cursorDocRef)
-      if (cursorDoc.exists()) {
-        constraints.push(startAfter(cursorDoc))
+      const cursorDoc = await getDocWrapper(
+        docWrapper(residentsCollection, nextCursorId),
+      )
+      if (cursorDoc.exists) {
+        query = query.startAfter(cursorDoc)
       }
     } else if (prevCursorId) {
       isPrev = true
-      const cursorDocRef = await docWrapper(residentsCollection, prevCursorId)
-      const cursorDoc = await getDocWrapper(cursorDocRef)
-      if (cursorDoc.exists()) {
-        constraints.push(endBefore(cursorDoc))
-        constraints.push(limitToLast(limit + 1)) // Fetch one extra to check for previous page
+      const cursorDoc = await getDocWrapper(
+        docWrapper(residentsCollection, prevCursorId),
+      )
+      if (cursorDoc.exists) {
+        query = query.endBefore(cursorDoc).limitToLast(limit + 1)
       }
     }
 
     if (!isPrev) {
-      constraints.push(limitQuery(limit + 1)) // Fetch one extra to check for next page
+      query = query.limit(limit + 1)
     }
 
-    const collectionQuery = await queryWrapper(
-      residentsCollection,
-      ...constraints,
-    )
-    const residentsSnapshot = await getDocsWrapper(collectionQuery)
+    const residentsSnapshot = await getDocsWrapper(query)
 
     let residentsForPage = await Promise.all(
       residentsSnapshot.docs.map(async (doc) => ({
@@ -312,13 +280,17 @@ export async function getAllResidents({
       hasPrevPage = !!nextCursorId
     }
 
-    const nextCursor = hasNextPage
-      ? residentsForPage[residentsForPage.length - 1]?.id
-      : undefined
-    const prevCursor = hasPrevPage ? residentsForPage[0]?.id : undefined
+    const nextCursor =
+      residentsForPage.length > 0 && hasNextPage
+        ? residentsForPage[residentsForPage.length - 1]?.id
+        : undefined
+    const prevCursor =
+      residentsForPage.length > 0 && hasPrevPage
+        ? residentsForPage[0]?.id
+        : undefined
 
     const facilitiesCollection = (
-      await collectionWrapper<Facility>(app, 'providers/GYRHOME/facilities')
+      await collectionWrapper<Facility>('providers/GYRHOME/facilities')
     ).withConverter(await getFacilityConverter())
     const facilitiesData = await getDocsWrapper(facilitiesCollection)
     const facility_lookup: { [id: string]: string } =

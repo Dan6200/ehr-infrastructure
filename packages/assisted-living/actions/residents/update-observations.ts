@@ -1,8 +1,7 @@
 'use server'
-import { collection, doc, getDoc, writeBatch } from 'firebase/firestore'
-import { db } from '@/firebase/firestore-server'
+import { adminDb } from '@/firebase/admin'
 import { Observation, EncryptedObservationSchema } from '@/types'
-import { getAuthenticatedAppForUser } from '@/auth/server/auth'
+import { verifySession } from '@/auth/server/definitions'
 import {
   decryptDataKey,
   encryptData,
@@ -14,19 +13,18 @@ export async function updateObservations(
   residentId: string,
   deletedObservationIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
-  const { currentUser } = await getAuthenticatedAppForUser()
-  if (!currentUser) {
-    throw new Error('Not authenticated')
-  }
+  await verifySession()
 
   try {
-    const residentRef = doc(db, 'residents', residentId)
-    const residentSnap = await getDoc(residentRef)
-    if (!residentSnap.exists()) {
+    const residentRef = adminDb
+      .collection('providers/GYRHOME/residents')
+      .doc(residentId)
+    const residentSnap = await residentRef.get()
+    if (!residentSnap.exists) {
       throw new Error('Resident not found')
     }
 
-    const encryptedDek = residentSnap.data().encrypted_dek_clinical
+    const encryptedDek = residentSnap.data()?.encrypted_dek_clinical
     if (!encryptedDek) {
       throw new Error('Clinical DEK not found for resident')
     }
@@ -36,22 +34,23 @@ export async function updateObservations(
       KEK_CLINICAL_PATH,
     )
 
-    const batch = writeBatch(db)
-    const observationsRef = collection(
-      db,
-      'residents',
-      residentId,
-      'observations',
-    )
+    const batch = adminDb.batch()
+    const observationsRef = residentRef.collection('observations')
 
     observations.forEach((observation) => {
       const { id, ...observationData } = observation
-      const docRef = id ? doc(observationsRef, id) : doc(observationsRef)
+      const docRef = id ? observationsRef.doc(id) : observationsRef.doc()
 
-      const encryptedObservation: any = {}
-      if (observationData.date)
-        encryptedObservation.encrypted_date = encryptData(
-          observationData.date,
+      const encryptedObservation: any = { encrypted_dek: encryptedDek }
+
+      if (observationData.status)
+        encryptedObservation.encrypted_status = encryptData(
+          observationData.status,
+          clinicalDek,
+        )
+      if (observationData.effective_datetime)
+        encryptedObservation.encrypted_effective_datetime = encryptData(
+          observationData.effective_datetime,
           clinicalDek,
         )
       if (observationData.loinc_code)
@@ -66,12 +65,27 @@ export async function updateObservations(
         )
       if (observationData.value)
         encryptedObservation.encrypted_value = encryptData(
-          observationData.value,
+          observationData.value.toString(),
           clinicalDek,
         )
       if (observationData.unit)
         encryptedObservation.encrypted_unit = encryptData(
           observationData.unit,
+          clinicalDek,
+        )
+      if (observationData.body_site)
+        encryptedObservation.encrypted_body_site = encryptData(
+          JSON.stringify(observationData.body_site),
+          clinicalDek,
+        )
+      if (observationData.method)
+        encryptedObservation.encrypted_method = encryptData(
+          JSON.stringify(observationData.method),
+          clinicalDek,
+        )
+      if (observationData.device)
+        encryptedObservation.encrypted_device = encryptData(
+          JSON.stringify(observationData.device),
           clinicalDek,
         )
 
@@ -83,7 +97,7 @@ export async function updateObservations(
     })
 
     deletedObservationIds.forEach((id) => {
-      const docRef = doc(observationsRef, id)
+      const docRef = observationsRef.doc(id)
       batch.delete(docRef)
     })
 

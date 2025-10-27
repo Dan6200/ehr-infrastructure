@@ -1,31 +1,24 @@
 'use server'
-import {
-  addDocWrapper,
-  collectionWrapper,
-  docWrapper,
-} from '@/firebase/firestore-server'
+import { addDocWrapper, collectionWrapper } from '@/firebase/admin'
 import { Resident, EncryptedResident } from '@/types'
-import { getAuthenticatedAppAndClaims } from '@/auth/server/definitions'
+import { verifySession } from '@/auth/server/definitions'
 import { encryptResident, getResidentConverter } from '@/types/converters'
 
 export async function addNewResident(
   residentData: Omit<Resident, 'resident_id'>,
 ) {
   try {
-    const authenticatedApp = await getAuthenticatedAppAndClaims()
-    if (!authenticatedApp) throw new Error('Failed to authenticate session')
-    const { app } = authenticatedApp
+    await verifySession() // Authenticate the request first
 
     const resident: Resident = residentData
 
     const encryptedResident = await encryptResident(resident)
 
-    await addDocWrapper(
-      (
-        await collectionWrapper<EncryptedResident>(app, 'residents')
-      ).withConverter(await getResidentConverter()),
-      encryptedResident,
-    )
+    const residentsCollection = (
+      await collectionWrapper<EncryptedResident>('providers/GYRHOME/residents')
+    ).withConverter(await getResidentConverter())
+
+    await addDocWrapper(residentsCollection, encryptedResident)
 
     return {
       message: 'Successfully Added a New Resident',

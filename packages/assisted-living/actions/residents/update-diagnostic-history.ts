@@ -1,8 +1,6 @@
-'use server'
-import { collection, doc, getDoc, writeBatch } from 'firebase/firestore'
-import { db } from '@/firebase/firestore-server'
+import { adminDb } from '@/firebase/admin'
 import { DiagnosticHistory, EncryptedDiagnosticHistorySchema } from '@/types'
-import { getAuthenticatedAppForUser } from '@/auth/server/auth'
+import { verifySession } from '@/auth/server/definitions'
 import {
   decryptDataKey,
   encryptData,
@@ -14,19 +12,18 @@ export async function updateDiagnosticHistory(
   residentId: string,
   deletedRecordIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
-  const { currentUser } = await getAuthenticatedAppForUser()
-  if (!currentUser) {
-    throw new Error('Not authenticated')
-  }
+  await verifySession()
 
   try {
-    const residentRef = doc(db, 'residents', residentId)
-    const residentSnap = await getDoc(residentRef)
-    if (!residentSnap.exists()) {
+    const residentRef = adminDb
+      .collection('providers/GYRHOME/residents')
+      .doc(residentId)
+    const residentSnap = await residentRef.get()
+    if (!residentSnap.exists) {
       throw new Error('Resident not found')
     }
 
-    const encryptedDek = residentSnap.data().encrypted_dek_clinical
+    const encryptedDek = residentSnap.data()?.encrypted_dek_clinical
     if (!encryptedDek) {
       throw new Error('Clinical DEK not found for resident')
     }
@@ -36,17 +33,12 @@ export async function updateDiagnosticHistory(
       KEK_CLINICAL_PATH,
     )
 
-    const batch = writeBatch(db)
-    const recordsRef = collection(
-      db,
-      'residents',
-      residentId,
-      'diagnostic_history',
-    )
+    const batch = adminDb.batch()
+    const recordsRef = residentRef.collection('diagnostic_history')
 
     records.forEach((record) => {
       const { id, ...recordData } = record
-      const docRef = id ? doc(recordsRef, id) : doc(recordsRef)
+      const docRef = id ? recordsRef.doc(id) : recordsRef.doc()
 
       const encryptedRecord: any = {}
       if (recordData.date)
@@ -78,7 +70,7 @@ export async function updateDiagnosticHistory(
     })
 
     deletedRecordIds.forEach((id) => {
-      const docRef = doc(recordsRef, id)
+      const docRef = recordsRef.doc(id)
       batch.delete(docRef)
     })
 

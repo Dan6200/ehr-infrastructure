@@ -1,10 +1,10 @@
-import { collection, doc, getDoc, writeBatch } from 'firebase/firestore'
-import { db } from '@/firebase/firestore-server'
+'use server'
+import { adminDb } from '@/firebase/admin'
 import {
   FinancialTransaction,
   EncryptedFinancialTransactionSchema,
 } from '@/types'
-import { getAuthenticatedAppForUser } from '@/auth/server/auth'
+import { verifySession } from '@/auth/server/definitions'
 import {
   decryptDataKey,
   encryptData,
@@ -16,19 +16,18 @@ export async function updateFinancials(
   residentId: string,
   deletedFinancialIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
-  const { currentUser } = await getAuthenticatedAppForUser()
-  if (!currentUser) {
-    throw new Error('Not authenticated')
-  }
+  await verifySession()
 
   try {
-    const residentRef = doc(db, 'residents', residentId)
-    const residentSnap = await getDoc(residentRef)
-    if (!residentSnap.exists()) {
+    const residentRef = adminDb
+      .collection('providers/GYRHOME/residents')
+      .doc(residentId)
+    const residentSnap = await residentRef.get()
+    if (!residentSnap.exists) {
       throw new Error('Resident not found')
     }
 
-    const encryptedDek = residentSnap.data().encrypted_dek_financial
+    const encryptedDek = residentSnap.data()?.encrypted_dek_financial
     if (!encryptedDek) {
       throw new Error('Financial DEK not found for resident')
     }
@@ -38,22 +37,24 @@ export async function updateFinancials(
       KEK_FINANCIAL_PATH,
     )
 
-    const batch = writeBatch(db)
-    const financialsRef = collection(db, 'residents', residentId, 'financials')
+    const batch = adminDb.batch()
+    const financialsRef = residentRef.collection('financials')
 
     financials.forEach((item) => {
       const { id, ...itemData } = item
-      const docRef = id ? doc(financialsRef, id) : doc(financialsRef)
+      const docRef = id ? financialsRef.doc(id) : financialsRef.doc()
 
-      const encryptedFinancial: any = {}
+      const encryptedFinancial: any = { encrypted_dek: encryptedDek }
+
       if (itemData.amount)
         encryptedFinancial.encrypted_amount = encryptData(
           itemData.amount.toString(),
           financialDek,
         )
-      if (itemData.date)
-        encryptedFinancial.encrypted_date = encryptData(
-          itemData.date,
+      if (itemData.occurrence_datetime)
+        // Corrected field name
+        encryptedFinancial.encrypted_occurrence_datetime = encryptData(
+          itemData.occurrence_datetime,
           financialDek,
         )
       if (itemData.type)
@@ -75,7 +76,7 @@ export async function updateFinancials(
     })
 
     deletedFinancialIds.forEach((id) => {
-      const docRef = doc(financialsRef, id)
+      const docRef = financialsRef.doc(id)
       batch.delete(docRef)
     })
 

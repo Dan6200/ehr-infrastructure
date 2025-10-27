@@ -2,11 +2,10 @@
 import {
   collectionWrapper,
   docWrapper,
-  getDocWrapper,
   updateDocWrapper,
-} from '@/firebase/firestore-server'
+} from '@/firebase/admin'
 import { Resident, EncryptedResident } from '@/types'
-import { getAuthenticatedAppAndClaims } from '@/auth/server/definitions'
+import { verifySession } from '@/auth/server/definitions'
 import { encryptResident, getResidentConverter } from '@/types/converters'
 
 export async function updateResident(
@@ -14,21 +13,17 @@ export async function updateResident(
   documentId: string,
 ) {
   try {
-    const authenticatedApp = await getAuthenticatedAppAndClaims()
-    if (!authenticatedApp) throw new Error('Failed to authenticate session')
-    const { app } = authenticatedApp
+    await verifySession() // Authenticate the request first
 
     const encryptedResident = await encryptResident(newResidentData)
 
-    await updateDocWrapper(
-      await docWrapper(
-        (
-          await collectionWrapper<EncryptedResident>(app, 'residents')
-        ).withConverter(await getResidentConverter()),
-        documentId,
-      ),
-      encryptedResident,
-    )
+    const residentsCollection = (
+      await collectionWrapper<EncryptedResident>('providers/GYRHOME/residents')
+    ).withConverter(await getResidentConverter())
+
+    const residentDocRef = await docWrapper(residentsCollection, documentId)
+
+    await updateDocWrapper(residentDocRef, encryptedResident)
 
     return {
       success: true,
