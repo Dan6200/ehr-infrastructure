@@ -1,6 +1,6 @@
 'use server'
 import { cookies } from 'next/headers'
-import { adminAuth } from '@/firebase/admin'
+import { getAdminAuth } from '@/firebase/admin'
 import redis from '@/lib/redis'
 
 const STALE_COOKIE_TTL = 60 * 5 // 5 minutes
@@ -18,26 +18,21 @@ export async function verifySession() {
   }
 
   try {
-    // 1. Check Redis for a known stale cookie first.
     const isStale = await redis.get(sessionCookie)
     if (isStale) {
       throw new Error('Stale session cookie found in cache.')
     }
 
-    // 2. If not stale, verify with Firebase.
+    const adminAuth = await getAdminAuth()
     const decodedClaims = await adminAuth.verifySessionCookie(
       sessionCookie,
       true,
     )
     return decodedClaims
   } catch (error) {
-    // 3. If verification fails, add the cookie to the stale cache.
-    if (error instanceof Error && error.message.includes('Stale')) {
-      // Do nothing if it was our own stale error
-    } else {
+    if (!(error instanceof Error && error.message.includes('Stale'))) {
       await redis.set(sessionCookie, 'stale', 'EX', STALE_COOKIE_TTL)
     }
-    // The cookie is invalid, expired, or revoked.
     throw new Error('Invalid session cookie. Authentication failed.')
   }
 }
@@ -49,8 +44,47 @@ export async function verifySession() {
 export async function deleteSessionCookie(): Promise<void> {
   const sessionCookie = (await cookies()).get('__session')?.value
   if (sessionCookie) {
-    // Proactively add to stale cache upon logout.
     await redis.set(sessionCookie, 'stale', 'EX', STALE_COOKIE_TTL)
   }
   ;(await cookies()).delete('__session')
+}
+
+/**
+ * Sets a custom role for a user.
+ * @param uid The user's ID.
+ * @param role The role to set (e.g., 'ADMIN').
+ */
+export async function setCustomUserRole(uid: string, role: string) {
+  const validRoles = ['ADMIN', 'CLINICIAN', 'CAREGIVER', 'VIEWER']
+  const upperCaseRole = role.toUpperCase()
+
+  if (!validRoles.includes(upperCaseRole)) {
+    throw new Error(`Invalid role: ${role}.`)
+  }
+
+  try {
+    const adminAuth = await getAdminAuth()
+    await adminAuth.setCustomUserClaims(uid, { roles: [upperCaseRole] })
+    console.log(`Custom role '${upperCaseRole}' set for user ${uid}.`)
+    return { success: true }
+  } catch (error: any) {
+    console.error('Error setting custom user claims:', error)
+    throw new Error(`Error setting custom role: ${error.message}`)
+  }
+}
+
+/**
+ * Revokes all refresh tokens for a given user.
+ * @param uid The user ID.
+ */
+export async function revokeAllSessions(uid: string) {
+  try {
+    const adminAuth = await getAdminAuth()
+    await adminAuth.revokeRefreshTokens(uid)
+    console.log(`Sessions revoked for user: ${uid}`)
+    return { success: true }
+  } catch (error: any) {
+    console.error('Error revoking sessions:', error)
+    throw new Error(`Error revoking sessions: ${error.message}`)
+  }
 }
