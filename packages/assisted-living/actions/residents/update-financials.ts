@@ -1,5 +1,5 @@
 'use server'
-import { adminDb } from '@/firebase/admin'
+import { getAdminDb } from '@/firebase/admin'
 import {
   FinancialTransaction,
   EncryptedFinancialTransactionSchema,
@@ -19,6 +19,7 @@ export async function updateFinancials(
   await verifySession()
 
   try {
+    const adminDb = await getAdminDb()
     const residentRef = adminDb
       .collection('providers/GYRHOME/residents')
       .doc(residentId)

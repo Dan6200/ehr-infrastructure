@@ -1,4 +1,4 @@
-import { adminDb } from '@/firebase/admin'
+import { getAdminDb } from '@/firebase/admin'
 import { DiagnosticHistory, EncryptedDiagnosticHistorySchema } from '@/types'
 import { verifySession } from '@/auth/server/definitions'
 import {
@@ -15,6 +15,7 @@ export async function updateDiagnosticHistory(
   await verifySession()
 
   try {
+    const adminDb = await getAdminDb()
     const residentRef = adminDb
       .collection('providers/GYRHOME/residents')
       .doc(residentId)

@@ -109,11 +109,13 @@ export async function getResidentData(
     const idToken = await verifySession()
     const userRoles: string[] = (idToken?.roles as string[]) || []
 
-    const residentsCollection = collectionWrapper<
-      z.infer<typeof EncryptedResidentSchema>
-    >(`providers/GYRHOME/residents`).withConverter(await getResidentConverter())
+    const residentsCollection = (
+      await collectionWrapper<z.infer<typeof EncryptedResidentSchema>>(
+        `providers/GYRHOME/residents`,
+      )
+    ).withConverter(await getResidentConverter())
 
-    const residentRef = docWrapper(residentsCollection, documentId)
+    const residentRef = await docWrapper(residentsCollection, documentId)
     const residentSnap = await getDocWrapper(residentRef)
 
     if (!residentSnap.exists) throw notFound()
@@ -135,16 +137,16 @@ export async function getResidentData(
       ),
     )
 
-    const facilitiesCollection = collectionWrapper<Facility>(
-      'providers/GYRHOME/facilities',
+    const facilitiesCollection = (
+      await collectionWrapper<Facility>('providers/GYRHOME/facilities')
     ).withConverter(await getFacilityConverter())
-    const facilityDocRef = docWrapper(
+    const facilityDocRef = await docWrapper(
       facilitiesCollection,
       resident.facility_id,
     )
     const facilitySnap = await getDocWrapper(facilityDocRef)
     const address = facilitySnap.exists
-      ? facilitySnap.data().address
+      ? facilitySnap.data()?.address
       : 'Address not found'
 
     return ResidentDataSchema.parse({
@@ -243,7 +245,7 @@ export async function getAllResidents({
     } else if (prevCursorId) {
       isPrev = true
       const cursorDoc = await getDocWrapper(
-        docWrapper(residentsCollection, prevCursorId),
+        await docWrapper(residentsCollection, prevCursorId),
       )
       if (cursorDoc.exists) {
         query = query.endBefore(cursorDoc).limitToLast(limit + 1)

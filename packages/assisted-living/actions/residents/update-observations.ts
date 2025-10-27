@@ -1,5 +1,4 @@
-'use server'
-import { adminDb } from '@/firebase/admin'
+import { getAdminDb } from '@/firebase/admin'
 import { Observation, EncryptedObservationSchema } from '@/types'
 import { verifySession } from '@/auth/server/definitions'
 import {
@@ -9,13 +8,14 @@ import {
 } from '@/lib/encryption'
 
 export async function updateObservations(
-  observations: (Observation & { id: string })[],
+  observations: Observation[],
   residentId: string,
   deletedObservationIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
   await verifySession()
 
   try {
+    const adminDb = await getAdminDb()
     const residentRef = adminDb
       .collection('providers/GYRHOME/residents')
       .doc(residentId)

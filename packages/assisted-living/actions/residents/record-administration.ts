@@ -6,7 +6,7 @@ import {
   encryptData,
   KEK_CLINICAL_PATH,
 } from '@/lib/encryption'
-import { collectionWrapper, addDocWrapper, adminDb } from '@/firebase/admin'
+import { getAdminDb, collectionWrapper, addDocWrapper } from '@/firebase/admin'
 
 export async function recordAdministration(
   residentId: string,
@@ -15,6 +15,7 @@ export async function recordAdministration(
   await verifySession()
 
   try {
+    const adminDb = await getAdminDb()
     // 1. Get the resident's document to retrieve the shared clinical DEK
     const residentRef = adminDb
       .collection('providers/GYRHOME/residents')
