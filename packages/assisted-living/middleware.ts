@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { verifySession } from './auth/server/definitions'
+import redis from '@/lib/redis'
+
+// Exported so we can set up GCP Memorystore with ioredis client...
+export const runtime = 'nodejs'
 
 // Define the public paths that require no authentication
 const PUBLIC_PATHS = ['/sign-in', '/activate-account', '/temp']
@@ -14,7 +17,19 @@ const PROTECTED_PATHS = ['/admin']
  */
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
-  const sessionVerified = !!verifySession()
+  const sessionCookie = request.cookies.get('__session')?.value
+
+  let sessionVerified = false // Assume not verified initially
+
+  if (sessionCookie) {
+    // Quick check against Redis deny-list.
+    const isStale = await redis.get(sessionCookie)
+    if (!isStale) {
+      // If it's not in the deny-list, we can assume it's valid for middleware purposes.
+      // The full verification will happen in the server action.
+      sessionVerified = true
+    }
+  }
 
   const isPublicPath = PUBLIC_PATHS.includes(pathname)
   const isProtectedPath = PROTECTED_PATHS.some((path) =>
@@ -58,15 +73,5 @@ export async function middleware(request: NextRequest) {
  * It's generally best to exclude static assets, API routes, and Next.js internal files.
  */
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - /api/auth (our specific auth API, to avoid infinite loops)
-     * - error
-     */
-    '/((?!_next/static|_next/image|favicon.ico|api/auth|error).*)',
-  ],
+  matcher: ['/admin/:path*', '/', '/sign-in'],
 }
