@@ -8,7 +8,7 @@ import {
 } from '@/lib/encryption'
 
 export async function updateAllergies(
-  allergies: Allergy[],
+  allergies: (Allergy & { id: string })[],
   residentId: string,
   deletedAllergyIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {

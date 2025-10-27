@@ -63,7 +63,7 @@ export async function recordAdministration(
     const parsedRecord = EncryptedEmarRecordSchema.parse(encryptedAdminRecord)
 
     // 3. Add the new encrypted document to the 'emar' subcollection
-    const emarCollectionRef = collectionWrapper(
+    const emarCollectionRef = await collectionWrapper(
       `providers/GYRHOME/residents/${residentId}/emar`,
     )
     await addDocWrapper(emarCollectionRef, parsedRecord)

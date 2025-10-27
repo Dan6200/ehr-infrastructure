@@ -8,7 +8,7 @@ import {
 } from '@/lib/encryption'
 
 export async function updateDiagnosticHistory(
-  records: DiagnosticHistory[],
+  records: (DiagnosticHistory & { id: string })[],
   residentId: string,
   deletedRecordIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {

@@ -9,7 +9,7 @@ import {
 } from '@/lib/encryption'
 
 export async function updateObservations(
-  observations: Observation[],
+  observations: (Observation & { id: string })[],
   residentId: string,
   deletedObservationIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {

@@ -12,7 +12,7 @@ import {
 } from '@/lib/encryption'
 
 export async function updateFinancials(
-  financials: FinancialTransaction[],
+  financials: (FinancialTransaction & { id: string })[],
   residentId: string,
   deletedFinancialIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {

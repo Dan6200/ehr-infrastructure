@@ -5,7 +5,7 @@ import { verifySession } from '@/auth/server/definitions'
 import { decryptDataKey, encryptData, KEK_CONTACT_PATH } from '@/lib/encryption'
 
 export async function updateEmergencyContacts(
-  contacts: EmergencyContact[],
+  contacts: (EmergencyContact & { id: string })[],
   residentId: string,
   deletedContactIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
