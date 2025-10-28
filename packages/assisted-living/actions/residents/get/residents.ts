@@ -8,81 +8,27 @@ import {
   getDocsWrapper,
 } from '@/firebase/admin'
 import {
-  Facility,
-  FacilitySchema,
   Resident,
   ResidentDataSchema,
   ResidentSchema,
-  AllergySchema,
-  PrescriptionSchema,
-  ObservationSchema,
-  DiagnosticHistorySchema,
-  EmergencyContactSchema,
-  FinancialTransactionSchema,
-  EmarRecordSchema,
   EncryptedResidentSchema,
-  EncryptedFinancialTransactionSchema,
-  EncryptedEmergencyContactSchema,
   SubCollectionMapType,
+  AllCollectionData,
+  subCollectionMap,
 } from '@/types'
-import {
-  decryptResidentData,
-  getFacilityConverter,
-  getResidentConverter,
-  getFinancialsConverter,
-  getEmergencyContactsConverter,
-  decryptFinancialTransaction,
-  decryptEmergencyContact,
-} from '@/types/converters'
+import { decryptResidentData, getResidentConverter } from '@/types/converters'
 import { notFound } from 'next/navigation'
-import z from 'zod'
+import { z } from 'zod'
 import { Query } from 'firebase-admin/firestore'
+import { getNestedResidentData } from './subcollections'
+import { getAllFacilities } from './facilities'
 
-const subCollectionMap = {
-  financials: {
-    converter: getFinancialsConverter,
-    decryptor: decryptFinancialTransaction,
-  },
-  emergency_contacts: {
-    converter: getEmergencyContactsConverter,
-    decryptor: decryptEmergencyContact,
-  },
-  // ... add other subcollections here as they get their own converters
-} as const
-
-type SubCollectionKey = keyof typeof subCollectionMap
-
-export async function getNestedResidentData<K extends SubCollectionKey>(
-  residentId: string,
-  collectionName: K,
-) {
-  await verifySession() // Authenticate the request first
-
-  const { converter, decryptor } = subCollectionMap[collectionName] as Omit<
-    SubCollectionMapType[K],
-    'type'
-  >
-  const subcollectionRef = (
-    await collectionWrapper<SubCollectionMapType[K]['type']>(
-      `providers/GYRHOME/residents/${residentId}/${collectionName}`,
-    )
-  ).withConverter(await converter())
-
-  const snapshot = await getDocsWrapper(subcollectionRef)
-  if (snapshot.empty) return
-  const encryptedDocs = snapshot.docs.map((doc) => doc.data())
-
-  // Decrypt each document in parallel
-  const decryptedDocs = await Promise.all(
-    encryptedDocs.map((doc) => decryptor(doc as any)), // Cast needed here
-  )
-
-  return decryptedDocs
-}
+type K = keyof SubCollectionMapType
 
 // Use a DTO for resident data
 export async function getResidentData(
   documentId: string,
+  ...subCollections: K[]
 ): Promise<z.infer<typeof ResidentDataSchema>> {
   try {
     const idToken = await verifySession()
@@ -101,22 +47,38 @@ export async function getResidentData(
 
     const resident = await decryptResidentData(residentSnap.data()!, userRoles)
 
-    const facilitiesCollection = (
-      await collectionWrapper<Facility>('providers/GYRHOME/facilities')
-    ).withConverter(await getFacilityConverter())
-    const facilityDocRef = await docWrapper(
-      facilitiesCollection,
-      resident.facility_id,
+    const allFacilities = await getAllFacilities()
+    const facility = allFacilities.find((f) => f.id === resident.facility_id)
+    const address = facility ? facility.address : 'Address not found'
+
+    // Fetch and decrypt subcollections in parallel
+    const nestedData = await Promise.all(
+      subCollections.map((subCol) => getNestedResidentData(documentId, subCol)),
     )
-    const facilitySnap = await getDocWrapper(facilityDocRef)
-    const address = facilitySnap.exists
-      ? facilitySnap.data()?.address
-      : 'Address not found'
+
+    const nestedDataMapped = nestedData.reduce(
+      (bucket, data, index) => {
+        const filteredData = (data || []).filter(
+          (item): item is NonNullable<typeof item> => item !== undefined,
+        )
+
+        bucket[subCollections[index]] = subCollectionMap[
+          subCollections[index]
+        ].schema.parse(filteredData) as any
+        return bucket
+      },
+      {} as {
+        [P in keyof SubCollectionMapType]: z.infer<
+          SubCollectionMapType[P]['schema']
+        >[]
+      },
+    )
 
     return ResidentDataSchema.parse({
       ...resident,
       id: residentSnap.id,
       address,
+      ...nestedDataMapped,
     })
   } catch (error: any) {
     console.error(error)
@@ -144,26 +106,6 @@ export async function getResidents(): Promise<Resident[]> {
     )
   } catch (error: any) {
     throw new Error(`Failed to fetch all residents data: ${error.message}`)
-  }
-}
-
-export async function getAllFacilities(): Promise<Facility[]> {
-  try {
-    await verifySession()
-
-    const facilitiesCollection = (
-      await collectionWrapper<Facility>('providers/GYRHOME/facilities')
-    ).withConverter(await getFacilityConverter())
-    const facilitiesSnap = await getDocsWrapper(facilitiesCollection)
-
-    if (facilitiesSnap.empty) throw notFound()
-
-    return facilitiesSnap.docs.map((doc) => {
-      const facility = { id: doc.id, ...doc.data() }
-      return FacilitySchema.parse(facility)
-    })
-  } catch (error: any) {
-    throw new Error(`Failed to fetch all facilities: ${error.message}`)
   }
 }
 
@@ -249,18 +191,17 @@ export async function getAllResidents({
         ? residentsForPage[0]?.id
         : undefined
 
-    const facilitiesCollection = (
-      await collectionWrapper<Facility>('providers/GYRHOME/facilities')
-    ).withConverter(await getFacilityConverter())
-    const facilitiesData = await getDocsWrapper(facilitiesCollection)
-    const facility_lookup: { [id: string]: string } =
-      facilitiesData.docs.reduce(
-        (lookup: { [id: string]: any }, facility) => ({
-          ...lookup,
-          [facility.id]: facility.data().address,
-        }),
-        {},
-      )
+    const allFacilities = await getAllFacilities()
+    const facility_lookup: { [id: string]: string } = allFacilities.reduce(
+      (lookup: { [id: string]: any }, facility) =>
+        facility.id
+          ? {
+              ...lookup,
+              [facility.id]: facility.address,
+            }
+          : lookup,
+      {},
+    )
 
     const residentsWithAddress = residentsForPage.map((resident) => {
       const address =
