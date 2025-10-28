@@ -7,6 +7,7 @@ import { DashboardClient } from '@/components/dashboard/dashboard-client'
 export type AggregatedChartData = {
   [key: string]: {
     date: string
+    total: number
     charges: number
     payments: number
     adjustments: number
@@ -24,7 +25,7 @@ async function getChartData(): Promise<FormattedChartData | null> {
   const { residents } =
     (await getAllResidents({}).catch(async (reason) => {
       if (reason.toString().match(/(cookies|session|authenticate)/i)) {
-        await fetch(`${process.env.URL}:${process.env.PORT}/api/auth/logout`, {
+        await fetch('/api/auth/logout', {
           method: 'post',
         }).then(async (result) => {
           if (result.status === 200) redirect('/sign-in') // Navigate to the login page
@@ -45,7 +46,7 @@ async function getChartData(): Promise<FormattedChartData | null> {
     (acc: AggregatedChartData, item: FinancialTransaction) => {
       const date = item.occurrence_datetime.split('T')[0] // Group by day
       if (!acc[date]) {
-        acc[date] = { date, charges: 0, payments: 0, adjustments: 0 }
+        acc[date] = { date, charges: 0, payments: 0, adjustments: 0, total: 0 }
       }
       if (item.type === 'CHARGE') {
         acc[date].charges += item.amount
@@ -54,6 +55,7 @@ async function getChartData(): Promise<FormattedChartData | null> {
       } else {
         acc[date].adjustments += item.amount
       }
+      acc[date].total += item.amount
       return acc
     },
     {},
