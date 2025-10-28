@@ -1,16 +1,21 @@
 export type Nullable<T> = T | null | undefined
 
-import {
-  KEK_CONTACT_PATH,
-  KEK_CLINICAL_PATH,
-  KEK_FINANCIAL_PATH,
-} from '@/lib/encryption'
 import { z } from 'zod'
 import {
+  decryptAllergy,
+  decryptDiagnosticHistory,
+  decryptEmarRecord,
   decryptEmergencyContact,
   decryptFinancialTransaction,
+  decryptObservation,
+  decryptPrescription,
+  getAllergiesConverter,
+  getDiagnosticHistoryConverter,
+  getEmarRecordConverter,
   getEmergencyContactsConverter,
   getFinancialsConverter,
+  getObservationsConverter,
+  getPrescriptionsConverter,
 } from './converters'
 
 // --- Enums ---
@@ -103,34 +108,6 @@ export const FinancialTransactionTypeEnum = z.enum([
 ])
 
 // --- Plaintext Schemas (for Application Use) ---
-
-export type SubCollectionMapType = {
-  emergency_contacts: {
-    converter: typeof getEmergencyContactsConverter
-    decryptor: typeof decryptEmergencyContact
-    type: z.infer<typeof EmergencyContactSchema>
-  }
-  financials: {
-    converter: typeof getFinancialsConverter
-    decryptor: typeof decryptFinancialTransaction
-    type: z.infer<typeof FinancialTransactionSchema>
-  }
-  prescriptions: {
-    /*...*/
-  }
-  observations: {
-    /*...*/
-  }
-  diagnostic_history: {
-    /*...*/
-  }
-  emar: {
-    /*...*/
-  }
-}
-
-export type SubCollectionArgs<K extends keyof SubCollectionMapType> =
-  SubCollectionMapType[K]
 
 const SnomedConceptSchema = z.object({
   name: z.string(),
@@ -264,7 +241,6 @@ export const EmergencyContactSchema = z
       ...(data.personal_relationships || []),
     ],
   }))
-  .optional()
 
 export const ResidentSchema = z.object({
   resident_name: z.string().nullable().optional(),
@@ -341,6 +317,7 @@ export const EncryptedEmarRecordSchema = z.object({
 })
 
 export const EncryptedFinancialTransactionSchema = z.object({
+  resident_id: z.string(),
   encrypted_dek: z.string(),
   encrypted_amount: EncryptedFieldSchema,
   encrypted_occurrence_datetime: EncryptedFieldSchema,
@@ -400,5 +377,114 @@ export type Facility = z.infer<typeof FacilitySchema>
 export const ResidentDataSchema = ResidentSchema.extend({
   id: z.string().optional(),
   address: z.string(),
+  financials: FinancialTransactionSchema.array().optional(),
+  emergency_contacts: EmergencyContactSchema.array().optional(),
+  allergies: AllergySchema.array().optional(),
+  prescriptions: PrescriptionSchema.array().optional(),
+  observations: ObservationSchema.array().optional(),
+  diagnostic_history: DiagnosticHistorySchema.array().optional(),
+  emar: EmarRecordSchema.array().optional(),
 })
+
 export type ResidentData = z.infer<typeof ResidentDataSchema>
+
+export type SubCollectionMapType = {
+  emergency_contacts: {
+    converter: typeof getEmergencyContactsConverter
+    decryptor: typeof decryptEmergencyContact
+    schema: typeof EmergencyContactSchema
+    encrypted_schema: typeof EncryptedEmergencyContactSchema
+  }
+  financials: {
+    converter: typeof getFinancialsConverter
+    decryptor: typeof decryptFinancialTransaction
+    encrypted_schema: typeof EncryptedFinancialTransactionSchema
+    schema: typeof FinancialTransactionSchema
+  }
+  allergies: {
+    converter: typeof getAllergiesConverter
+    decryptor: typeof decryptAllergy
+    encrypted_schema: typeof EncryptedAllergySchema
+    schema: typeof AllergySchema
+  }
+  prescriptions: {
+    converter: typeof getPrescriptionsConverter
+    decryptor: typeof decryptPrescription
+    encrypted_schema: typeof EncryptedPrescriptionSchema
+    schema: typeof PrescriptionSchema
+  }
+  observations: {
+    converter: typeof getObservationsConverter
+    decryptor: typeof decryptObservation
+    encrypted_schema: typeof EncryptedObservationSchema
+    schema: typeof ObservationSchema
+  }
+  diagnostic_history: {
+    converter: typeof getDiagnosticHistoryConverter
+    decryptor: typeof decryptDiagnosticHistory
+    encrypted_schema: typeof EncryptedDiagnosticHistorySchema
+    schema: typeof DiagnosticHistorySchema
+  }
+  emar: {
+    converter: typeof getEmarRecordConverter
+    decryptor: typeof decryptEmarRecord
+    encrypted_schema: typeof EncryptedEmarRecordSchema
+    schema: typeof EmarRecordSchema
+  }
+}
+
+export const subCollectionMap: SubCollectionMapType = {
+  allergies: {
+    converter: getAllergiesConverter,
+    decryptor: decryptAllergy,
+    encrypted_schema: EncryptedAllergySchema,
+    schema: AllergySchema,
+  },
+  prescriptions: {
+    converter: getPrescriptionsConverter,
+    decryptor: decryptPrescription,
+    encrypted_schema: EncryptedPrescriptionSchema,
+    schema: PrescriptionSchema,
+  },
+  observations: {
+    converter: getObservationsConverter,
+    decryptor: decryptObservation,
+    encrypted_schema: EncryptedObservationSchema,
+    schema: ObservationSchema,
+  },
+  diagnostic_history: {
+    converter: getDiagnosticHistoryConverter,
+    decryptor: decryptDiagnosticHistory,
+    encrypted_schema: EncryptedDiagnosticHistorySchema,
+    schema: DiagnosticHistorySchema,
+  },
+  emergency_contacts: {
+    converter: getEmergencyContactsConverter,
+    decryptor: decryptEmergencyContact,
+    schema: EmergencyContactSchema,
+    encrypted_schema: EncryptedEmergencyContactSchema,
+  },
+  financials: {
+    converter: getFinancialsConverter,
+    decryptor: decryptFinancialTransaction,
+    schema: FinancialTransactionSchema,
+    encrypted_schema: EncryptedFinancialTransactionSchema,
+  },
+  emar: {
+    converter: getEmarRecordConverter,
+    decryptor: decryptEmarRecord,
+    encrypted_schema: EncryptedEmarRecordSchema,
+    schema: EmarRecordSchema,
+  },
+} as const
+
+export type SubCollectionKey = keyof typeof subCollectionMap
+
+export type SubCollectionArgs<K extends keyof SubCollectionMapType> =
+  SubCollectionMapType[K]
+// 1. Define the final expected type using your Mapped Type (which is now correct)
+export type AllCollectionData = {
+  [P in keyof SubCollectionMapType]: z.infer<
+    SubCollectionMapType[P]['schema']
+  >[]
+}

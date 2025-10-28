@@ -9,16 +9,12 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import {
-  EncryptedObservationSchema,
-  Observation,
-  ObservationSchema,
-} from '@/types'
+import { EncryptedObservationSchema, ObservationSchema } from '@/types'
 import z from 'zod'
 
 export async function decryptObservation(
   data: z.infer<typeof EncryptedObservationSchema>,
-): Promise<Observation> {
+): Promise<z.infer<typeof ObservationSchema>> {
   const dek = await decryptDataKey(
     Buffer.from(data.encrypted_dek, 'base64'),
     KEK_CLINICAL_PATH,
@@ -26,7 +22,13 @@ export async function decryptObservation(
   const decryptedData: any = {}
 
   for (const key in data) {
-    if (key.startsWith('encrypted_') && key !== 'encrypted_dek') {
+    if (key.endsWith('_id')) {
+      decryptedData[key] = (data as any)[key]
+    } else if (
+      key.startsWith('encrypted_') &&
+      key !== 'encrypted_dek' &&
+      !!(data as any)[key]
+    ) {
       const newKey = key.replace('encrypted_', '')
       decryptedData[newKey] = decryptData((data as any)[key], dek)
     }

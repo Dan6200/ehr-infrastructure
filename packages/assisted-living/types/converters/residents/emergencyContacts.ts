@@ -7,14 +7,13 @@ import {
 } from 'firebase-admin/firestore'
 import {
   EncryptedEmergencyContactSchema,
-  EmergencyContact,
   EmergencyContactSchema,
 } from '@/types'
 import z from 'zod'
 
 export async function decryptEmergencyContact(
   data: z.infer<typeof EncryptedEmergencyContactSchema>,
-): Promise<EmergencyContact> {
+): Promise<z.infer<typeof EmergencyContactSchema>> {
   const dek = await decryptDataKey(
     Buffer.from(data.encrypted_dek, 'base64'),
     KEK_CONTACT_PATH,
@@ -22,7 +21,13 @@ export async function decryptEmergencyContact(
   const decryptedData: any = {}
 
   for (const key in data) {
-    if (key.startsWith('encrypted_') && key !== 'encrypted_dek') {
+    if (key.endsWith('_id')) {
+      decryptedData[key] = (data as any)[key]
+    } else if (
+      key.startsWith('encrypted_') &&
+      key !== 'encrypted_dek' &&
+      !!(data as any)[key]
+    ) {
       const newKey = key.replace('encrypted_', '')
       decryptedData[newKey] = decryptData((data as any)[key], dek)
     }

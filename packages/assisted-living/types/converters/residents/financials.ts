@@ -11,14 +11,13 @@ import {
 } from 'firebase-admin/firestore'
 import {
   EncryptedFinancialTransactionSchema,
-  FinancialTransaction,
   FinancialTransactionSchema,
 } from '@/types'
 import z from 'zod'
 
 export async function decryptFinancialTransaction(
   data: z.infer<typeof EncryptedFinancialTransactionSchema>,
-): Promise<FinancialTransaction> {
+): Promise<z.infer<typeof FinancialTransactionSchema>> {
   const dek = await decryptDataKey(
     Buffer.from(data.encrypted_dek, 'base64'),
     KEK_FINANCIAL_PATH,
@@ -26,7 +25,13 @@ export async function decryptFinancialTransaction(
   const decryptedData: any = {}
 
   for (const key in data) {
-    if (key.startsWith('encrypted_') && key !== 'encrypted_dek') {
+    if (key.endsWith('_id')) {
+      decryptedData[key] = (data as any)[key]
+    } else if (
+      key.startsWith('encrypted_') &&
+      key !== 'encrypted_dek' &&
+      !!(data as any)[key]
+    ) {
       const newKey = key.replace('encrypted_', '')
       decryptedData[newKey] = decryptData((data as any)[key], dek)
     }

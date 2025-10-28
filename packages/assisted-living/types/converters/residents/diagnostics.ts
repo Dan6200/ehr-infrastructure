@@ -11,14 +11,13 @@ import {
 } from 'firebase-admin/firestore'
 import {
   EncryptedDiagnosticHistorySchema,
-  DiagnosticHistory,
   DiagnosticHistorySchema,
 } from '@/types'
 import z from 'zod'
 
 export async function decryptDiagnosticHistory(
   data: z.infer<typeof EncryptedDiagnosticHistorySchema>,
-): Promise<DiagnosticHistory> {
+): Promise<z.infer<typeof DiagnosticHistorySchema>> {
   const dek = await decryptDataKey(
     Buffer.from(data.encrypted_dek, 'base64'),
     KEK_CLINICAL_PATH,
@@ -26,7 +25,13 @@ export async function decryptDiagnosticHistory(
   const decryptedData: any = {}
 
   for (const key in data) {
-    if (key.startsWith('encrypted_') && key !== 'encrypted_dek') {
+    if (key.endsWith('_id')) {
+      decryptedData[key] = (data as any)[key]
+    } else if (
+      key.startsWith('encrypted_') &&
+      key !== 'encrypted_dek' &&
+      !!(data as any)[key]
+    ) {
       const newKey = key.replace('encrypted_', '')
       decryptedData[newKey] = decryptData((data as any)[key], dek)
     }
