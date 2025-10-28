@@ -21,84 +21,63 @@ import {
   FinancialTransactionSchema,
   EmarRecordSchema,
   EncryptedResidentSchema,
+  EncryptedFinancialTransactionSchema,
+  EncryptedEmergencyContactSchema,
+  SubCollectionMapType,
 } from '@/types'
 import {
   decryptResidentData,
   getFacilityConverter,
   getResidentConverter,
+  getFinancialsConverter,
+  getEmergencyContactsConverter,
+  decryptFinancialTransaction,
+  decryptEmergencyContact,
 } from '@/types/converters'
 import { notFound } from 'next/navigation'
-import { z } from 'zod'
-
-import { decryptData, decryptDataKey } from '@/lib/encryption'
-
-// --- Subcollection Getters ---
-async function getSubcollection<T extends z.ZodTypeAny>(
-  residentId: string,
-  collectionName: string,
-  schema: T,
-  kekPath: string,
-): Promise<z.infer<T>[]> {
-  await verifySession() // Authenticate the request first
-
-  const subcollectionRef = collectionWrapper(
-    `providers/GYRHOME/residents/${residentId}/${collectionName}`,
-  )
-  const snapshot = await getDocsWrapper(subcollectionRef)
-
-  return Promise.all(
-    snapshot.docs.map(async (doc) => {
-      const encryptedData = doc.data()
-
-      // Decrypt the document-specific DEK
-      const dek = await decryptDataKey(
-        Buffer.from(encryptedData.encrypted_dek, 'base64'),
-        kekPath,
-      )
-
-      const decryptedData: { [key: string]: any } = {
-        id: doc.id,
-        resident_id: encryptedData.resident_id,
-      }
-      for (const key in encryptedData) {
-        if (key.startsWith('encrypted_') && key !== 'encrypted_dek') {
-          const newKey = key.replace('encrypted_', '')
-          decryptedData[newKey] = decryptData(encryptedData[key], dek)
-        }
-      }
-      // Special handling for financial amounts which are numbers
-      if (collectionName === 'financials' && decryptedData.amount) {
-        decryptedData.amount = parseFloat(decryptedData.amount)
-      }
-      return schema.parse(decryptedData)
-    }),
-  )
-}
-
-import {
-  KEK_CONTACT_PATH,
-  KEK_CLINICAL_PATH,
-  KEK_FINANCIAL_PATH,
-} from '@/lib/encryption'
+import z from 'zod'
+import { Query } from 'firebase-admin/firestore'
 
 const subCollectionMap = {
-  allergies: [AllergySchema, KEK_CONTACT_PATH],
-  prescriptions: [PrescriptionSchema, KEK_CLINICAL_PATH],
-  observations: [ObservationSchema, KEK_CLINICAL_PATH],
-  diagnostic_history: [DiagnosticHistorySchema, KEK_CLINICAL_PATH],
-  emergency_contacts: [EmergencyContactSchema, KEK_CONTACT_PATH],
-  financials: [FinancialTransactionSchema, KEK_FINANCIAL_PATH],
-  emar: [EmarRecordSchema, KEK_CLINICAL_PATH],
+  financials: {
+    converter: getFinancialsConverter,
+    decryptor: decryptFinancialTransaction,
+  },
+  emergency_contacts: {
+    converter: getEmergencyContactsConverter,
+    decryptor: decryptEmergencyContact,
+  },
+  // ... add other subcollections here as they get their own converters
 } as const
 
 type SubCollectionKey = keyof typeof subCollectionMap
 
 export async function getNestedResidentData<K extends SubCollectionKey>(
   residentId: string,
-  subCollectionName: K,
+  collectionName: K,
 ) {
-  const [schema, kekPath] = subCollectionMap[subCollectionName]
-  return getSubcollection(residentId, subCollectionName, schema, kekPath)
+  await verifySession() // Authenticate the request first
+
+  const { converter, decryptor } = subCollectionMap[collectionName] as Omit<
+    SubCollectionMapType[K],
+    'type'
+  >
+  const subcollectionRef = (
+    await collectionWrapper<SubCollectionMapType[K]['type']>(
+      `providers/GYRHOME/residents/${residentId}/${collectionName}`,
+    )
+  ).withConverter(await converter())
+
+  const snapshot = await getDocsWrapper(subcollectionRef)
+  if (snapshot.empty) return
+  const encryptedDocs = snapshot.docs.map((doc) => doc.data())
+
+  // Decrypt each document in parallel
+  const decryptedDocs = await Promise.all(
+    encryptedDocs.map((doc) => decryptor(doc as any)), // Cast needed here
+  )
+
+  return decryptedDocs
 }
 
 // Use a DTO for resident data
@@ -120,22 +99,7 @@ export async function getResidentData(
 
     if (!residentSnap.exists) throw notFound()
 
-    const resident = await decryptResidentData(residentSnap.data(), userRoles)
-
-    // Fetch and decrypt subcollections in parallel
-    const [
-      allergies,
-      prescriptions,
-      observations,
-      diagnostic_history,
-      emergency_contacts,
-      financials,
-      emar,
-    ] = await Promise.all(
-      Object.entries(subCollectionMap).map(([subcolName]) =>
-        getNestedResidentData(documentId, subcolName as SubCollectionKey),
-      ),
-    )
+    const resident = await decryptResidentData(residentSnap.data()!, userRoles)
 
     const facilitiesCollection = (
       await collectionWrapper<Facility>('providers/GYRHOME/facilities')
@@ -153,15 +117,9 @@ export async function getResidentData(
       ...resident,
       id: residentSnap.id,
       address,
-      allergies,
-      prescriptions,
-      observations,
-      diagnostic_history,
-      emergency_contacts,
-      financials,
-      emar,
     })
   } catch (error: any) {
+    console.error(error)
     throw new Error(`Failed to fetch resident: ${error.message}`)
   }
 }
@@ -237,7 +195,7 @@ export async function getAllResidents({
 
     if (nextCursorId) {
       const cursorDoc = await getDocWrapper(
-        docWrapper(residentsCollection, nextCursorId),
+        await docWrapper(residentsCollection, nextCursorId),
       )
       if (cursorDoc.exists) {
         query = query.startAfter(cursorDoc)
