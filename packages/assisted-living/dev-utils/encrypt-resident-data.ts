@@ -200,7 +200,10 @@ async function main() {
       items.forEach((item, index) => {
         const encryptedData: any = { encrypted_dek }
         for (const field in item.data) {
-          if (field.endsWith('_id')) continue
+          if (field.endsWith('_id')) {
+            encryptedData[field] = item.data[field]
+            continue
+          }
           encryptedData[`encrypted_${field}`] = encryptField(
             item.data[field],
             dek,
