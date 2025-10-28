@@ -46,12 +46,19 @@ function calculateMetrics(data: any[], timeRange: string) {
   const sum = (d: any[], key: string) =>
     d.reduce((acc, item) => acc + item[key], 0)
 
-  const currentRevenue = sum(currentPeriodData, 'charges')
-  const previousRevenue = sum(previousPeriodData, 'charges')
-  const revenueChange =
-    previousRevenue === 0
+  const currentTotal = sum(currentPeriodData, 'total')
+  const previousTotal = sum(previousPeriodData, 'total')
+  const totalsChange =
+    previousTotal === 0
       ? 100
-      : ((currentRevenue - previousRevenue) / previousRevenue) * 100
+      : ((currentTotal - previousTotal) / previousTotal) * 100
+
+  const currentCharges = sum(currentPeriodData, 'charges')
+  const previousCharges = sum(previousPeriodData, 'charges')
+  const chargesChange =
+    previousCharges === 0
+      ? 100
+      : ((currentCharges - previousCharges) / previousCharges) * 100
 
   const currentPayments = sum(currentPeriodData, 'payments')
   const previousPayments = sum(previousPeriodData, 'payments')
@@ -68,7 +75,8 @@ function calculateMetrics(data: any[], timeRange: string) {
       : ((currentAdjustments - previousAdjustments) / previousAdjustments) * 100
 
   return {
-    revenue: { amount: currentRevenue, change: revenueChange },
+    revenue: { amount: currentTotal, change: totalsChange },
+    charges: { amount: currentCharges, change: chargesChange },
     payments: { amount: currentPayments, change: paymentsChange },
     adjustments: { amount: currentAdjustments, change: adjustmentsChange },
   }
@@ -138,10 +146,15 @@ export function SectionCards({ chartData, timeRange }: SectionCardsProps) {
   const periodText = `this ${timeRange === '30d' ? 'month' : timeRange === '90d' ? 'quarter' : '6 months'}`
 
   return (
-    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-3">
+    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-3 @7xl/main:grid-cols-4">
       <MetricCard
         title="Total Revenue"
         metric={metrics.revenue}
+        periodText={periodText}
+      />
+      <MetricCard
+        title="Total Charges"
+        metric={metrics.charges}
         periodText={periodText}
       />
       <MetricCard

@@ -29,17 +29,21 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { FormattedChartData } from '@/app/admin/dashboard/page'
 
 const chartConfig = {
+  total: {
+    label: 'Total',
+    color: 'hsl(var(--chart-1))',
+  },
   charges: {
     label: 'Charges',
-    color: 'hsl(var(--chart-1))',
+    color: 'hsl(var(--chart-2))',
   },
   payments: {
     label: 'Payments',
-    color: 'hsl(var(--chart-2))',
+    color: 'hsl(var(--chart-3))',
   },
   adjustments: {
     label: 'Adjustments',
-    color: 'hsl(var(--chart-3))',
+    color: 'hsl(var(--chart-4))',
   },
 } satisfies ChartConfig
 
@@ -127,6 +131,18 @@ export function ChartAreaInteractive({
         >
           <AreaChart data={filteredData}>
             <defs>
+              <linearGradient id="fillTotal" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-total)"
+                  stopOpacity={1.0}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-total)"
+                  stopOpacity={0.1}
+                />
+              </linearGradient>
               <linearGradient id="fillCharges" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
@@ -192,6 +208,13 @@ export function ChartAreaInteractive({
                   indicator="dot"
                 />
               }
+            />
+            <Area
+              dataKey="total"
+              type="natural"
+              fill="url(#fillTotal)"
+              stroke="var(--color-total)"
+              stackId="a"
             />
             <Area
               dataKey="payments"
