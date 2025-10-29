@@ -21,7 +21,7 @@ export async function decryptEmergencyContact(
   const decryptedData: any = {}
 
   for (const key in data) {
-    if (key.endsWith('_id')) {
+    if (key === 'id' || key.endsWith('_id')) {
       decryptedData[key] = (data as any)[key]
     } else if (
       key.startsWith('encrypted_') &&

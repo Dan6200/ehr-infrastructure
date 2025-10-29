@@ -21,8 +21,9 @@ export async function decryptAllergy(
   )
   const decryptedData: any = {}
 
+  console.log(data)
   for (const key in data) {
-    if (key.endsWith('_id')) {
+    if (key === 'id' || key.endsWith('_id')) {
       decryptedData[key] = (data as any)[key]
     } else if (
       key.startsWith('encrypted_') &&
@@ -34,6 +35,9 @@ export async function decryptAllergy(
     }
   }
 
+  if (decryptedData.name) {
+    decryptedData.name = JSON.parse(decryptedData.name)
+  }
   if (decryptedData.substance) {
     decryptedData.substance = JSON.parse(decryptedData.substance)
   }
