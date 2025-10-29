@@ -1229,10 +1229,10 @@ if __name__ == "__main__":
                             "verification_status": random.choice(
                                 ALLERGY_STATUSES["verification"]
                             ),
-                            "name": {"snomed": allergy_name},
+                            "name": {"coding": allergy_name},
                             "type": random.choice(ALLERGY_TYPES),
                             "recorded_date": get_random_datetime(START_DATE, END_DATE),
-                            "substance": {"snomed": substance},
+                            "substance": {"coding": substance},
                             "reaction": {
                                 "coding": {
                                     "system": "http://snomed.info/sct",
