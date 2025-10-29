@@ -2,7 +2,7 @@ import json
 import re
 import uuid
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 import os
 import pytz
 
@@ -33,39 +33,194 @@ CONDITION_STATUSES = ['active', 'recurrence', 'remission', 'resolved']
 PRESCRIPTION_STATUSES = ['recorded', 'entered-in-error', 'draft']
 PRESCRIPTION_ADHERENCE_STATUSES = ['taking', 'taking-as-directed', 'taking-not-as-directed', 'not-taking', 'on-hold','on-hold-as-directed', 'on-hold-not-as-directed', 'stopped','stopped-as-directed','stopped-not-as-directed','unknown']
 ADMINISTRATION_STATUSES = ['in-progress', 'not-done', 'on-hold', 'completed', 'entered-in-error', 'stopped', 'unknown']
-ADMINISTRATION_ROUTES = [{'name':'oral','snomed_code':'26643006'},{'name':'intravenous','snomed_code':'47625008'},{'name':'intramuscular','snomed_code':'78421000'}, {'name':'subcutaneous','snomed_code':'34206005'}, {'name':'topical','snomed_code':'6064005'}]
+ADMINISTRATION_ROUTES = [{'snomed':{'display':'oral','code':'26643006'}},{'snomed':{ 'display':'intravenous','code':'47625008'}},{'snomed':{ 'display':'intramuscular','code':'78421000'}}, {'snomed': {'display':'subcutaneous','code':'34206005'}}, {'snomed': {'display':'topical','code':'6064005'}}]
 FINANCIAL_TYPES = ['CHARGE', 'PAYMENT', 'ADJUSTMENT']
 EPISODE_STATUSES = ['active', 'finished', 'cancelled', 'waitlist'] # <-- ADDED
 
 # --- CarePlan Specific Configuration ---
-CARE_PLAN_STATUSES = ['draft', 'active', 'on-hold', 'completed', 'cancelled']
+CARE_PLAN_STATUSES = ['draft', 'active', 'on-hold', 'completed', 'revoked', 'entered-in-error', 'ended', 'unknown']
+
 CARE_PLAN_GOALS = [
-    'Maintain independence in bathing and dressing.', 
-    'Reduce risk of fall injuries (using mobility aids).', 
-    'Improve social engagement and decrease isolation.', 
-    'Maintain current nutritional status/weight.',
-    'Effective management of chronic pain.'
+        {'title':'Maintain independence in bathing and dressing.', 'snomed': {'code':'284774007', 'display': 'Able to perform personal care activity'}}, 
+        {'title':'Reduce risk of fall injuries (using mobility aids).', 'snomed': {'code':'301570003', 'display':'Able to mobilize using mobility aids'}},
+        {'title': 'Improve social engagement and decrease isolation.', 'snomed': {'code':None, 'display':None}}, 
+        {'title': 'Maintain current nutritional status/weight.', 'snomed': {'code':'1156958007', 'display':'Promotion of food and nutrient intake to support target weight and body mass'}},
+        {'title': 'Effective management of chronic pain.', 'snomed': {'code':None, 'display':None}}
 ]
+
 CARE_PLAN_ACTIVITIES = [
-    {'code': '5940000', 'name': 'Assist with bathing (daily, AM)'},
-    {'code': '5941000', 'name': 'Assist with dressing (daily, AM)'},
-    {'code': '5999000', 'name': 'Daily 15-minute ambulation/walk'},
-    {'code': '6000000', 'name': 'Medication reminder and setup (TID)'},
-    {'code': '6001000', 'name': 'Attend Thursday social group'},
-    {'code': '6002000', 'name': 'Ensure pureed diet and fluid intake'},
-    {'code': '6003000', 'name': 'Check skin integrity (daily)'},
+    {
+        'code': '386420003',
+        'display': 'Self-care assistance: bathing/hygiene',
+        'timing': {
+            'code': 'bid',
+            'repeat': {
+                'frequency': 2,
+                'period': 1,
+                'period_unit': 'd',
+                'time_of_day': [time(8, 0), time(21, 0)],  # morning and night
+            },
+        },
+    },
+    {
+        'code': '1230050000',
+        'display': 'Assisting with dressing activity',
+        'timing': {
+            'code': 'qd',  # once daily
+            'repeat': {
+                'frequency': 1,
+                'period': 1,
+                'period_unit': 'd',
+                'time_of_day': [time(8, 30)],  # after morning hygiene
+            },
+        },
+    },
+    {
+        'code': None,
+        'display': 'Daily 15-minute ambulation/walk',
+        'timing': {
+            'code': 'bid',
+            'repeat': {
+                'frequency': 2,
+                'period': 1,
+                'period_unit': 'd',
+                'time_of_day': [time(10, 0), time(16, 0)],  # morning and afternoon walks
+            },
+        },
+    },
+    {
+        'code': '435441000124107',
+        'display': 'Medication reminder device set-up',
+        'timing': {
+            'code': 'once',
+            'repeat': {
+                'frequency': 1,
+                'period': 1,
+                'period_unit': 'wk',  # setup weekly (can adjust)
+                'time_of_day': [time(9, 0)],
+            },
+        },
+    },
+    {
+        'code': None,
+        'display': 'Attend Thursday social group',
+        'timing': {
+            'code': 'weekly',
+            'repeat': {
+                'frequency': 1,
+                'period': 1,
+                'period_unit': 'wk',
+                'day_of_week': ['thu'],
+                'time_of_day': [time(14, 0)],  # Thursday at 2 PM
+            },
+        },
+    },
+    {
+        'code': None,
+        'display': 'Ensure pureed diet and fluid intake',
+        'timing': {
+            'code': 'tid',  # three times daily
+            'repeat': {
+                'frequency': 3,
+                'period': 1,
+                'period_unit': 'd',
+                'time_of_day': [
+                    time(8, 0),
+                    time(12, 0),
+                    time(18, 0),
+                ],  # meal times
+            },
+        },
+    },
+    {
+        'code': None,
+        'display': 'Check skin integrity (daily)',
+        'timing': {
+            'code': 'qd',
+            'repeat': {
+                'frequency': 1,
+                'period': 1,
+                'period_unit': 'd',
+                'time_of_day': [time(9, 0)],
+            },
+        },
+    },
 ]
 
 VITAL_RANGES = {
-    '8480-6': {'name': 'Systolic Blood Pressure', 'unit': 'mmHg', 'min': 100, 'max': 140, 'type': 'int', 'body_site':{'name':'upper arm', 'snomed_code':'40983000'},'method':{'snomed_code':'371911009', 'name':'Measurement of blood pressure using cuff method'},'device':{'name':'Aneroid manual sphygmomanometer', 'udi_code': '00616784710716'}},
-    '8462-4': {'name': 'Diastolic Blood Pressure', 'unit': 'mmHg', 'min': 60, 'max': 90, 'type': 'int','body_site':{'name':'upper arm', 'snomed_code':'40983000'},'method':{'snomed_code':'371911009', 'name':'Measurement of blood pressure using cuff method'},'device':{'name':'Aneroid manual sphygmomanometer', 'udi_code': '00616784710716'}},
-    '8867-4': {'name': 'Heart Rate', 'unit': '/min', 'min': 60, 'max': 100, 'type': 'int','body_site':{'name':'Structure of tip of index finger', 'snomed_code':'182266005'},'method':{'snomed_code':'252465000', 'name':'Pulse oximetry'},'device':{'name':'Pulse Oximeter', 'udi_code': '06924054300456'}},
-    '2708-6': {'name': 'Oxygen Saturation in Arterial Blood', 'unit': '%', 'min': 94, 'max': 100, 'type': 'int','body_site':{'name':'Structure of tip of index finger', 'snomed_code':'182266005'},'method':{'snomed_code':'252465000', 'name':'Pulse oximetry'},'device':{'name':'Pulse Oximeter', 'udi_code': '06924054300456'}},
-    '8310-5': {'name': 'Body Temperature', 'unit': 'Cel', 'min': 36.4, 'max': 37.5, 'type': 'float','body_site':{'name':'Middle ear structure', 'snomed_code':'25342003'},'method':{'snomed_code':'448093005', 'name':'Measurement of temperature using tympanic thermometer'},'device':{'name':'Thermometer', 'udi_code': '06947468554666'}},
-    '29463-7': {'name': 'Body Weight', 'unit': 'kg', 'min': 54.4, 'max': 113.4, 'type': 'float','body_site':{'name':'Entire body as a whole', 'snomed_code':'38266002'},'method':{'snomed_code':'39857003', 'name':'Weighing patient'},'device':{'name':'DIG MEDICAL SCALE W/HEIGHT ROD', 'udi_code': '00809161310108'}},
+    '8480-6': {
+        'loinc': {'code': '8480-6', 'display': 'Systolic Blood Pressure'},
+        'unit': 'mmHg',
+        'min': 100,
+        'max': 140,
+        'type': 'int',
+        'body_site': {'snomed': {'display': 'upper arm', 'code': '40983000'}},
+        'method': {'snomed': {'code': '371911009', 'display': 'Measurement of blood pressure using cuff method'}},
+        'device': {'udi': {'display': 'Aneroid manual sphygmomanometer', 'code': '00616784710716'}},
+    },
+    '8462-4': {
+        'loinc': {'code': '8462-4', 'display': 'Diastolic Blood Pressure'},
+        'unit': 'mmHg',
+        'min': 60,
+        'max': 90,
+        'type': 'int',
+        'body_site': {'snomed': {'display': 'upper arm', 'code': '40983000'}},
+        'method': {'snomed': {'code': '371911009', 'display': 'Measurement of blood pressure using cuff method'}},
+        'device': {'udi': {'display': 'Aneroid manual sphygmomanometer', 'code': '00616784710716'}},
+    },
+    '8867-4': {
+        'loinc': {'code': '8867-4', 'display': 'Heart Rate'},
+        'unit': '/min',
+        'min': 60,
+        'max': 100,
+        'type': 'int',
+        'body_site': {'snomed': {'display': 'Structure of tip of index finger', 'code': '182266005'}},
+        'method': {'snomed': {'code': '252465000', 'display': 'Pulse oximetry'}},
+        'device': {'udi': {'display': 'Pulse Oximeter', 'code': '06924054300456'}},
+    },
+    '2708-6': {
+        'loinc': {'code': '2708-6', 'display': 'Oxygen Saturation in Arterial Blood'},
+        'unit': '%',
+        'min': 94,
+        'max': 100,
+        'type': 'int',
+        'body_site': {'snomed': {'display': 'Structure of tip of index finger', 'code': '182266005'}},
+        'method': {'snomed': {'code': '252465000', 'display': 'Pulse oximetry'}},
+        'device': {'udi': {'display': 'Pulse Oximeter', 'code': '06924054300456'}},
+    },
+    '8310-5': {
+        'loinc': {'code': '8310-5', 'display': 'Body Temperature'},
+        'unit': 'Cel',
+        'min': 36.4,
+        'max': 37.5,
+        'type': 'float',
+        'body_site': {'snomed': {'display': 'Middle ear structure', 'code': '25342003'}},
+        'method': {'snomed': {'code': '448093005', 'display': 'Measurement of temperature using tympanic thermometer'}},
+        'device': {'udi': {'display': 'Thermometer', 'code': '06947468554666'}},
+    },
+    '29463-7': {
+        'loinc': {'code': '29463-7', 'display': 'Body Weight'},
+        'unit': 'kg',
+        'min': 54.4,
+        'max': 113.4,
+        'type': 'float',
+        'body_site': {'snomed': {'display': 'Entire body as a whole', 'code': '38266002'}},
+        'method': {'snomed': {'code': '39857003', 'display': 'Weighing patient'}},
+        'device': {'udi': {'display': 'DIG MEDICAL SCALE W/HEIGHT ROD', 'code': '00809161310108'}},
+    },
 }
 
 # --- Helper Functions ---
+def convert_times(obj):
+    if isinstance(obj, dict):
+        return {k: convert_times(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_times(v) for v in obj]
+    elif isinstance(obj, time):
+        return obj.isoformat()
+    else:
+        return obj
+
 def generate_uuid():
     return str(uuid.uuid4())
 
@@ -90,7 +245,7 @@ def load_snomed_file(filepath):
             for line in f:
                 parts = line.strip().split('|')
                 if len(parts) >= 2:
-                    data.append({'code': parts[0].strip(), 'name': (re.sub(r'\([^)]*\)','',parts[1])).strip()})
+                    data.append({'code': parts[0].strip(), 'display': (re.sub(r'\([^)]*\)','',parts[1])).strip()})
     return data
 
 def load_allergy_reactions(filepath):
@@ -100,11 +255,11 @@ def load_allergy_reactions(filepath):
             for line in f:
                 parts = line.strip().split('|')
                 if len(parts) >= 3:
-                    reactions.append({'code': parts[0].strip(), 'name': (re.sub(r'\([^)]*\)','',parts[1])).strip(), 'severity': parts[2].strip()})
+                    reactions.append({'code': parts[0].strip(), 'display': (re.sub(r'\([^)]*\)','',parts[1])).strip(), 'severity': parts[2].strip()})
     return reactions
 
 def generate_loinc_examples():
-    return [{'code': k, 'name': v['name']} for k, v in VITAL_RANGES.items()]
+    return [v['loinc'] for _, v in VITAL_RANGES.items()]
 
 # --- Main Script ---
 if __name__ == '__main__':
@@ -139,18 +294,155 @@ if __name__ == '__main__':
     loinc_vitals = generate_loinc_examples()
 
     prescriptions_templates = [
-        {'rxnorm_code': '316151', 'snomed_code': '318859000', 'name': 'Lisinopril', 'strength': {'value':10, 'unit':'mg'}},
-        {'rxnorm_code': '860974', 'snomed_code': '325278007','name': 'Metformin hydrochloride', 'strength': {'value':500, 'unit':'mg'}},
-        {'rxnorm_code': '597966', 'snomed_code': '1145420004','name': 'Atorvastatin', 'strength': {'value':20,'unit':'mg'}},
-        {'rxnorm_code': '315369', 'snomed_code': '323509004','name': 'Amoxicillin', 'strength': {'value':250,'unit':'mg'}},
-        {'rxnorm_code': '343226', 'snomed_code': '789679003','name': 'Insulin Glargine', 'strength': {'value': 100, 'unit': 'unt/ml'}},
+            {'rxnorm': { 'code': '316151', 'display':'lisinopril 10 MG'}, 'snomed': {'code': '318859000', 'display': 'Lisinopril'}, 'strength': {'value':10, 'unit':'mg'}},
+            {'rxnorm': { 'code': '860974', 'display':'metFORMIN hydrochloride 500 MG'}, 'snomed': {'code': '325278007','display': 'Metformin hydrochloride'}, 'strength': {'value':500, 'unit':'mg'}},
+        {'rxnorm': { 'code': '597966', 'display':'atorvastatin 20 MG'}, 'snomed': {'code': '1145420004','display': 'Atorvastatin'}, 'strength': {'value':20,'unit':'mg'}},
+        {'rxnorm': { 'code': '315369', 'display':'amoxicillin 250 MG'}, 'snomed': {'code': '323509004','display': 'Amoxicillin'}, 'strength': {'value':250,'unit':'mg'}},
+        {'rxnorm': { 'code': '343226', 'display': 'insulin glargine 100 UNT/ML'}, 'snomed': {'code': '789679003','display': 'Insulin Glargine'}, 'strength': {'value': 100, 'unit': 'unt/ml'}},
     ]
 
     dosage_instructions = {
-        'timing': [ 'qd','bid','tid','qid', 'am','pm','qd','qod','q1h','q2h','q3h','q4h','q6h','q8h','bed','wk','mo'],
-        'site': [{'name':'mouth','snomed_code':'123851003'},{'name':'cephalic vein', 'snomed_code':'20699002'},{'name':'gluteal muscle', 'snomed_code':'102291007'}],
-        'route': ADMINISTRATION_ROUTES,
-        'method': [{'name': 'Apply', 'snomed_code': '738991002'}, {'name': 'Inject', 'snomed_code': '740685003'},{'name': 'Swallow', 'snomed_code': '738995006'}, {'name': 'Chew', 'snomed_code': '738992009'}]
+        'timing': [
+            {
+                'code': 'qd',  # once daily
+                'repeat': {
+                    'count': 20,
+                    'frequency': 1,
+                    'period': 1,
+                    'period_unit': 'd',
+                    'time_of_day': [time(9, 0)],  # 9:00 AM
+                },
+            },
+            {
+                'code': 'bid',  # twice daily
+                'repeat': {
+                    'count': 100,
+                    'frequency': 2,
+                    'period': 1,
+                    'period_unit': 'd',
+                    'time_of_day': [
+                        time(9, 0),
+                        time(21, 0),
+                    ],  # 9:00 AM, 9:00 PM
+                },
+            },
+            {
+                'code': 'tid',  # three times daily
+                'repeat': {
+                    'frequency': 3,
+                    'period': 1,
+                    'period_unit': 'd',
+                    'time_of_day': [
+                        time(8, 0),
+                        time(14, 0),
+                        time(20, 0),
+                    ],  # morning, noon, evening
+                },
+            },
+            {
+                'code': 'qid',  # four times daily
+                'repeat': {
+                    'frequency': 4,
+                    'period': 1,
+                    'period_unit': 'd',
+                    'time_of_day': [
+                        time(6, 0),
+                        time(12, 0),
+                        time(18, 0),
+                        time(22, 0),
+                    ],
+                },
+            },
+            {
+                'code': 'am',  # every morning
+                'repeat': {
+                    'frequency': 1,
+                    'period': 1,
+                    'period_unit': 'd',
+                    'time_of_day': [time(8, 0)],
+                },
+            },
+            {
+                'code': 'pm',  # every evening
+                'repeat': {
+                    'frequency': 1,
+                    'period': 1,
+                    'period_unit': 'd',
+                    'time_of_day': [time(20, 0)],
+                },
+            },
+            {
+                'code': 'qod',  # every other day
+                'repeat': {
+                    'frequency': 1,
+                    'period': 2,
+                    'period_unit': 'd',
+                    'time_of_day': [time(9, 0)],
+                },
+            },
+            {
+                'code': 'q1h',  # every 1 hour
+                'repeat': {
+                    'frequency': 1,
+                    'period': 1,
+                    'period_unit': 'h',
+                },
+            },
+            {
+                'code': 'q2h',  # every 2 hours
+                'repeat': {
+                    'frequency': 1,
+                    'period': 2,
+                    'period_unit': 'h',
+                },
+            },
+            {
+                'code': 'q3h',  # every 3 hours
+                'repeat': {
+                    'frequency': 1,
+                    'period': 3,
+                    'period_unit': 'h',
+                },
+            },
+            {
+                'code': 'q4h',  # every 4 hours
+                'repeat': {
+                    'frequency': 1,
+                    'period': 4,
+                    'period_unit': 'h',
+                },
+            },
+            {
+                'code': 'q6h',  # every 6 hours
+                'repeat': {
+                    'frequency': 1,
+                    'period': 6,
+                    'period_unit': 'h',
+                },
+            },
+            {
+                'code': 'q8h',  # every 8 hours
+                'repeat': {
+                    'frequency': 1,
+                    'period': 8,
+                    'period_unit': 'h',
+                },
+            },
+            {
+                'code': 'bed',  # at bedtime
+                'repeat': {
+                    'frequency': 1,
+                    'period': 1,
+                    'period_unit': 'd',
+                    'time_of_day': [time(22, 0)],  # 10:00 PM
+                },
+            },
+        ],
+            'site': [{'snomed': {'display':'mouth','code':'123851003'}},{'snomed':{'display':'cephalic vein', 'code':'20699002'}},
+                     {'snomed':{'display':'gluteal muscle', 'code':'102291007'}}],
+            'route': ADMINISTRATION_ROUTES, 
+            'method': [{'snomed':{'display': 'Apply', 'code': '738991002'}}, {'snomed':{'display': 'Inject', 'code': '740685003'}},
+                       {'snomed':{'display': 'Swallow', 'code': '738995006'}}, {'snomed':{'display': 'Chew', 'code': '738992009'}}]
     }
 
     for resident in residents_data:
@@ -163,11 +455,10 @@ if __name__ == '__main__':
         
         care_plan_activities_list = [{
             'id': generate_uuid(),
-            'code': act['code'],
-            'name': act['name'],
+            'snomed': {'code': act['code'], 'display': act['display']},
             'status': 'scheduled',
-            'required_frequency': random.choice(['daily', 'twice-weekly', 'monthly']),
-            'staff_instructions': f"Ensure resident comfort during {act['name'].split('(')[0].strip().lower()}."
+            'timing': act['timing'],
+            'staff_instructions': f"Ensure resident comfort during {act['display'].split('(')[0].strip().lower()}."
         } for act in selected_activities]
         
         all_care_plans.append({
@@ -199,10 +490,17 @@ if __name__ == '__main__':
                 'data': {
                     'resident_id': resident_id,
                     'status': random.choice(['finished', 'cancelled']),
-                    'type': random.choice(['Respite Stay', 'Long Term Care']),
-                    'period_start': get_random_datetime(episode_start, episode_start + timedelta(days=7)),
-                    'period_end': get_random_datetime(episode_end, episode_end + timedelta(days=7)),
-                    'managing_organization': 'Golden Years Residential Homes'
+                    'type': random.choice([
+                        {'code':'pac','display':'Post-acute Care','system': 'http://terminology.hl7.org/CodeSystem/episodeofcare-type'},
+                        {'code':'hacc', 'display':'Home and Community Care', 
+                             'system': 'http://terminology.hl7.org/CodeSystem/episodeofcare-type'}, 
+                        {'code':'cacp', 'display': 'Community-based aged Care',
+                             'system': 'http://terminology.hl7.org/CodeSystem/episodeofcare-type'}, 
+                        {'code':'daib', 'display': 'Post coordinated diabetes program',
+                            'system':'http://terminology.hl7.org/CodeSystem/episodeofcare-type'}]),
+                    'effective_period_start': get_random_datetime(episode_start, episode_start + timedelta(days=7)),
+                    'effective_period_end': get_random_datetime(episode_end, episode_end + timedelta(days=7)),
+                    'managing_organization': 'Golden Years Retreat Homes'
                 }
             })
 
@@ -213,9 +511,9 @@ if __name__ == '__main__':
                 'resident_id': resident_id,
                 'status': 'active',
                 'type': 'Long Term Care',
-                'period_start': get_random_datetime(current_start_date, current_start_date + timedelta(days=30)),
-                'period_end': None, # No end date for active episode
-                'managing_organization': 'Willow Creek Assisted Living'
+                'effective_period_start': get_random_datetime(current_start_date, current_start_date + timedelta(days=30)),
+                'effective_period_end': None, # No end date for active episode
+                'managing_organization': 'Golden Years Retreat Homes'
             }
         })
 
@@ -231,13 +529,13 @@ if __name__ == '__main__':
                     'data': {
                         'resident_id': resident_id,
                         'recorder_id': random.choice(STAFF_IDS),
-                        'clinicalStatus': random.choice(ALLERGY_STATUSES['clinical']),
-                        'verificationStatus': random.choice(ALLERGY_STATUSES['verification']),
-                        'name': allergy_name,
+                        'clinical_status': random.choice(ALLERGY_STATUSES['clinical']),
+                        'verification_status': random.choice(ALLERGY_STATUSES['verification']),
+                        'name': {'snomed': allergy_name},
                         'type': random.choice(ALLERGY_TYPES),
-                        'recordedDate': get_random_datetime(START_DATE, END_DATE),
-                        'substance': substance,
-                        'reaction': reaction,
+                        'recorded_date': get_random_datetime(START_DATE, END_DATE),
+                        'substance': {'snomed': substance},
+                        'reaction': {'snomed': { 'code': reaction['code'], 'display': reaction['display']}, 'severity': reaction['severity']}
                     }
                 })
         
@@ -252,8 +550,8 @@ if __name__ == '__main__':
                     'site': random.choice(dosage_instructions['site']),
                     'route': random.choice(dosage_instructions['route']),
                     'method': random.choice(dosage_instructions['method']),
-                    'doseAndRate': [{
-                        'doseQuantity': {
+                    'dose_and_rate': [{
+                        'dose_quantity': {
                             'value': rx_template['strength']['value'],
                             'unit': rx_template['strength']['unit']
                         }
@@ -270,7 +568,7 @@ if __name__ == '__main__':
                         'status': random.choice(PRESCRIPTION_STATUSES),
                         'adherence': random.choice(PRESCRIPTION_ADHERENCE_STATUSES),
                         'medication': rx_template,
-                        'dosageInstruction': [dosage_obj]
+                        'dosage_instruction': [dosage_obj]
                     }
                 }
                 all_prescriptions.append(rx_record)
@@ -278,22 +576,25 @@ if __name__ == '__main__':
 
         # --- PRESCRIPTION ADMINISTRATION ---
         for rx_record in resident_prescriptions:
-            timing = rx_record['data']['dosageInstruction'][0]['timing']
-            doses_per_day = {'qd': 1, 'bid': 2, 'tid': 3, 'qid': 4, 'qam': 1, 'qpm': 1}.get(timing, 1)
+            timing = rx_record['data']['dosage_instruction'][0]['timing']
+            doses_per_day = timing['repeat']['frequency']
             if doses_per_day == 0: continue
 
             start_date_str = rx_record['data']['effective_period_start']
             start_dt = datetime.fromisoformat(start_date_str.replace('Z', '+00:00')).replace(tzinfo=None)
             current_date = start_dt.date()
+            time_of_day = timing['repeat'].get('time_of_day',[time(9,0)])
             while current_date <= END_DATE.date():
-                for dose_num in range(doses_per_day):
-                    hour = (9 + (dose_num * (24 // doses_per_day))) % 24
+                for i, dose_num in enumerate(range(doses_per_day)):
+                    hour = time_of_day[i].hour
+                    minute = time_of_day[i].minute
+                    hour_offset = random.randint(-2, 2)
                     minute_offset = random.randint(-30, 30)
-                    admin_time = datetime(current_date.year, current_date.month, current_date.day, hour, 30, 0) + timedelta(minutes=minute_offset)
+                    admin_time = datetime(current_date.year, current_date.month, current_date.day, hour, 30, 0) + timedelta(hours=hour_offset, minutes=minute_offset)
                     
                     if admin_time > END_DATE: continue
                         
-                    administered_dosage = rx_record['data']['dosageInstruction'][0]['doseAndRate'][0]['doseQuantity']
+                    administered_dosage = rx_record['data']['dosage_instruction'][0]['dose_and_rate'][0]['dose_quantity']
 
                     all_prescription_administration.append({
                         'id': generate_uuid(),
@@ -305,8 +606,8 @@ if __name__ == '__main__':
                             'status': random.choice(ADMINISTRATION_STATUSES),
                             'effective_datetime': pytz.utc.localize(admin_time).isoformat().replace('+00:00', 'Z'),
                             'dosage': {
-                                'route': rx_record['data']['dosageInstruction'][0]['route'],
-                                'administeredDose': administered_dosage
+                                'route': rx_record['data']['dosage_instruction'][0]['route'],
+                                'administered_dose': administered_dosage
                             }
                         }
                     })
@@ -317,8 +618,8 @@ if __name__ == '__main__':
         for _ in range(num_observations):
             if loinc_vitals:
                 vital_template = random.choice(loinc_vitals)
-                loinc_code = vital_template['code']
-                value, unit = get_observation_value(loinc_code)
+                loinc= vital_template
+                value, unit = get_observation_value(loinc['code'])
                 observation = {
                     'id': generate_uuid(),
                     'data': {
@@ -326,13 +627,12 @@ if __name__ == '__main__':
                         'recorder_id': random.choice(STAFF_IDS),
                         'status': random.choice(OBSERVATION_STATUSES),
                         'effective_datetime': get_random_datetime(START_DATE, END_DATE),
-                        'loinc_code': loinc_code,
-                        'name': vital_template['name'],
+                        'loinc': loinc,
                         'value': value,
                         'unit': unit,
-                        'body_site': VITAL_RANGES[loinc_code]['body_site'],
-                        'method': VITAL_RANGES[loinc_code]['method'],
-                        'device': VITAL_RANGES[loinc_code]['device']
+                        'body_site': VITAL_RANGES[loinc['code']]['body_site'],
+                        'method': VITAL_RANGES[loinc['code']]['method'],
+                        'device': VITAL_RANGES[loinc['code']]['device']
                     }
                 }
                 all_observations.append(observation)
@@ -349,12 +649,11 @@ if __name__ == '__main__':
                     'data': {
                         'resident_id': resident_id,
                         'recorder_id': random.choice(STAFF_IDS),
-                        'clinicalStatus': clinical_status,
-                        'recordedDate': get_random_datetime(datetime(2020, 1, 1), END_DATE),
-                        'onsetDateTime': get_random_datetime(datetime(2000, 1, 1), datetime(2023, 1, 1)),
-                        'abatementDateTime': abatement_date,
-                        'title': disorder_example['name'],
-                        'snomed_code': disorder_example['code']
+                        'clinical_status': clinical_status,
+                        'recorded_date': get_random_datetime(datetime(2020, 1, 1), END_DATE),
+                        'onset_datetime': get_random_datetime(datetime(2000, 1, 1), datetime(2023, 1, 1)),
+                        'abatement_datetime': abatement_date,
+                        'snomed': {'title': disorder_example['display'], 'code': disorder_example['code']}
                     }
                 })
 
@@ -389,7 +688,8 @@ if __name__ == '__main__':
         if sub_dir in data_map:
             # Write to the full path (e.g., 'demo-data/allergies/data-plain.json')
             with open(os.path.join(SUBCOLLECTIONS_DIR, sub_file), 'w') as f:
-                json.dump(data_map[sub_dir], f, indent=2)
+                data = convert_times(data_map[sub_dir])
+                json.dump(data, f, indent=2)
 
     print("FHIR-Aligned Demo data generation complete.")
 
