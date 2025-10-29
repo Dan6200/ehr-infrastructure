@@ -62,9 +62,7 @@ export async function getResidentData(
           (item): item is NonNullable<typeof item> => item !== undefined,
         )
 
-        bucket[subCollections[index]] = subCollectionMap[
-          subCollections[index]
-        ].schema.parse(filteredData) as any
+        bucket[subCollections[index]] = filteredData as any
         return bucket
       },
       {} as {
