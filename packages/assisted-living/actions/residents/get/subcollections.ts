@@ -25,7 +25,10 @@ async function getSubcollection<T, U>(
   ).withConverter(await converter())
 
   const snapshot = await getDocsWrapper(subcollectionRef)
-  const encryptedDocs = snapshot.docs.map((doc) => doc.data())
+  const encryptedDocs = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }))
 
   // TODO: Decrypt each document in parallel with threads
   return Promise.all(encryptedDocs.map((doc) => decryptor(doc)))
