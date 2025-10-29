@@ -26,11 +26,10 @@ export default async function AllergiesPage({
   })
 
   const { allergies } = residentData
-  console.log(allergies)
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-center border-b pb-2 mb-8">
+    <div className="space-y-8 p-8">
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
         <h2 className="text-xl font-semibold">Allergies</h2>
         <Button asChild>
           <Link href={`/admin/dashboard/residents/${id}/allergies/edit`}>
@@ -39,7 +38,7 @@ export default async function AllergiesPage({
         </Button>
       </div>
       {allergies && allergies.length > 0 ? (
-        <Table>
+        <Table className="text-base">
           <TableHeader>
             <TableRow>
               <TableHead>Allergy</TableHead>
@@ -52,9 +51,18 @@ export default async function AllergiesPage({
             {allergies.map((allergy: Allergy) =>
               allergy ? (
                 <TableRow key={allergy.id}>
-                  <TableCell>{allergy.name ?? 'N/A'}</TableCell>
-                  <TableCell>{allergy.reaction.name ?? 'N/A'}</TableCell>
-                  <TableCell>{allergy.substance.name ?? 'N/A'}</TableCell>
+                  <TableCell className="text-left text-destructive">
+                    {allergy.name.text ?? 'N/A'}
+                  </TableCell>
+                  <TableCell className="text-left">
+                    {allergy.reaction.code.text ?? 'N/A'}
+                  </TableCell>
+                  <TableCell className="text-left">
+                    {allergy.reaction.severity ?? 'N/A'}
+                  </TableCell>
+                  <TableCell className="text-left">
+                    {allergy.substance.text ?? 'N/A'}
+                  </TableCell>
                 </TableRow>
               ) : null,
             )}

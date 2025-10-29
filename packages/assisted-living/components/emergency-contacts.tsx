@@ -1,6 +1,6 @@
 'use client'
 import { EmergencyContact } from '@/types'
-import { Card, CardContent, CardFooter } from './ui/card'
+import { Card, CardContent } from './ui/card'
 import { PhoneCall } from 'lucide-react'
 import Link from 'next/link'
 
@@ -10,7 +10,7 @@ export default function EmergencyContacts({
   contacts?: EmergencyContact[] | null
 }) {
   return (
-    <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
       {contacts && contacts.length > 0 ? (
         contacts.map((contact, index) => (
           <Link
@@ -18,8 +18,8 @@ export default function EmergencyContacts({
             href={`tel:${contact.cell_phone}`}
             className="w-full"
           >
-            <Card className="h-full hover:bg-green-700/10 active:bg-green-700/10 shadow-md w-full">
-              <CardContent className="p-4 md:p-6 flex flex-col gap-2 text-left">
+            <Card className="h-full py-0 bg-background hover:bg-accent/20 active:bg-accent/20 shadow-md w-full">
+              <CardContent className="p-3 md:p-4 flex flex-col gap-2 text-left">
                 <h3 className="capitalize font-semibold md:text-base">
                   {contact.contact_name}
                 </h3>

@@ -37,7 +37,7 @@ export function ResidentNav({ residentId }: { residentId: string }) {
                 className={cn(
                   navigationMenuTriggerStyle(),
                   'group',
-                  'rounded-none active:border-b-accent-foreground/50 active:font-bold focus:border-b-accent-foreground/50 focus:font-bold hover:border-b-accent-foreground/40 hover:bg-transparent focus:bg-transparent text-muted-foreground hover:text-primary-foreground/80 active:border-b-2 data-[state=active]:border-b-accent-foreground/50 border-b py-2',
+                  `rounded-none active:border-b-accent-foreground/50 active:font-bold focus:border-b-accent-foreground/50 focus:font-bold hover:border-b-accent-foreground/40 hover:bg-transparent focus:bg-transparent text-muted-foreground hover:text-primary-foreground/80 active:border-b-2 data-[state=active]:border-b-accent-foreground/50 border-b ${link.name.match(/allerg/i) ? 'text-destructive hover:text-destructive hover:border-b-destructive active:text-destructive active:border-b-destructive focus:text-destructive focus:border-b-destructive' : ''}`,
                 )}
                 active={isActive}
                 asChild
