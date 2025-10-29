@@ -589,10 +589,11 @@ def load_snomed_file(filepath):
                 parts = line.strip().split("|")
                 if len(parts) >= 2:
                     data.append(
-                        {
+                        [{
+                            "system": "http://snomed.info/sct",
                             "code": parts[0].strip(),
                             "display": (re.sub(r"\([^)]*\)", "", parts[1])).strip(),
-                        }
+                        }]
                     )
     return data
 
@@ -1229,16 +1230,17 @@ if __name__ == "__main__":
                             "verification_status": random.choice(
                                 ALLERGY_STATUSES["verification"]
                             ),
-                            "name": {"coding": allergy_name},
+                            "name": {"coding": allergy_name, "text": allergy_name[0]['display']},
                             "type": random.choice(ALLERGY_TYPES),
                             "recorded_date": get_random_datetime(START_DATE, END_DATE),
-                            "substance": {"coding": substance},
+                            "substance": {"coding": substance, "text": substance[0]['display']},
                             "reaction": {
                                 "coding": {
                                     "system": "http://snomed.info/sct",
                                     "code": reaction["code"],
                                     "display": reaction["display"],
                                 },
+                                "text": reaction["display"],
                                 "severity": reaction["severity"],
                             },
                         },
@@ -1375,11 +1377,8 @@ if __name__ == "__main__":
                                 datetime(2000, 1, 1), datetime(2023, 1, 1)
                             ),
                             "abatement_datetime": abatement_date,
-                            "coding": {
-                                "system": "http://snomed.info/sct",
-                                "title": disorder_example["display"],
-                                "code": disorder_example["code"],
-                            },
+                            "coding": disorder_example,
+                            "title": disorder_example[0]["display"],
                         },
                     }
                 )
