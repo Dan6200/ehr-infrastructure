@@ -25,6 +25,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
+// --- Swipe Gesture Constants ---
+const SWIPE_THRESHOLD = 150 // Minimum distance in pixels to count as a swipe
+
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = '16rem'
@@ -75,6 +78,7 @@ const SidebarProvider = React.forwardRef<
   ) => {
     const isMobile = useIsMobile()
     const [openMobile, setOpenMobile] = React.useState(false)
+    const touchStartRef = React.useRef<number | null>(null)
 
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
@@ -101,6 +105,45 @@ const SidebarProvider = React.forwardRef<
         ? setOpenMobile((open) => !open)
         : setOpen((open) => !open)
     }, [isMobile, setOpen, setOpenMobile])
+
+    const handleTouchStart = React.useCallback(
+      (e: React.TouchEvent<HTMLDivElement>) => {
+        if (isMobile) {
+          // Record the starting X position of the touch
+          touchStartRef.current = e.touches[0].clientX
+        }
+      },
+      [isMobile],
+    )
+
+    const handleTouchEnd = React.useCallback(
+      (e: React.TouchEvent<HTMLDivElement>) => {
+        if (!isMobile || touchStartRef.current === null) {
+          return
+        }
+
+        const touchEndX = e.changedTouches[0].clientX
+        const deltaX = touchEndX - touchStartRef.current
+
+        // Check for a swipe gesture
+        if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+          if (deltaX < 0) {
+            // Swipe left (Close the sidebar if open)
+            if (openMobile) {
+              setOpenMobile(false)
+            }
+          } else {
+            // Swipe right (Open the sidebar if closed)
+            if (!openMobile) {
+              setOpenMobile(true)
+            }
+          }
+        }
+
+        touchStartRef.current = null // Reset the touch start position
+      },
+      [isMobile, openMobile, setOpenMobile],
+    )
 
     // Adds a keyboard shortcut to toggle the sidebar.
     React.useEffect(() => {
@@ -147,6 +190,8 @@ const SidebarProvider = React.forwardRef<
       <SidebarContext.Provider value={contextValue}>
         <TooltipProvider delayDuration={0}>
           <div
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
             style={
               {
                 '--sidebar-width': SIDEBAR_WIDTH,
