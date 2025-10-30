@@ -23,13 +23,13 @@ async function ResidentDataContainer({
   })
 
   return (
-    <>
+    <div className="">
       <Resident residentData={residentData} id={id} />
       <ResidentNav residentId={id} />
-      <div className="w-full py-16 px-8 mx-auto bg-card inset-shadow-md rounded-md">
+      <div className="w-full py-16 px-8 mx-auto bg-card shadow-inner-md rounded-b-md border-b border-x">
         {children}
       </div>
-    </>
+    </div>
   )
 }
 
@@ -42,7 +42,7 @@ export default async function ResidentLayout({
 }) {
   const { id } = await params
   return (
-    <main className="bg-background flex flex-col items-start gap-2 container w-fit p-4 text-center h-fit">
+    <main className="bg-background flex items-start justify-between container w-full lg:w-4/5 p-4 text-center h-fit">
       <GoBackLink className="cursor-pointer flex w-full gap-2 sm:gap-5">
         Go Back
       </GoBackLink>
