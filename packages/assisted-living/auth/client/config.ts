@@ -1,10 +1,6 @@
-import { getAuth, connectAuthEmulator, Auth } from 'firebase/auth'
+import { getAuth, Auth } from 'firebase/auth'
 import { getApp, getApps, initializeApp } from 'firebase/app'
-import {
-  getFirestore,
-  connectFirestoreEmulator,
-  Firestore,
-} from 'firebase/firestore'
+import { getFirestore, Firestore } from 'firebase/firestore'
 import { getAnalytics, isSupported } from 'firebase/analytics'
 
 const appName = 'lean-ehr-assisted-living-client'
