@@ -1,4 +1,3 @@
-'use client'
 import { getResidentData } from '@/actions/residents/get'
 import { Button } from '@/components/ui/button'
 import {

@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { getResidentData } from '@/actions/residents/get'
-import { Medication, Administration } from '@/types'
+import { EmarRecord } from '@/types'
 import { Button } from '@/components/ui/button'
 import { recordAdministration } from '@/actions/residents/record-administration'
 import { toast } from '@/components/ui/use-toast'

@@ -1,4 +1,3 @@
-'use client'
 import { getResidentData } from '@/actions/residents/get'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,9 +15,9 @@ import { notFound } from 'next/navigation'
 export default async function BillingPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
-  const residentData = await getResidentData(params.id).catch((e) => {
+  const residentData = await getResidentData((await params).id).catch((e) => {
     if (e.message.match(/not_found/i)) notFound()
     throw new Error(
       `Unable to fetch resident data for billing page: ${e.message}`,

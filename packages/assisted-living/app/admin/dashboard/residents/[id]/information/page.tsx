@@ -31,8 +31,14 @@ export default async function ResidentInformationPage({
       <ResidentInfoRow label="Facility ID" value={residentData.facility_id} />
       <ResidentInfoRow label="Facility Address" value={residentData.address} />
       <ResidentInfoRow label="Date of Birth" value={residentData.dob} />
-      <ResidentInfoRow label="PCP" value={residentData.pcp} />
-      <ResidentInfoRow label="Email" value={residentData.resident_email} />
+      <ResidentInfoRow
+        label="Primary Care Physician"
+        value={residentData.pcp}
+      />
+      <ResidentInfoRow
+        label="Email Address"
+        value={residentData.resident_email}
+      />
       <ResidentInfoRow label="Cell Phone" value={residentData.cell_phone} />
       <ResidentInfoRow label="Work Phone" value={residentData.work_phone} />
       <ResidentInfoRow label="Home Phone" value={residentData.home_phone} />

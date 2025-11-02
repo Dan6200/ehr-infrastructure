@@ -1,4 +1,3 @@
-'use client'
 import { getResidentData } from '@/actions/residents/get'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,7 +17,10 @@ export default async function DiagnosticHistoryPage({
 }: {
   params: { id: string }
 }) {
-  const residentData = await getResidentData(params.id).catch((e) => {
+  const residentData = await getResidentData(
+    params.id,
+    'diagnostic_history',
+  ).catch((e) => {
     if (e.message.match(/not_found/i)) notFound()
     throw new Error(
       `Unable to fetch resident data for diagnostic history page: ${e.message}`,
@@ -43,20 +45,30 @@ export default async function DiagnosticHistoryPage({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
+              <TableHead>Onset</TableHead>
+              <TableHead>Abatement</TableHead>
               <TableHead>Title</TableHead>
               <TableHead>Type (SNOMED)</TableHead>
-              <TableHead>Notes</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Recorded Date</TableHead>
+              <TableHead>Recorded By</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {diagnostic_history.map(
-              (record: DiagnosticHistory, index: number) => (
+            {diagnostic_history.map((record, index: number) =>
+              record ? (
+                <TableRow key={record.id}>
+                  <TableCell>{record.onset_datetime ?? 'N/A'}</TableCell>
+                  <TableCell>{record.abatement_datetime ?? 'N/A'}</TableCell>
+                  <TableCell>{record.title ?? 'N/A'}</TableCell>
+                  <TableCell>{record.coding.text ?? 'N/A'}</TableCell>
+                  <TableCell>{record.clinical_status}</TableCell>
+                  <TableCell>{record.recorded_date}</TableCell>
+                  <TableCell>{record.recorder_id}</TableCell>
+                </TableRow>
+              ) : (
                 <TableRow key={index}>
-                  <TableCell>{record.date}</TableCell>
-                  <TableCell>{record.title}</TableCell>
-                  <TableCell>{record.snomed_code}</TableCell>
-                  <TableCell>{record.notes}</TableCell>
+                  <TableCell>Record Does Not Exist</TableCell>
                 </TableRow>
               ),
             )}
