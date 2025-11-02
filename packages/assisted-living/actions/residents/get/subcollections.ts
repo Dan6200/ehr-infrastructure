@@ -28,6 +28,9 @@ async function getSubcollection<T, U>(
   const encryptedDocs = snapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
+    created_at: doc.createTime,
+    updated_at: doc.updateTime,
+    viewed_at: doc.readTime,
   }))
 
   // TODO: Decrypt each document in parallel with threads
