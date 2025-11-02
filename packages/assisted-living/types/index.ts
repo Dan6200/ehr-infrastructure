@@ -252,7 +252,8 @@ export const DiagnosticHistorySchema = z
     onset_datetime: z.string(),
     abatement_datetime: z.string().nullable().optional(),
     title: z.string(),
-    code: CodeableConceptSchema,
+    // code: CodeableConceptSchema, -- for now embed directly...
+    CodeableConceptSchema,
   })
   .optional()
 
@@ -326,9 +327,14 @@ export const EmergencyContactSchema = z
     ],
   }))
 
+// Resident base record
 export const ResidentSchema = z.object({
+  id: z.string(), // your UUID
+  resident_code: z.string().optional(), // human-friendly ID, e.g. "R-00123"
   resident_name: z.string().nullable().optional(),
   gender: z.string().optional(),
+  address_1: z.string(),
+  address_2: z.string().optional(),
   facility_id: z.string(),
   room_no: z.string(),
   avatar_url: z.string(),
