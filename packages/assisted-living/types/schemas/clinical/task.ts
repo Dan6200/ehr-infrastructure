@@ -1,4 +1,6 @@
+import { IntentEnum, PriorityEnum, TaskStatusEnum } from '@/types/enums'
 import { z } from 'zod'
+import { PeriodSchema } from './period'
 
 export const TaskSchema = z.object({
   id: z.string(), // UUID
@@ -7,35 +9,26 @@ export const TaskSchema = z.object({
 
   activity_code: z.string().optional(), // SNOMED, internal, etc.
 
-  status: z
-    .enum([
-      'draft',
-      'requested',
-      'accepted',
-      'in-progress',
-      'completed',
-      'cancelled',
-      'failed',
-    ])
-    .default('requested'),
+  status: TaskStatusEnum,
 
-  intent: z
-    .enum(['plan', 'order', 'original-order', 'reflex-order'])
-    .default('plan'),
-  priority: z.enum(['routine', 'urgent', 'asap', 'stat']).default('routine'),
+  intent: IntentEnum,
+  priority: PriorityEnum,
 
-  scheduled_start: z.string().optional(), // ISO datetime
-  scheduled_end: z.string().optional(),
+  requested_period: PeriodSchema,
 
-  execution_start: z.string().optional(),
-  execution_end: z.string().optional(),
+  execution_period: PeriodSchema,
 
-  performer_id: z.string().optional(),
+  performer_id: z.string(),
   performer_name: z.string().optional(),
 
   notes: z.string().optional(),
   outcome: z.string().optional(), // "successful", "partial", etc.
 
+  authored_on: z.string(),
+  lastModified: z.string(),
+  do_not_perform: z.boolean(),
+
   created_at: z.string(),
   updated_at: z.string(),
+  viewed_at: z.string(),
 })

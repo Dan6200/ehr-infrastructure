@@ -77,6 +77,47 @@ export const PrescriptionAdherenceStatusEnum = z.enum([
   'unknown',
 ])
 
+export const EncounterStatusEnum = z.enum([
+  'planned',
+  'arrived',
+  'in-progress',
+  'onleave',
+  'finished',
+  'cancelled',
+])
+
+export const IntentEnum = z.enum([
+  'unknown',
+  'proposal',
+  'plan',
+  'order',
+  'original-order',
+  'reflex-order',
+  'filler-order',
+  'instance-order',
+  'option',
+])
+
+export const PriorityEnum = z.enum(['routine', 'urgent', 'asap', 'stat'])
+
+export const TaskStatusEnum = z.enum([
+  'draft',
+  'requested',
+  'accepted',
+  'in-progress',
+  'completed',
+  'cancelled',
+  'failed',
+])
+
+export const ProcedureStatusEnum = z.enum([
+  'preparation',
+  'in-progress',
+  'completed',
+  'stopped',
+  'entered-in-error',
+])
+
 export const AdministrationStatusEnum = z.enum([
   'in-progress',
   'not-done',
@@ -142,4 +183,14 @@ export const CarePlanStatusTypeEnum = z.enum([
   'entered-in-error',
   'ended',
   'unknown',
+])
+
+export const AccountBillingStatusEnum = z.enum([
+  'open',
+  'carecomplete-notbilled',
+  'billing',
+  'closed-baddebt',
+  'closed-voided',
+  'closed-completed',
+  'closed-combined',
 ])

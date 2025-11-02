@@ -1,30 +1,28 @@
 import { z } from 'zod'
 import { SnomedConceptSchema } from '../codeable-concept'
+import { ProcedureStatusEnum } from '@/types/enums'
+import { PeriodSchema } from './period'
+import { OccurrenceSchema } from './occurrence'
 
 export const ProcedureSchema = z.object({
   id: z.string(),
-  resident_id: z.string(),
+  subject_id: z.string(),
+  focus: z.string(),
   careplan_id: z.string().optional(),
   encounter_id: z.string().optional(),
-
   code: SnomedConceptSchema,
 
-  status: z
-    .enum([
-      'preparation',
-      'in-progress',
-      'completed',
-      'stopped',
-      'entered-in-error',
-    ])
-    .default('completed'),
+  status: ProcedureStatusEnum,
+  occurrence: OccurrenceSchema,
 
-  category: z.string().optional(), // e.g. "nursing", "therapy"
-  performed_start: z.string().optional(),
-  performed_end: z.string().optional(),
+  category: SnomedConceptSchema,
+  body_site: SnomedConceptSchema,
 
-  performer_id: z.string().optional(),
-  performer_name: z.string().optional(),
+  performer: z.object({
+    id: z.string().optional(),
+    name: z.string().optional(),
+    period: PeriodSchema,
+  }),
 
   notes: z.string().optional(),
   outcome: z.string().optional(), // summary text like "No complications"

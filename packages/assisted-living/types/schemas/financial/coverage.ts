@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { CoverageStatusEnum } from '@/types/enums'
+import { PeriodSchema } from '../clinical'
 
 export const CoverageSchema = z.object({
   id: z.string(),
@@ -12,12 +13,7 @@ export const CoverageSchema = z.object({
     organization: z.string().nullable(), // Null if id is resident_id
   }),
   // Coverage period
-  period: z
-    .object({
-      start: z.string().optional(), // ISO date
-      end: z.string().optional(),
-    })
-    .optional(),
+  period: PeriodSchema,
 
   // Optional policy identifiers
   policy_number: z.string().nullable().optional(),
