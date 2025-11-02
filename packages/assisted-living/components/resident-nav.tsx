@@ -19,9 +19,9 @@ const navLinks = [
   { name: 'Information', href: '/information' },
   { name: 'Emergency Contacts', href: '/emergency-contacts' },
   { name: 'Allergies', href: '/allergies' },
-  { name: 'Current Medications', href: '/prescriptions' },
+  { name: 'Medications', href: '/prescriptions' },
   { name: 'Diagnostic History', href: '/diagnostic-history' },
-  { name: 'Observations', href: '/observations' },
+  { name: 'Labs & Vitals', href: '/observations' },
   { name: 'Billing', href: '/billing' },
   { name: 'eMAR', href: '/emar' },
 ]
