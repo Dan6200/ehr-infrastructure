@@ -154,10 +154,21 @@ CARE_PLAN_GOALS = [
 
 CARE_PLAN_ACTIVITIES = [
     {
-        "code": "386420003",
-        "display": "Self-care assistance: bathing/hygiene",
+        "coding": {
+            "code": "386420003",
+            "display": "Self-care assistance: bathing/hygiene",
+            "system": "http://snomed.info/sct",
+        },
         "timing": {
-            "code": "bid",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-GTSAbbreviation",
+                        "code": "BID",
+                        "display": "twice daily"
+                    }
+                ]
+            },
             "repeat": {
                 "frequency": 2,
                 "period": 1,
@@ -167,10 +178,21 @@ CARE_PLAN_ACTIVITIES = [
         },
     },
     {
-        "code": "1230050000",
-        "display": "Assisting with dressing activity",
+        "coding": {
+            "code": "1230050000",
+            "display": "Assisting with dressing activity",
+            "system": "http://snomed.info/sct",
+        },
         "timing": {
-            "code": "qd",  # once daily
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-GTSAbbreviation",
+                        "code": "QD",
+                        "display": "once daily"
+                    }
+                ]
+            },
             "repeat": {
                 "frequency": 1,
                 "period": 1,
@@ -180,10 +202,21 @@ CARE_PLAN_ACTIVITIES = [
         },
     },
     {
-        "code": None,
-        "display": "Daily 15-minute ambulation/walk",
+        "coding": {
+            "code": None,
+            "display": "Daily 15-minute ambulation/walk",
+            "system": "http://snomed.info/sct",
+        },
         "timing": {
-            "code": "bid",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-GTSAbbreviation",
+                        "code": "BID",
+                        "display": "twice daily"
+                    }
+                ]
+            },
             "repeat": {
                 "frequency": 2,
                 "period": 1,
@@ -196,10 +229,21 @@ CARE_PLAN_ACTIVITIES = [
         },
     },
     {
-        "code": "435441000124107",
-        "display": "Medication reminder device set-up",
+        "coding": {
+            "code": "435441000124107",
+            "display": "Medication reminder device set-up",
+            "system": "http://snomed.info/sct",
+        },
         "timing": {
-            "code": "once",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-GTSAbbreviation",
+                        "code": "ONCE",
+                        "display": "once"
+                    }
+                ]
+            },
             "repeat": {
                 "frequency": 1,
                 "period": 1,
@@ -209,10 +253,21 @@ CARE_PLAN_ACTIVITIES = [
         },
     },
     {
-        "code": None,
-        "display": "Attend Thursday social group",
+        "coding": {
+            "code": None,
+            "display": "Attend Thursday social group",
+            "system": "http://snomed.info/sct",
+        },
         "timing": {
-            "code": "weekly",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-GTSAbbreviation",
+                        "code": "WEEKLY",
+                        "display": "weekly"
+                    }
+                ]
+            },
             "repeat": {
                 "frequency": 1,
                 "period": 1,
@@ -223,10 +278,21 @@ CARE_PLAN_ACTIVITIES = [
         },
     },
     {
-        "code": None,
-        "display": "Ensure pureed diet and fluid intake",
+        "coding": {
+            "code": None,
+            "display": "Ensure pureed diet and fluid intake",
+            "system": "http://snomed.info/sct",
+        },
         "timing": {
-            "code": "tid",  # three times daily
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-GTSAbbreviation",
+                        "code": "TID",
+                        "display": "three times daily"
+                    }
+                ]
+            },  # three times daily
             "repeat": {
                 "frequency": 3,
                 "period": 1,
@@ -240,10 +306,21 @@ CARE_PLAN_ACTIVITIES = [
         },
     },
     {
-        "code": None,
-        "display": "Check skin integrity (daily)",
+        "coding": {
+            "code": None,
+            "display": "Check skin integrity (daily)",
+            "system": "http://snomed.info/sct",
+        },
         "timing": {
-            "code": "qd",
+            "code": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-GTSAbbreviation",
+                        "code": "QD",
+                        "display": "once daily"
+                    }
+                ]
+            },
             "repeat": {
                 "frequency": 1,
                 "period": 1,
@@ -1188,12 +1265,14 @@ if __name__ == "__main__":
                                 },
                             ]
                         ),
-                        "effective_period_start": get_random_datetime(
-                            episode_start, episode_start + timedelta(days=7)
-                        ),
-                        "effective_period_end": get_random_datetime(
-                            episode_end, episode_end + timedelta(days=7)
-                        ),
+                        "period": {
+                            "start": get_random_datetime(
+                                episode_start, episode_start + timedelta(days=7)
+                            ),
+                            "end": get_random_datetime(
+                                episode_end, episode_end + timedelta(days=7)
+                            ),
+                        },
                         "managing_organization": "Golden Years Retreat Homes",
                     },
                 }
@@ -1207,10 +1286,12 @@ if __name__ == "__main__":
                     "resident_id": resident_id,
                     "status": "active",
                     "type": "Long Term Care",
-                    "effective_period_start": get_random_datetime(
-                        current_start_date, current_start_date + timedelta(days=30)
-                    ),
-                    "effective_period_end": None,  # No end date for active episode
+                    "period": {
+                        "start": get_random_datetime(
+                            current_start_date, current_start_date + timedelta(days=30)
+                        ),
+                        "end": None,
+                    },  # No end date for active episode
                     "managing_organization": "Golden Years Retreat Homes",
                 },
             }
@@ -1294,12 +1375,10 @@ if __name__ == "__main__":
                     "data": {
                         "resident_id": resident_id,
                         "recorder_id": random.choice(STAFF_IDS),
-                        "effective_period_start": get_random_datetime(
-                            START_DATE, INTERMEDIARY_DATE
-                        ),
-                        "effective_period_end": get_random_datetime(
-                            INTERMEDIARY_DATE, END_DATE
-                        ),
+                        "period": {
+                            "start": get_random_datetime(START_DATE, INTERMEDIARY_DATE),
+                            "end": get_random_datetime(INTERMEDIARY_DATE, END_DATE),
+                        },
                         "status": random.choice(PRESCRIPTION_STATUSES),
                         "adherence": random.choice(PRESCRIPTION_ADHERENCE_STATUSES),
                         "medication": rx_template,
@@ -1316,7 +1395,7 @@ if __name__ == "__main__":
             if doses_per_day == 0:
                 continue
 
-            start_date_str = rx_record["data"]["effective_period_start"]
+            start_date_str = rx_record["data"]["period"]["start"]
             start_dt = datetime.fromisoformat(
                 start_date_str.replace("Z", "+00:00")
             ).replace(tzinfo=None)
@@ -1402,8 +1481,10 @@ if __name__ == "__main__":
                                 datetime(2000, 1, 1), datetime(2023, 1, 1)
                             ),
                             "abatement_datetime": abatement_date,
-                            "coding": disorder_example,
-                            "title": disorder_example[0]["display"],
+                            "code": {
+                                "coding": disorder_example,
+                                "text": disorder_example[0]["display"],
+                            },
                         },
                     }
                 )
