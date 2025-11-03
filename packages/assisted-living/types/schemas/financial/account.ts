@@ -27,8 +27,10 @@ export const AccountSchema = z.object({
   service_period: PeriodSchema.optional(),
 
   // The current balance of the account
-  balance: z.number().default(0),
-  currency: z.string().default('NGN'),
+  balance: z.object({
+    value: z.number().default(0),
+    currency: z.string().default('NGN'),
+  }),
 
   // Metadata
   created_at: z.string(),

@@ -245,11 +245,11 @@ export const MedicationConceptSchema = z.object({
   text: z.string().optional(),
 })
 
-const CarePlanGoalSystem = z.literal(
+const GoalSystem = z.literal(
   'http://terminology.hl7.org/5.1.0/CodeSystem-goal-category.html',
 )
 
-const CarePlanGoalCodes = z.enum([
+const GoalCodes = z.enum([
   'dietary',
   'safety',
   'behavioral',
@@ -257,14 +257,14 @@ const CarePlanGoalCodes = z.enum([
   'physiotherapy',
 ])
 
-const CarePlanGoalCodingSchema = z.object({
-  system: CarePlanGoalSystem,
-  code: CarePlanGoalCodes,
+const GoalCodingSchema = z.object({
+  system: GoalSystem,
+  code: GoalCodes,
   display: z.string().optional(),
 })
 
-export const CarePlanGoalConceptSchema = z.object({
-  coding: z.array(CarePlanGoalCodingSchema),
+export const GoalConceptSchema = z.object({
+  coding: z.array(GoalCodingSchema),
   text: z.string().optional(),
 })
 

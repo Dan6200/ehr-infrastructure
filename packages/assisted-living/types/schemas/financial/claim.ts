@@ -6,8 +6,7 @@ export const ClaimSchema = z.object({
   created: z.string(),
   status: ClaimStatusEnum,
   coverage_id: z.string().nullable().optional(),
-  charges: z.array(z.string()).default([]), // IDs of charges
-  total: z.number(),
-  currency: z.string().default('NGN'),
+  charge_ids: z.array(z.string()).default([]),
+  total: z.object({ value: z.number(), currency: z.string().default('NGN') }),
   description: z.string().optional(),
 })
