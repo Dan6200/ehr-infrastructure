@@ -27,7 +27,7 @@ export const ProcedureSchema = z.object({
   notes: z.string().optional(),
   outcome: z.string().optional(), // summary text like "No complications"
   recorded_at: z.string(),
-  created_at: z.string(),
-  updated_at: z.string(),
-  viewed_at: z.string(),
+  created_at: z.string(), // This is for firestore db metadata
+  updated_at: z.string(), // This is for firestore db metadata
+  viewed_at: z.string(), // This is for firestore db metadata
 })

@@ -126,12 +126,41 @@ export const LoincConceptSchema = z.object({
 export const EncounterReasonUseCode = z.object({
   system: z.literal('http://hl7.org/fhir/ValueSet/encounter-reason-use'),
   code: z.enum(['CC', 'RV', 'HC', 'AD', 'HM']),
-  dispaly: z.enum([
+  display: z.enum([
     'Chief Complaint',
     'Reason for Visit',
     'Health Concern',
     'Admitting Diagnosis',
     'Health Maintenance',
+  ]),
+})
+
+export const EncounterBusinessStatusAgedCare = z.object({
+  system: z.literal(
+    'http://example.org/fhir/CodeSystem/encounter-business-status-agedcare',
+  ),
+  code: z.enum([
+    'package-active',
+    'paused',
+    'awaiting-approval',
+    'funded',
+    'respite',
+    'suspended',
+    'closed',
+    'terminated',
+  ]),
+  display: z.enum([]),
+})
+
+export const EpisodesOfCareTypeCode = z.object({
+  system: z.literal('http://terminology.hl7.org/CodeSystem/episodeofcare-type'),
+  code: z.enum(['hacc', 'pac', 'diab', 'da', 'cacp']),
+  display: z.enum([
+    'Home and Community Care',
+    'Post Acute Care',
+    'Post coordinated diabetes program',
+    'Drug and alcohol rehabilitation',
+    'Community-based aged care',
   ]),
 })
 

@@ -1,16 +1,21 @@
 import { z } from 'zod'
 import { EpisodeStatusTypeEnum } from '@/types/enums'
-import { SnomedConceptSchema } from '../codeable-concept'
+import {
+  EncounterDiagnosisUseCode,
+  EncounterReasonUseCode,
+  EpisodesOfCareTypeCode,
+  SnomedConceptSchema,
+} from '../codeable-concept'
 import { PeriodSchema } from '.'
 
 export const EpisodesOfCareSchema = z.object({
   id: z.string(),
   resident_id: z.string(),
   status: EpisodeStatusTypeEnum,
-  type: SnomedConceptSchema,
+  type: EpisodesOfCareTypeCode,
   period: PeriodSchema,
   diagnosis: z.object({
-    use: EncounterDiagnosisUseConceptSchema,
+    use: EncounterDiagnosisUseCode,
     value: SnomedConceptSchema,
   }),
   reason: z.object({

@@ -25,7 +25,7 @@ export const TaskSchema = z.object({
   outcome: z.string().optional(), // "successful", "partial", etc.
 
   authored_on: z.string(),
-  lastModified: z.string(),
+  last_modified: z.string(),
   do_not_perform: z.boolean(),
 
   created_at: z.string(),

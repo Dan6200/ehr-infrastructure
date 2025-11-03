@@ -1,0 +1,59 @@
+{
+  "resourceType": "ValueSet",
+  "id": "encounter-business-status-agedcare",
+  "url": "http://example.org/fhir/ValueSet/encounter-business-status-agedcare",
+  "version": "1.0.0",
+  "name": "EncounterBusinessStatusAgedCare",
+  "title": "Encounter Business Status (Aged Care / HACC)",
+  "status": "active",
+  "description": "Operational and business workflow statuses for aged care and home/community care encounters.",
+  "compose": {
+    "include": [
+      {
+        "system": "http://example.org/fhir/CodeSystem/encounter-business-status-agedcare",
+        "concept": [
+          {
+            "code": "package-active",
+            "display": "Active Care Package",
+            "definition": "The client's care package is currently active and services are being delivered."
+          },
+          {
+            "code": "paused",
+            "display": "Temporarily Paused",
+            "definition": "The care plan or funding is temporarily paused (e.g., hospital admission, travel)."
+          },
+          {
+            "code": "awaiting-approval",
+            "display": "Awaiting Approval",
+            "definition": "Awaiting funding or package approval from a governing body."
+          },
+          {
+            "code": "funded",
+            "display": "Funding Confirmed",
+            "definition": "Funding approval has been received and services may commence."
+          },
+          {
+            "code": "respite",
+            "display": "Respite Period",
+            "definition": "The client is currently in a short-term respite stay."
+          },
+          {
+            "code": "suspended",
+            "display": "Suspended",
+            "definition": "Encounter suspended due to compliance, payment, or operational reasons."
+          },
+          {
+            "code": "closed",
+            "display": "Closed",
+            "definition": "The encounter is administratively and clinically complete."
+          },
+          {
+            "code": "terminated",
+            "display": "Terminated",
+            "definition": "The encounter was ended early by client or provider decision."
+          }
+        ]
+      }
+    ]
+  }
+}
