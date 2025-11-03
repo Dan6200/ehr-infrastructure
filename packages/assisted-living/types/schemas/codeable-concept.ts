@@ -151,6 +151,50 @@ export const EncounterBusinessStatusAgedCare = z.object({
   ]),
   display: z.enum([]),
 })
+const EncounterTypeEnum = z.enum([
+  // HL7 v3-ActCode
+  'HH',
+  'COMM',
+  'VR',
+  'REHAB',
+  'NONAC',
+  'AMB',
+  'OUTP',
+  'CLIN',
+  'HOSP',
+
+  // Custom Aged Care / HACC extensions
+  'RESP',
+  'HACC',
+  'SOCIAL',
+  'MEAL',
+  'TRANSPORT',
+  'WELLNESS',
+  'DOMESTIC',
+  'TECHSUPPORT',
+])
+
+export const EncounterTypeSchema = z
+  .object({
+    code: EncounterTypeEnum,
+    display: z.string(),
+  })
+  .transform((val) => ({
+    ...val,
+    system: [
+      'HH',
+      'COMM',
+      'VR',
+      'REHAB',
+      'NONAC',
+      'AMB',
+      'OUTP',
+      'CLIN',
+      'HOSP',
+    ].includes(val.code)
+      ? 'http://terminology.hl7.org/CodeSystem/v3-ActCode'
+      : 'http://example.org/fhir/CodeSystem/encounter-type-agedcare',
+  }))
 
 export const EpisodesOfCareTypeCode = z.object({
   system: z.literal('http://terminology.hl7.org/CodeSystem/episodeofcare-type'),
