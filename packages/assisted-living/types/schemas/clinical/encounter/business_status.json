@@ -6,51 +6,66 @@
   "name": "EncounterBusinessStatusAgedCare",
   "title": "Encounter Business Status (Aged Care / HACC)",
   "status": "active",
-  "description": "Operational and business workflow statuses for aged care and home/community care encounters.",
+  "description": "Operational, workflow, and service episode statuses for aged care and home/community care encounters.",
   "compose": {
     "include": [
       {
         "system": "http://example.org/fhir/CodeSystem/encounter-business-status-agedcare",
         "concept": [
           {
+            "code": "intake",
+            "display": "Intake",
+            "definition": "Initial stage of client onboarding where eligibility, needs, and consent are assessed."
+          },
+          {
+            "code": "assessment",
+            "display": "Assessment in Progress",
+            "definition": "Client is undergoing assessment to determine care needs, package level, or reassessment."
+          },
+          {
+            "code": "care-planning",
+            "display": "Care Planning",
+            "definition": "The care plan is being developed or adjusted in coordination with the client or providers."
+          },
+          {
             "code": "package-active",
             "display": "Active Care Package",
-            "definition": "The client's care package is currently active and services are being delivered."
+            "definition": "The client’s care package is active and services are currently being delivered."
+          },
+          {
+            "code": "service-delivery",
+            "display": "Service Delivery",
+            "definition": "Routine care and services are being delivered as per the care plan."
+          },
+          {
+            "code": "review",
+            "display": "Review / Reassessment",
+            "definition": "The client’s care plan, health status, or funding package is being reviewed."
           },
           {
             "code": "paused",
             "display": "Temporarily Paused",
-            "definition": "The care plan or funding is temporarily paused (e.g., hospital admission, travel)."
-          },
-          {
-            "code": "awaiting-approval",
-            "display": "Awaiting Approval",
-            "definition": "Awaiting funding or package approval from a governing body."
-          },
-          {
-            "code": "funded",
-            "display": "Funding Confirmed",
-            "definition": "Funding approval has been received and services may commence."
+            "definition": "Service delivery temporarily paused (e.g., client hospitalisation, travel, short-term suspension)."
           },
           {
             "code": "respite",
             "display": "Respite Period",
-            "definition": "The client is currently in a short-term respite stay."
+            "definition": "The client is temporarily in a respite arrangement."
           },
           {
-            "code": "suspended",
-            "display": "Suspended",
-            "definition": "Encounter suspended due to compliance, payment, or operational reasons."
+            "code": "discharge-planning",
+            "display": "Discharge Planning",
+            "definition": "Preparing for conclusion of the care episode, transition, or transfer of services."
           },
           {
             "code": "closed",
             "display": "Closed",
-            "definition": "The encounter is administratively and clinically complete."
+            "definition": "Care episode or encounter is fully complete and administratively closed."
           },
           {
             "code": "terminated",
             "display": "Terminated",
-            "definition": "The encounter was ended early by client or provider decision."
+            "definition": "Care episode ended prematurely by client or provider decision."
           }
         ]
       }

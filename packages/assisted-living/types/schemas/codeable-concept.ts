@@ -140,17 +140,33 @@ export const EncounterBusinessStatusAgedCare = z.object({
     'http://example.org/fhir/CodeSystem/encounter-business-status-agedcare',
   ),
   code: z.enum([
+    'intake',
+    'assessment',
+    'care-planning',
     'package-active',
+    'service-delivery',
+    'review',
     'paused',
-    'awaiting-approval',
-    'funded',
     'respite',
-    'suspended',
+    'discharge-planning',
     'closed',
     'terminated',
   ]),
-  display: z.enum([]),
+  display: z.enum([
+    'Intake',
+    'Assessment in Progress',
+    'Care Planning',
+    'Active Care Package',
+    'Service Delivery',
+    'Review / Reassessment',
+    'Temporarily Paused',
+    'Respite Period',
+    'Discharge Planning',
+    'Closed',
+    'Terminated',
+  ]),
 })
+
 const EncounterTypeEnum = z.enum([
   // HL7 v3-ActCode
   'HH',
