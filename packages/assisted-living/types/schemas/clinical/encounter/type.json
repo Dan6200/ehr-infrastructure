@@ -1,0 +1,109 @@
+{
+  "resourceType": "ValueSet",
+  "id": "encounter-type-agedcare",
+  "url": "http://example.org/fhir/ValueSet/encounter-type-agedcare",
+  "version": "1.1.0",
+  "name": "EncounterTypeAgedCare",
+  "title": "Encounter Type (Aged Care / HACC)",
+  "status": "active",
+  "description": "Merged ValueSet combining HL7 v3-ActCode encounter types with custom aged care, home care, and community service extensions.",
+  "compose": {
+    "include": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+        "concept": [
+          {
+            "code": "HH",
+            "display": "Home Health",
+            "definition": "Encounter for home-based health care."
+          },
+          {
+            "code": "COMM",
+            "display": "Community Care",
+            "definition": "Encounter in a community care setting."
+          },
+          {
+            "code": "VR",
+            "display": "Telehealth / Virtual",
+            "definition": "Virtual or remote consultation."
+          },
+          {
+            "code": "REHAB",
+            "display": "Rehabilitation",
+            "definition": "Rehabilitation or recovery-focused care."
+          },
+          {
+            "code": "NONAC",
+            "display": "Non-acute Care",
+            "definition": "Long-term or subacute encounter."
+          },
+          {
+            "code": "AMB",
+            "display": "Ambulatory",
+            "definition": "Routine ambulatory or outpatient encounter."
+          },
+          {
+            "code": "OUTP",
+            "display": "Outpatient",
+            "definition": "Encounter that does not require admission."
+          },
+          {
+            "code": "CLIN",
+            "display": "Clinic Visit",
+            "definition": "Clinical or specialist appointment."
+          },
+          {
+            "code": "HOSP",
+            "display": "Hospital-based",
+            "definition": "Encounter within a hospital setting."
+          }
+        ]
+      },
+      {
+        "system": "http://example.org/fhir/CodeSystem/encounter-type-agedcare",
+        "concept": [
+          {
+            "code": "RESP",
+            "display": "Respite Care",
+            "definition": "Temporary care provided to relieve a primary carer."
+          },
+          {
+            "code": "HACC",
+            "display": "Home and Community Care (HACC)",
+            "definition": "Encounter under a Home and Community Care or CHSP-funded program."
+          },
+          {
+            "code": "SOCIAL",
+            "display": "Social Support / Group Activity",
+            "definition": "Community-based social or group participation activity."
+          },
+          {
+            "code": "MEAL",
+            "display": "Meals and Nutrition Support",
+            "definition": "Service encounter focused on meal preparation, delivery, or dietary monitoring."
+          },
+          {
+            "code": "TRANSPORT",
+            "display": "Transport Service",
+            "definition": "Transportation-related encounter for care, appointments, or community events."
+          },
+          {
+            "code": "WELLNESS",
+            "display": "Wellness / Exercise Program",
+            "definition": "Community or facility-based wellness, mobility, or fitness session."
+          },
+          {
+            "code": "DOMESTIC",
+            "display": "Domestic Assistance",
+            "definition": "Household or home maintenance service encounter."
+          },
+          {
+            "code": "TECHSUPPORT",
+            "display": "Assistive Technology Support",
+            "definition": "Assistance with setup or troubleshooting of assistive technology or monitoring devices."
+          }
+        ]
+      }
+    ]
+  }
+}
