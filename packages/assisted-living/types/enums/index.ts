@@ -33,7 +33,7 @@ export const ConditionStatusEnum = z.enum([
   'resolved',
 ])
 
-export const CarePlanGoalStatusEnum = z.enum([
+export const GoalStatusEnum = z.enum([
   'proposed',
   'planned',
   'accepted',
