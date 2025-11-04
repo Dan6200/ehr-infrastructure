@@ -1,0 +1,53 @@
+name: Manual Database Seeding
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_id:
+        description: 'Google Cloud Project ID'
+        required: true
+        default: 'lean-ehr'
+      region:
+        description: 'Google Cloud Region'
+        required: true
+        default: 'europe-west1'
+      job_name:
+        description: 'Cloud Run Job Name'
+        required: true
+        default: 'lean-ehr-data-upload'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+
+    - name: Build and Push Docker Image
+      run: |
+        gcloud builds submit --tag "${{ github.event.inputs.region }}-docker.pkg.dev/${{ github.event.inputs.project_id }}/lean-ehr-repo/lean-ehr-uploader:latest" .
+
+    - name: Deploy to Cloud Run Job
+      run: |
+        gcloud run jobs deploy ${{ github.event.inputs.job_name }} \
+          --image "${{ github.event.inputs.region }}-docker.pkg.dev/${{ github.event.inputs.project_id }}/lean-ehr-repo/lean-ehr-uploader:latest" \
+          --region "${{ github.event.inputs.region }}" \
+          --project "${{ github.event.inputs.project_id }}" \
+          --memory 4Gi \
+          --task-timeout 10800 \
+          --max-retries 0
+
+    - name: Execute Cloud Run Job
+      run: |
+        gcloud run jobs execute ${{ github.event.inputs.job_name }} \
+          --region "${{ github.event.inputs.region }}" \
+          --project "${{ github.event.inputs.project_id }}"
