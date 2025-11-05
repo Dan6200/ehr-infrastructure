@@ -2,6 +2,7 @@ import random
 from .utils import generate_uuid, get_random_datetime
 from datetime import datetime
 
+
 def generate_financial_data_for_resident(
     resident_id: str, resident_name: str, start_date: datetime, end_date: datetime
 ) -> dict:
@@ -19,6 +20,7 @@ def generate_financial_data_for_resident(
         {
             "id": account_id,
             "data": {
+                "resident_id": resident_id,  # Only for the encrypt resident data script to run successfully
                 "subject": {"id": resident_id, "name": resident_name},
                 "balance": {"value": 0, "currency": "NGN"},  # Updated
                 "created_at": get_random_datetime(start_date, end_date),
@@ -74,7 +76,7 @@ def generate_financial_data_for_resident(
                     ]
                 ),
                 "quantity": quantity,
-                "unit_price": {"value": unit_price_value, "currency": "NGN"}, # Updated
+                "unit_price": {"value": unit_price_value, "currency": "NGN"},  # Updated
                 "occurrence_datetime": get_random_datetime(start_date, end_date),
             },
         }
@@ -87,7 +89,8 @@ def generate_financial_data_for_resident(
             charges, k=min(len(charges), random.randint(1, 5))
         )
         claim_total_value = sum(
-            c["data"]["unit_price"]["value"] * c["data"]["quantity"] for c in claim_charges
+            c["data"]["unit_price"]["value"] * c["data"]["quantity"]
+            for c in claim_charges
         )
 
         claim_id = f"claim_{resident_id}"
@@ -96,42 +99,52 @@ def generate_financial_data_for_resident(
                 "id": claim_id,
                 "data": {
                     "created": get_random_datetime(start_date, end_date),
-                    "status": "adjudicated", # Changed to adjudicated to justify payment
+                    "status": "adjudicated",  # Changed to adjudicated to justify payment
                     "coverage_id": coverage_id,
                     "charge_ids": [c["id"] for c in claim_charges],
-                    "total": {"value": claim_total_value, "currency": "NGN"}, # Updated
+                    "total": {"value": claim_total_value, "currency": "NGN"},  # Updated
                 },
             }
         )
 
         # 5. Generate a Payment for the claim
-        paid_amount = round(claim_total_value * random.uniform(0.7, 0.95), 2) # Insurer pays 70-95%
-        payments.append({
-            "id": generate_uuid(),
-            "data": {
-                "claim_id": claim_id,
-                "coverage_id": coverage_id,
-                "amount": {"value": paid_amount, "currency": "NGN"},
-                "payor": payor_org,
-                "occurrence_datetime": get_random_datetime(start_date, end_date),
-                "method": "EFT",
+        paid_amount = round(
+            claim_total_value * random.uniform(0.7, 0.95), 2
+        )  # Insurer pays 70-95%
+        payments.append(
+            {
+                "id": generate_uuid(),
+                "data": {
+                    "claim_id": claim_id,
+                    "coverage_id": coverage_id,
+                    "amount": {"value": paid_amount, "currency": "NGN"},
+                    "payor": payor_org,
+                    "occurrence_datetime": get_random_datetime(start_date, end_date),
+                    "method": "EFT",
+                },
             }
-        })
+        )
 
         # 6. Generate an Adjustment for the claim
         adjustment_amount = claim_total_value - paid_amount
-        adjustments.append({
-            "id": generate_uuid(),
-            "data": {
-                "claim_id": claim_id,
-                "reason": "Contractual Adjustment",
-                "approved_amount": {"value": adjustment_amount, "currency": "NGN"},
-                "created_at": get_random_datetime(start_date, end_date),
+        adjustments.append(
+            {
+                "id": generate_uuid(),
+                "data": {
+                    "claim_id": claim_id,
+                    "reason": "Contractual Adjustment",
+                    "approved_amount": {"value": adjustment_amount, "currency": "NGN"},
+                    "created_at": get_random_datetime(start_date, end_date),
+                },
             }
-        })
+        )
 
     # --- 7. Update final Account Balance ---
-    final_balance = total_charges_value - sum(p["data"]["amount"]["value"] for p in payments) - sum(a["data"]["approved_amount"]["value"] for a in adjustments)
+    final_balance = (
+        total_charges_value
+        - sum(p["data"]["amount"]["value"] for p in payments)
+        - sum(a["data"]["approved_amount"]["value"] for a in adjustments)
+    )
     if accounts:
         accounts[0]["data"]["balance"]["value"] = round(final_balance, 2)
 

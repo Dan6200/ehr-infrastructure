@@ -14,6 +14,7 @@ def generate_address_for_resident(resident_id: str) -> dict:
     state = random.choice(STATES)
 
     address = {
+        "resident_id": resident_id,  # Only for the encrypt resident data script to run successfully
         "id": f"addr_{resident_id}",
         "data": {
             "use": "home",
