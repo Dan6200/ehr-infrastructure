@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# This script uploads all generated and encrypted demo data to Firestore
-# using a single bulk payload file, which is handled by the `firestore-cli`.
+# This script orchestrates the entire process of seeding the Firestore database.
+# It generates plaintext data, encrypts it, and then uploads the final payload.
 
 set -e # Exit immediately if a command exits with a non-zero status.
 
@@ -15,7 +15,7 @@ if [ "$1" == "--prod" ]; then
 fi
 
 # --- Arguments Setup for firestore-cli ---
-ARGS="--rate-limit 250"
+ARGS="--rate-limit 500 --database-id staging"
 if [ "$ENVIRONMENT" == "prod" ]; then
   KEY_PATH="secret-key/assisted-living-app-key.json"
   if [ ! -f "$KEY_PATH" ]; then
@@ -26,39 +26,38 @@ if [ "$ENVIRONMENT" == "prod" ]; then
   echo "Using production key: $KEY_PATH"
 fi
 
-echo "--- Step 0: Creating Users... ---"
+# --- Step 0: Create Admin User ---
+echo "--- Step 0: Creating Admin User... ---"
 node dev-utils/create-admin-user.ts dev@mail.com Developer ADMIN,CLINICIAN,CAREGIVER,VIEWER
 
-# --- 1. Generate and Encrypt Data ---
-echo "--- Step 1: Generating and Encrypting all data to a single payload... ---"
+# --- Step 1: Generate Plaintext Demo Data ---
+echo "--- Step 1: Generating all plaintext demo data... ---"
+python3 dev-utils/generate_demo_subcollection_data.py
 
-# The encryption script now handles reading all the individual plaintext files
-# and outputting a single, structured, encrypted payload file.
+# --- Step 2: Generate Encrypted Payload ---
+echo "--- Step 2: Encrypting all data to a single payload... ---"
 export NODE_ENV=development 
-node ./dev-utils/encrypt-resident-data.ts
+node dev-utils/generate-encrypted-payload.ts
 unset NODE_ENV
 
-echo "--- Step 2: Starting Firestore upload... --- "
+# --- Step 3: Starting Firestore Upload ---
+echo "--- Step 3: Starting Firestore upload... "
 
 if [ ! -f "$ENCRYPTED_PAYLOAD_FILE" ]; then
   echo "Error: Encrypted payload file not found at $ENCRYPTED_PAYLOAD_FILE" >&2
   exit 1
 fi
 
-# The new firestore-cli can take the structured JSON file and handle all collection
-# and subcollection uploads in one command. # firestore-cli upload --json-file "$ENCRYPTED_PAYLOAD_FILE" $ARGS
 # Bulk upload facilities
 echo "Uploading facilities..."
 firestore-cli set "providers/$PROVIDER_ID/facilities" -b -f demo-data/facilities/data.json $ARGS
-
-# Bulk upload residents and their subcollections (This is much faster)
-# The payload file contains relative paths (e.g., residents/some-id, residents/some-id/allergies/allergy-id)
-# which are resolved against the base path provided here.
-echo "Uploading residents and subcollections..."
+# Bulk upload all data from the encrypted payload file
+echo "Uploading residents and all subcollections..."
 firestore-cli set "providers/$PROVIDER_ID" -b -f $ENCRYPTED_PAYLOAD_FILE --jsonl $ARGS
 
 echo "\n--- Upload Complete! ---"
 
+# --- Step 4: Deploy Firestore Rules and Indexes ---
 echo "--- Step 4: Setting Up Rules and Indexes ---"
 
 firebase deploy --only firestore
