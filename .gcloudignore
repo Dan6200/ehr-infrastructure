@@ -1,0 +1,26 @@
+# This file is used by gcloud to ignore files when uploading the build context.
+# It works just like .gitignore.
+
+# Node.js
+node_modules/
+.next/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Logs and environment
+*.log
+.env
+
+# Build artifacts
+tmp_build/
+
+# Git and editor files
+.git
+.vscode/
+
+# Other
+.husky/
+secret-key/
