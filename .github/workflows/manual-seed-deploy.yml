@@ -39,6 +39,7 @@ jobs:
           gcloud builds submit --tag "${{ github.event.inputs.region }}-docker.pkg.dev/${{ github.event.inputs.project_id }}/lean-ehr-repo/lean-ehr-uploader:latest" --async --format='value(id)' . > build_id.txt
 
       - name: Wait for Build to Complete
+        working-directory: ./packages/assisted-living
         run: |
           BUILD_ID=$(cat build_id.txt)
           echo "Waiting for build $BUILD_ID to complete..."
