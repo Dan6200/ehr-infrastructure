@@ -20,23 +20,28 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
+        uses: google-github-actions/auth@v2
         with:
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+          workload_identity_provider: 'projects/31765765651/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'assisted-living-app@lean-ehr.iam.gserviceaccount.com'
 
       - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
+        uses: google-github-actions/setup-gcloud@v2
 
       - name: Build and Push Docker Image
         id: build
         working-directory: ./packages/assisted-living
         run: |
-          gcloud builds submit --tag "${{ github.event.inputs.region }}-docker.pkg.dev/${{ github.event.inputs.project_id }}/lean-ehr-repo/lean-ehr-uploader:latest" --async --format='value(id)' . > build_id.txt
+          gcloud builds submit --tag "${{ github.event.inputs.region }}-docker.pkg.dev/${{ github.event.inputs.project_id }}/lean-ehr-repo/lean-ehr-uploader:latest" .
 
       - name: Wait for Build to Complete
         working-directory: ./packages/assisted-living
