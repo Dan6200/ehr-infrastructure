@@ -1,16 +1,10 @@
-demo-data/
-demo-data/upload.log
-demo-data/tmp_split
-demo-data/allergies/
-demo-data/diagnostic_history/
-demo-data/emergency_contacts/data.json
-demo-data/financials/
-demo-data/observations/
-demo-data/prescription_administration/
-demo-data/prescriptions/
-demo-data/care_plans/
-demo-data/episodes_of_care/
-demo-data/firestore-encrypted-payload.json*
+demo-data
+!demo-data/
+demo-data/*
+!demo-data/facilities/
+!demo-data/residents/
+!demo-data/emergency_contacts/
+!demo-data/seed-database.sh
 
 public/auth-service-worker.js*
 tmp_build/
@@ -80,3 +74,4 @@ redis.conf
 /firebase-debug.log
 /.env.production
 error.log
+demo-data/firestore-encrypted-payload.tar.gz
