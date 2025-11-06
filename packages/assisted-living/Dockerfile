@@ -5,12 +5,9 @@ WORKDIR /app
 # Step 1: Install Python/pip dependencies and update package lists first.
 # This ensures apt-get update runs BEFORE apt-get install python3-pip.
 RUN apt-get update \
-    && apt-get install -y python3-pip \
+    && apt-get install -y python3-pytz \
     && rm -rf /var/lib/apt/lists/*
     
-# Step 2: Install Python packages
-RUN pip3 install pytz
-
 # Step 3: Install Node.js tools
 RUN npm install -g firebase-tools firestore-cli
 
