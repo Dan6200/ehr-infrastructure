@@ -7,15 +7,14 @@ import {
   KEK_CLINICAL_PATH,
   KEK_FINANCIAL_PATH,
   // @ts-ignore ... using node to run directly so ts ext is fine
-} from '../lib/encryption.ts'
+} from '../../lib/encryption.ts'
 import * as fs from 'fs'
-import * as path from 'path'
 // @ts-ignore ... can't find type def, not making a .d.ts either
 import JSONStream from 'minipass-json-stream'
 
 // --- Configuration ---
-const PLAINTEXT_INPUT_DIR = 'demo-data'
-const ENCRYPTED_OUTPUT_FILE = 'demo-data/firestore-encrypted-payload.jsonl'
+const PLAINTEXT_INPUT_DIR = '/app/demo-data' // /app directory for the container
+const ENCRYPTED_OUTPUT_FILE = '/app/demo-data/firestore-encrypted-payload.jsonl'
 const SUBCOLLECTIONS = [
   { name: 'emergency_contacts', kekPath: KEK_CONTACT_PATH },
   { name: 'allergies', kekPath: KEK_CLINICAL_PATH },
@@ -55,10 +54,7 @@ const MAX_IN_MEMORY_SIZE = 1_000_000 // 1MB
  * @yields {Object} Each individual JSON object/record from the file.
  */
 async function* loadPlaintextData(collectionName: string) {
-  const rawDataPath = path.join(
-    process.cwd(),
-    `${PLAINTEXT_INPUT_DIR}/${collectionName}/data-plain.json`,
-  )
+  const rawDataPath = `${PLAINTEXT_INPUT_DIR}/${collectionName}/data-plain.json`
 
   if (!fs.existsSync(rawDataPath)) {
     console.warn(
@@ -122,10 +118,9 @@ async function main() {
   }
   console.log('DEK generation complete.')
 
-  const outputStream = fs.createWriteStream(
-    path.join(process.cwd(), ENCRYPTED_OUTPUT_FILE),
-    { encoding: 'utf-8' },
-  )
+  const outputStream = fs.createWriteStream(ENCRYPTED_OUTPUT_FILE, {
+    encoding: 'utf-8',
+  })
   let isFirstEntryInFile = true
 
   const writeNewline = () => {

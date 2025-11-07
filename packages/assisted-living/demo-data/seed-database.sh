@@ -41,9 +41,10 @@ python3 dev-utils/generate_demo_subcollection_data.py
 
 # --- Step 2: Generate Encrypted Payload ---
 echo "--- Step 2: Encrypting all data to a single payload... ---"
-export NODE_ENV=development 
-node dev-utils/generate-encrypted-payload.ts
-unset NODE_ENV
+cd dev-utils/generate-encrypted-payload/ 
+npm install 
+npm start
+cd /app
 
 # --- Step 3: Starting Firestore Upload ---
 echo "--- Step 3: Starting Firestore upload... "
