@@ -10,6 +10,7 @@ RUN apt-get update && \
 RUN npm install -g minipass-json-stream firebase-tools firestore-cli && pip3 install pytz --break-system-packages
 
 COPY dev-utils ./dev-utils/
+COPY dev-utils/generate-encrypted-payload ./dev-utils/
 COPY demo-data ./demo-data/
 COPY lib ./lib/
 
