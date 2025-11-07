@@ -11,7 +11,7 @@ RUN npm install -g firebase-tools firestore-cli && pip3 install pytz --break-sys
 
 COPY dev-utils/generate_demo_subcollection_data.py dev-utils/generate-encrypted-payload.ts ./dev-utils/
 COPY demo-data/facilities/ ./demo-data/facilities/
-COPY demo-data/firestore-encrypted-payload.jsonl ./demo-data/seed-database.sh ./demo-data/
+COPY ./demo-data/seed-database.sh ./demo-data/
 
 COPY firebase.json .firebaserc firestore.indexes.json firestore.rules .
 
