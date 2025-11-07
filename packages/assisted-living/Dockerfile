@@ -2,14 +2,7 @@ FROM node:20-slim
 
 WORKDIR /app
 
-# Step 1: Install Python/pip dependencies and update package lists first.
-# This ensures apt-get update runs BEFORE apt-get install python3-pip.
-RUN apt-get update \
-    && apt-get install -y python3-pytz \
-    && rm -rf /var/lib/apt/lists/*
-    
-# Step 3: Install Node.js tools
-RUN npm install -g firebase-tools firestore-cli
+RUN npm install -g firebase-tools firestore-cli apt-get update && apt-get install -y python3-pip && pip3 install pytz
 
 COPY dev-utils/generate_demo_subcollection_data.py dev-utils/generate-encrypted-payload.ts ./dev-utils/
 COPY demo-data/facilities/ ./demo-data/facilities/
