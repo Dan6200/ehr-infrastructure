@@ -2,7 +2,12 @@ FROM node:20-slim
 
 WORKDIR /app
 
-RUN npm install -g firebase-tools firestore-cli apt-get update && apt-get install -y python3-pip && pip3 install pytz
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python3-pip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN npm install -g firebase-tools firestore-cli && pip3 install pytz
 
 COPY dev-utils/generate_demo_subcollection_data.py dev-utils/generate-encrypted-payload.ts ./dev-utils/
 COPY demo-data/facilities/ ./demo-data/facilities/
