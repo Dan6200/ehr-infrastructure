@@ -13,7 +13,7 @@ COPY dev-utils/generate_demo_subcollection_data.py dev-utils/generate-encrypted-
 COPY demo-data/facilities/ ./demo-data/facilities/
 COPY ./demo-data/seed-database.sh ./demo-data/
 
-COPY firebase.json .firebaserc firestore.indexes.json firestore.rules .
+COPY firebase.json .firebaserc firestore.indexes.json firestore.rules ./
 
 # Make the upload script executable
 RUN chmod +x ./demo-data/seed-database.sh
