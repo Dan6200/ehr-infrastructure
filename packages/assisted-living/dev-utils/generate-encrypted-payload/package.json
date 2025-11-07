@@ -8,6 +8,7 @@
     "start": "NODE_ENV=development node main.ts"
   },
   "dependencies": {
+    "@google-cloud/kms": "^5.2.0",
     "minipass-json-stream": "^1.0.2"
   }
 }
