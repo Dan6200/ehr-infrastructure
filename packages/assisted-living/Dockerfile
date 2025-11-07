@@ -7,7 +7,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g firebase-tools firestore-cli && pip3 install pytz
+RUN npm install -g firebase-tools firestore-cli && pip3 install pytz --break-system-packages
 
 COPY dev-utils/generate_demo_subcollection_data.py dev-utils/generate-encrypted-payload.ts ./dev-utils/
 COPY demo-data/facilities/ ./demo-data/facilities/
