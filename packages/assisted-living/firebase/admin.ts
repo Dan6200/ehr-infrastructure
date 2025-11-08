@@ -20,6 +20,12 @@ async function initializeAdminApp() {
 }
 
 // Async getter for the Firestore admin instance
+// ;(async function () {
+//   await initializeAdminApp()
+//   admin.firestore().settings({ databaseId: 'testing' })
+// })()
+
+// Async getter for the Firestore admin instance
 export async function getAdminDb() {
   await initializeAdminApp()
   return admin.firestore()
