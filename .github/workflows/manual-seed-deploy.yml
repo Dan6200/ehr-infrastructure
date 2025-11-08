@@ -37,6 +37,17 @@ jobs:
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Fetch KMS Configuration
+        id: kms_config
+        run: |
+          KMS_LOCATION="europe-west1"
+          KEYRING_NAME=$(gcloud kms keyrings list --location=$KMS_LOCATION --project=${{ github.event.inputs.project_id }} --filter="name:assisted-living" --format="value(name)")
+          echo "KMS_KEY_RING=$KEYRING_NAME" >> $GITHUB_ENV
+          echo "KEK_GENERAL_PATH=$(gcloud kms keys list --keyring=$KEYRING_NAME --location=$KMS_LOCATION --project=${{ github.event.inputs.project_id }} --filter='name:kek-general' --format='value(name)')" >> $GITHUB_ENV
+          echo "KEK_CONTACT_PATH=$(gcloud kms keys list --keyring=$KEYRING_NAME --location=$KMS_LOCATION --project=${{ github.event.inputs.project_id }} --filter='name:kek-contact' --format='value(name)')" >> $GITHUB_ENV
+          echo "KEK_CLINICAL_PATH=$(gcloud kms keys list --keyring=$KEYRING_NAME --location=$KMS_LOCATION --project=${{ github.event.inputs.project_id }} --filter='name:kek-clinical' --format='value(name)')" >> $GITHUB_ENV
+          echo "KEK_FINANCIAL_PATH=$(gcloud kms keys list --keyring=$KEYRING_NAME --location=$KMS_LOCATION --project=${{ github.event.inputs.project_id }} --filter='name:kek-financial' --format='value(name)')" >> $GITHUB_ENV
+
       - name: Build and Push Docker Image
         id: build
         working-directory: ./packages/assisted-living
@@ -51,7 +62,8 @@ jobs:
             --project "${{ github.event.inputs.project_id }}" \
             --memory 4Gi \
             --task-timeout 10800 \
-            --max-retries 0
+            --max-retries 0 \
+            --set-env-vars="GCP_PROJECT_ID=${{ github.event.inputs.project_id }},KMS_LOCATION=europe-west1,KMS_KEY_RING=${{ env.KMS_KEY_RING }},KEK_GENERAL_PATH=${{ env.KEK_GENERAL_PATH }},KEK_CONTACT_PATH=${{ env.KEK_CONTACT_PATH }},KEK_CLINICAL_PATH=${{ env.KEK_CLINICAL_PATH }},KEK_FINANCIAL_PATH=${{ env.KEK_FINANCIAL_PATH }}"
 
       - name: Execute Cloud Run Job
         run: |
