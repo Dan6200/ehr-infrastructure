@@ -159,7 +159,7 @@ if __name__ == "__main__":
         )
         all_care_plans.extend(care_plan_data["care_plans"])
         all_care_plan_activities.extend(care_plan_data["care_plan_activities"])
-        all_addresses.extend(generate_address_for_resident(resident_id)["data"])
+        all_addresses.extend(generate_address_for_resident(resident_id))
         all_identifiers.extend(
             generate_identifiers_for_resident(resident_id, resident["resident_code"])
         )
