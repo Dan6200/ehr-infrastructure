@@ -42,7 +42,6 @@ python3 dev-utils/generate_demo_subcollection_data.py
 # --- Step 2: Generate Encrypted Payload ---
 echo "--- Step 2: Encrypting all data to a single payload... ---"
 cd dev-utils/generate-encrypted-payload/ 
-npm install 
 npm start
 cd /app
 
