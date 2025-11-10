@@ -135,11 +135,17 @@ export const EncryptedResidentSchema = z.object({
 })
 
 export const EncryptedAccountSchema = z.object({
-  subject_id: z.string(),
   encrypted_dek: z.string(),
+  subject: z.object({
+    id: z.string(), // Plaintext for querying
+    encrypted_name: EncryptedFieldSchema,
+  }),
   encrypted_billing_status: EncryptedFieldSchema,
   encrypted_balance: EncryptedFieldSchema,
   encrypted_created_at: EncryptedFieldSchema,
+  encrypted_guarantor: EncryptedFieldSchema.optional(),
+  encrypted_service_period: EncryptedFieldSchema.optional(),
+  encrypted_updated_at: EncryptedFieldSchema.optional(),
 })
 
 export const EncryptedChargeSchema = z.object({
@@ -243,7 +249,11 @@ export const EncryptedProcedureSchema = z.object({
   encrypted_occurrence: EncryptedFieldSchema,
   encrypted_category: EncryptedFieldSchema,
   encrypted_body_site: EncryptedFieldSchema,
-  encrypted_performer: EncryptedFieldSchema,
+  performer: z.object({
+    id: z.string().optional(), // Plaintext for querying
+    encrypted_name: EncryptedFieldSchema.optional(),
+    encrypted_period: EncryptedFieldSchema,
+  }),
   encrypted_notes: EncryptedFieldSchema.nullable().optional(),
   encrypted_outcome: EncryptedFieldSchema.nullable().optional(),
   encrypted_recorded_at: EncryptedFieldSchema,
