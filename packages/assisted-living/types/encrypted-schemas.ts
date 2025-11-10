@@ -70,24 +70,26 @@ export const EncryptedEmarRecordSchema = z.object({
   encrypted_dosage: EncryptedFieldSchema,
 })
 
-export const EncryptedFinancialTransactionSchema = z.object({
-  resident_id: z.string(),
-  encrypted_dek: z.string(),
-  encrypted_amount: EncryptedFieldSchema,
-  encrypted_occurrence_datetime: EncryptedFieldSchema,
-  encrypted_type: EncryptedFieldSchema,
-  encrypted_description: EncryptedFieldSchema,
-})
+// Removed EncryptedFinancialTransactionSchema as it's replaced by specific financial schemas
 
 export const EncryptedCarePlanSchema = z.object({
   resident_id: z.string(),
   encrypted_dek: z.string(),
+  goal_ids: z.array(z.string()).optional(), // Plaintext array of goal IDs
   encrypted_status: EncryptedFieldSchema,
   encrypted_title: EncryptedFieldSchema,
   encrypted_author_id: EncryptedFieldSchema,
   encrypted_created_date: EncryptedFieldSchema,
-  encrypted_goals: EncryptedFieldSchema,
-  encrypted_activites: EncryptedFieldSchema,
+  encrypted_activities: EncryptedFieldSchema, // Activities are now nested and encrypted
+})
+
+export const EncryptedGoalSchema = z.object({
+  resident_id: z.string(), // Goals are now top-level, but still linked to a resident
+  encrypted_dek: z.string(),
+  encrypted_lifecycle_status: EncryptedFieldSchema,
+  encrypted_category: EncryptedFieldSchema,
+  encrypted_priority: EncryptedFieldSchema,
+  encrypted_description: EncryptedFieldSchema,
 })
 
 export const EncryptedEpisodesOfCareSchema = z.object({
@@ -133,45 +135,138 @@ export const EncryptedResidentSchema = z.object({
 })
 
 export const EncryptedAccountSchema = z.object({
-  encrypted_dek: z.string(),
   subject_id: z.string(),
+  encrypted_dek: z.string(),
   encrypted_billing_status: EncryptedFieldSchema,
   encrypted_balance: EncryptedFieldSchema,
   encrypted_created_at: EncryptedFieldSchema,
 })
 
 export const EncryptedChargeSchema = z.object({
+  resident_id: z.string(),
   encrypted_dek: z.string(),
-  account_id: z.string(),
   encrypted_service: EncryptedFieldSchema,
+  encrypted_code: EncryptedFieldSchema.nullable().optional(),
   encrypted_quantity: EncryptedFieldSchema,
   encrypted_unit_price: EncryptedFieldSchema,
   encrypted_occurrence_datetime: EncryptedFieldSchema,
+  encrypted_description: EncryptedFieldSchema.nullable().optional(),
 })
 
 export const EncryptedClaimSchema = z.object({
+  resident_id: z.string(),
+  coverage_id: z.string().nullable().optional(),
+  charge_ids: z.array(z.string()).default([]),
   encrypted_dek: z.string(),
-  account_id: z.string(),
-  coverage_id: z.string(),
-  charge_ids: z.array(z.string()),
   encrypted_created: EncryptedFieldSchema,
   encrypted_status: EncryptedFieldSchema,
   encrypted_total: EncryptedFieldSchema,
+  encrypted_description: EncryptedFieldSchema.nullable().optional(),
 })
 
 export const EncryptedPaymentSchema = z.object({
+  resident_id: z.string(),
+  claim_id: z.string().nullable().optional(),
+  coverage_id: z.string().nullable().optional(),
   encrypted_dek: z.string(),
-  account_id: z.string(),
-  claim_id: z.string().optional(),
   encrypted_amount: EncryptedFieldSchema,
+  encrypted_payor: EncryptedFieldSchema,
   encrypted_occurrence_datetime: EncryptedFieldSchema,
+  encrypted_method: EncryptedFieldSchema.nullable().optional(),
 })
 
 export const EncryptedAdjustmentSchema = z.object({
-  encrypted_dek: z.string(),
-  account_id: z.string(),
+  resident_id: z.string(),
   claim_id: z.string(),
+  coverage_id: z.string().nullable().optional(),
+  encrypted_dek: z.string(),
   encrypted_reason: EncryptedFieldSchema,
   encrypted_approved_amount: EncryptedFieldSchema,
   encrypted_created_at: EncryptedFieldSchema,
+  encrypted_updated_at: EncryptedFieldSchema.nullable().optional(),
+})
+
+export const EncryptedIdentifierSchema = z.object({
+  resident_id: z.string(),
+  encrypted_dek: z.string(),
+  encrypted_system: EncryptedFieldSchema,
+  encrypted_value: EncryptedFieldSchema,
+  encrypted_type: EncryptedFieldSchema.nullable().optional(),
+  encrypted_issued: EncryptedFieldSchema.nullable().optional(),
+})
+
+export const EncryptedAddressSchema = z.object({
+  resident_id: z.string(),
+  encrypted_dek: z.string(),
+  encrypted_use: EncryptedFieldSchema.nullable().optional(),
+  encrypted_type: EncryptedFieldSchema.nullable().optional(),
+  encrypted_text: EncryptedFieldSchema.nullable().optional(),
+  encrypted_line: EncryptedFieldSchema,
+  encrypted_city: EncryptedFieldSchema,
+  encrypted_district: EncryptedFieldSchema.nullable().optional(),
+  encrypted_state: EncryptedFieldSchema,
+  encrypted_postalCode: EncryptedFieldSchema,
+  encrypted_country: EncryptedFieldSchema,
+  encrypted_period: EncryptedFieldSchema.nullable().optional(),
+})
+
+export const EncryptedTaskSchema = z.object({
+  resident_id: z.string(),
+  careplan_id: z.string().nullable().optional(),
+  encrypted_dek: z.string(),
+  encrypted_activity_code: EncryptedFieldSchema.nullable().optional(),
+  encrypted_status: EncryptedFieldSchema,
+  encrypted_intent: EncryptedFieldSchema,
+  encrypted_priority: EncryptedFieldSchema,
+  encrypted_requested_period: EncryptedFieldSchema,
+  encrypted_execution_period: EncryptedFieldSchema,
+  encrypted_performer_id: EncryptedFieldSchema,
+  encrypted_performer_name: EncryptedFieldSchema.nullable().optional(),
+  encrypted_notes: EncryptedFieldSchema.nullable().optional(),
+  encrypted_outcome: EncryptedFieldSchema.nullable().optional(),
+  encrypted_authored_on: EncryptedFieldSchema,
+  encrypted_last_modified: EncryptedFieldSchema,
+  encrypted_do_not_perform: EncryptedFieldSchema,
+  encrypted_created_at: EncryptedFieldSchema,
+  encrypted_updated_at: EncryptedFieldSchema,
+  encrypted_viewed_at: EncryptedFieldSchema,
+})
+
+export const EncryptedProcedureSchema = z.object({
+  subject_id: z.string(),
+  careplan_id: z.string().nullable().optional(),
+  encounter_id: z.string().nullable().optional(),
+  encrypted_dek: z.string(),
+  encrypted_focus: EncryptedFieldSchema,
+  encrypted_code: EncryptedFieldSchema,
+  encrypted_status: EncryptedFieldSchema,
+  encrypted_occurrence: EncryptedFieldSchema,
+  encrypted_category: EncryptedFieldSchema,
+  encrypted_body_site: EncryptedFieldSchema,
+  encrypted_performer: EncryptedFieldSchema,
+  encrypted_notes: EncryptedFieldSchema.nullable().optional(),
+  encrypted_outcome: EncryptedFieldSchema.nullable().optional(),
+  encrypted_recorded_at: EncryptedFieldSchema,
+  encrypted_created_at: EncryptedFieldSchema,
+  encrypted_updated_at: EncryptedFieldSchema,
+  encrypted_viewed_at: EncryptedFieldSchema,
+})
+
+export const EncryptedEncounterSchema = z.object({
+  subject_id: z.string(),
+  episodes_of_care_id: z.string(),
+  encrypted_dek: z.string(),
+  encrypted_type: EncryptedFieldSchema,
+  encrypted_status: EncryptedFieldSchema,
+  encrypted_business_status: EncryptedFieldSchema.nullable().optional(),
+  encrypted_period: EncryptedFieldSchema.nullable().optional(),
+  encrypted_diagnosis: EncryptedFieldSchema,
+  encrypted_reason: EncryptedFieldSchema,
+  encrypted_location: EncryptedFieldSchema.nullable().optional(),
+  encrypted_participant_id: EncryptedFieldSchema.nullable().optional(),
+  encrypted_participant_name: EncryptedFieldSchema.nullable().optional(),
+  encrypted_service_provider_id: EncryptedFieldSchema.nullable().optional(),
+  encrypted_account_id: EncryptedFieldSchema.nullable().optional(),
+  encrypted_notes: EncryptedFieldSchema.nullable().optional(),
+  encrypted_recorded_at: EncryptedFieldSchema,
 })
