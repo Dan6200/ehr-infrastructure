@@ -16,6 +16,7 @@ export const EncounterSchema = z.object({
   status: EncounterStatusEnum,
   period: PeriodSchema.optional(),
 
+  // business_status: EncounterBusinessStatusEnum // Add these later
   reason: EncounterReasonUseCode.optional(),
   diagnosis: EncounterDiagnosisUseCode.optional(),
 

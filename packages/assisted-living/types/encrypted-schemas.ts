@@ -104,7 +104,7 @@ export const EncryptedEpisodesOfCareSchema = z.object({
   care_manager_id: z.string().optional(),
   team_ids: z.array(z.string()).optional(),
   account_id: z.string().optional(),
-  encrypted_created_at: z.string(),
+  encrypted_created_at: z.string().optional(),
   encrypted_updated_at: z.string().optional(),
 })
 
@@ -264,9 +264,6 @@ export const EncryptedProcedureSchema = z.object({
   encrypted_notes: EncryptedFieldSchema.nullable().optional(),
   encrypted_outcome: EncryptedFieldSchema.nullable().optional(),
   encrypted_recorded_at: EncryptedFieldSchema,
-  encrypted_created_at: EncryptedFieldSchema,
-  encrypted_updated_at: EncryptedFieldSchema,
-  encrypted_viewed_at: EncryptedFieldSchema,
 })
 
 export const EncryptedEncounterSchema = z.object({
@@ -275,10 +272,9 @@ export const EncryptedEncounterSchema = z.object({
   encrypted_dek: z.string(),
   encrypted_type: EncryptedFieldSchema,
   encrypted_status: EncryptedFieldSchema,
-  encrypted_business_status: EncryptedFieldSchema.nullable().optional(),
   encrypted_period: EncryptedFieldSchema.nullable().optional(),
-  encrypted_diagnosis: EncryptedFieldSchema,
-  encrypted_reason: EncryptedFieldSchema,
+  encrypted_diagnosis: EncryptedFieldSchema.optional(), // -- Add these later...
+  encrypted_reason: EncryptedFieldSchema.optional(),
   encrypted_location: EncryptedFieldSchema.nullable().optional(),
   encrypted_participant_id: EncryptedFieldSchema.nullable().optional(),
   encrypted_participant_name: EncryptedFieldSchema.nullable().optional(),
