@@ -307,17 +307,37 @@ async function main() {
       items.forEach((item, index) => {
         const encryptedData: any = { encrypted_dek }
         for (const field in item.data) {
-          // Special handling for care_plans goal_ids which are plaintext
+          if (
+            field === 'subject' &&
+            typeof item.data[field] === 'object' &&
+            item.data[field] !== null
+          ) {
+            encryptedData[field] = {
+              id: item.data[field].id,
+              encrypted_name: encryptField(item.data[field].name, dek),
+            }
+            continue
+          }
+          if (
+            field === 'performer' &&
+            typeof item.data[field] === 'object' &&
+            item.data[field] !== null
+          ) {
+            encryptedData[field] = {
+              id: item.data[field].id,
+              encrypted_name: encryptField(item.data[field].name, dek),
+              encrypted_period: encryptField(item.data[field].period, dek),
+            }
+            continue
+          }
           if (scName === 'care_plans' && field === 'goal_ids') {
             encryptedData[field] = item.data[field]
             continue
           }
-          // Special handling for charge_ids in claims which are plaintext
           if (scName === 'claims' && field === 'charge_ids') {
             encryptedData[field] = item.data[field]
             continue
           }
-          // All other _id fields are handled by the initial check
           if (field.endsWith('_id')) {
             encryptedData[field] = item.data[field]
             continue
@@ -329,7 +349,6 @@ async function main() {
           )
         }
 
-        // Validate against schema
         const schema = SCHEMA_MAP[scName]
         if (schema) {
           const validationResult = schema.safeParse(encryptedData)
