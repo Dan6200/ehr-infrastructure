@@ -131,3 +131,47 @@ export const EncryptedResidentSchema = z.object({
   encrypted_work_phone: EncryptedFieldSchema.nullable().optional(),
   encrypted_home_phone: EncryptedFieldSchema.nullable().optional(),
 })
+
+export const EncryptedAccountSchema = z.object({
+  encrypted_dek: z.string(),
+  subject_id: z.string(),
+  encrypted_billing_status: EncryptedFieldSchema,
+  encrypted_balance: EncryptedFieldSchema,
+  encrypted_created_at: EncryptedFieldSchema,
+})
+
+export const EncryptedChargeSchema = z.object({
+  encrypted_dek: z.string(),
+  account_id: z.string(),
+  encrypted_service: EncryptedFieldSchema,
+  encrypted_quantity: EncryptedFieldSchema,
+  encrypted_unit_price: EncryptedFieldSchema,
+  encrypted_occurrence_datetime: EncryptedFieldSchema,
+})
+
+export const EncryptedClaimSchema = z.object({
+  encrypted_dek: z.string(),
+  account_id: z.string(),
+  coverage_id: z.string(),
+  charge_ids: z.array(z.string()),
+  encrypted_created: EncryptedFieldSchema,
+  encrypted_status: EncryptedFieldSchema,
+  encrypted_total: EncryptedFieldSchema,
+})
+
+export const EncryptedPaymentSchema = z.object({
+  encrypted_dek: z.string(),
+  account_id: z.string(),
+  claim_id: z.string().optional(),
+  encrypted_amount: EncryptedFieldSchema,
+  encrypted_occurrence_datetime: EncryptedFieldSchema,
+})
+
+export const EncryptedAdjustmentSchema = z.object({
+  encrypted_dek: z.string(),
+  account_id: z.string(),
+  claim_id: z.string(),
+  encrypted_reason: EncryptedFieldSchema,
+  encrypted_approved_amount: EncryptedFieldSchema,
+  encrypted_created_at: EncryptedFieldSchema,
+})
