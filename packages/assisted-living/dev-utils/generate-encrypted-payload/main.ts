@@ -6,7 +6,6 @@ import {
   KEK_CONTACT_PATH,
   KEK_CLINICAL_PATH,
   KEK_FINANCIAL_PATH,
-  // @ts-ignore ... using node to run directly so ts ext is fine
 } from './lib/encryption.ts'
 import * as fs from 'fs'
 // @ts-ignore ... can't find type def, not making a .d.ts either
@@ -33,7 +32,7 @@ import {
   EncryptedTaskSchema,
   EncryptedProcedureSchema,
   EncryptedEncounterSchema,
-} from '../../types/encrypted-schemas'
+} from '../../types/encrypted-schemas.ts'
 
 // --- Configuration ---
 const PLAINTEXT_INPUT_DIR = '/app/demo-data' // /app directory for the container
