@@ -14,8 +14,20 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
+import { z } from 'zod'
 import { EncryptedResidentSchema, Resident, ResidentSchema } from '@/types'
-import z from 'zod'
+export * from './allergies'
+export * from './diagnostics'
+export * from './emar'
+export * from './emergencyContacts'
+export * from './observations'
+export * from './prescriptions'
+export * from './accounts'
+export * from './charges'
+export * from './claims'
+export * from './coverages'
+export * from './payments'
+export * from './adjustments'
 
 export async function encryptResident(
   resident: Resident,
