@@ -18,8 +18,11 @@ export const TaskSchema = z.object({
 
   execution_period: PeriodSchema,
 
-  performer_id: z.string(),
-  performer_name: z.string().optional(),
+  performer: z.object({
+    id: z.string(),
+    name: z.string().optional(),
+    period: PeriodSchema,
+  }),
 
   notes: z.string().optional(),
   outcome: z.string().optional(), // "successful", "partial", etc.

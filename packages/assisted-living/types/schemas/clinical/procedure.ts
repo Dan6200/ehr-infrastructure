@@ -22,7 +22,7 @@ export const ProcedureSchema = z.object({
   body_site: SnomedConceptSchema,
 
   performer: z.object({
-    id: z.string().optional(),
+    id: z.string(),
     name: z.string().optional(),
     period: PeriodSchema,
   }),

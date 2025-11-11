@@ -22,6 +22,7 @@ def generate_tasks_for_resident(
         activity_code = random.choice(list(sample_activities.keys()))
         description = sample_activities.get(activity_code, sample_activities["default"])
         created_time = get_random_datetime(start_date, end_date)
+        performer_id = random.choice(staff_ids)
 
         task = {
             "id": generate_uuid(),
@@ -43,7 +44,18 @@ def generate_tasks_for_resident(
                     "start": created_time,  # Can be updated later
                     "end": None,
                 },
-                "performer_id": random.choice(staff_ids),
+                "performer": {
+                    "id": performer_id,
+                    "name": f"Staff Member {staff_ids.index(performer_id) + 1}",
+                    "period": {
+                        "start": created_time,
+                        "end": (
+                            datetime.fromisoformat(created_time.replace("Z", "+00:00"))
+                            + timedelta(minutes=random.randint(10, 60))
+                        ).isoformat()
+                        + "Z",
+                    },
+                },
                 "notes": description,
                 "authored_on": created_time,
                 "last_modified": created_time,

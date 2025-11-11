@@ -251,8 +251,11 @@ export const EncryptedTaskSchema = z.object({
   encrypted_priority: EncryptedFieldSchema,
   encrypted_requested_period: EncryptedFieldSchema,
   encrypted_execution_period: EncryptedFieldSchema,
-  encrypted_performer_id: EncryptedFieldSchema,
-  encrypted_performer_name: EncryptedFieldSchema.nullable().optional(),
+  performer: z.object({
+    id: z.string().optional(), // Plaintext for querying
+    encrypted_name: EncryptedFieldSchema.optional(),
+    encrypted_period: EncryptedFieldSchema,
+  }),
   encrypted_notes: EncryptedFieldSchema.nullable().optional(),
   encrypted_outcome: EncryptedFieldSchema.nullable().optional(),
   encrypted_authored_on: EncryptedFieldSchema,
