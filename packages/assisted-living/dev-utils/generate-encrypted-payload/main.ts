@@ -313,6 +313,20 @@ async function main() {
         const encryptedData: any = { encrypted_dek }
         for (const field in item.data) {
           if (
+            field === 'payor' &&
+            typeof item.data[field] === 'object' &&
+            item.data[field] !== null
+          ) {
+            encryptedData[field] = {
+              id: item.data[field].id,
+              encrypted_organization: encryptField(
+                item.data[field].organization,
+                dek,
+              ),
+            }
+            continue
+          }
+          if (
             field === 'subject' &&
             typeof item.data[field] === 'object' &&
             item.data[field] !== null
