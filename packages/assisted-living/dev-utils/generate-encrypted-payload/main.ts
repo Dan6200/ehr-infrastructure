@@ -1,3 +1,4 @@
+// Meant to be run in a docker container...
 import {
   generateDataKey,
   encryptData,
@@ -6,6 +7,7 @@ import {
   KEK_CONTACT_PATH,
   KEK_CLINICAL_PATH,
   KEK_FINANCIAL_PATH,
+  // @ts-ignore ... Dockerfile copies path into job container
 } from './lib/encryption.ts'
 import * as fs from 'fs'
 // @ts-ignore ... can't find type def, not making a .d.ts either
@@ -24,6 +26,7 @@ import {
   EncryptedEpisodesOfCareSchema,
   EncryptedAccountSchema,
   EncryptedChargeSchema,
+  EncryptedCoverageSchema,
   EncryptedClaimSchema,
   EncryptedPaymentSchema,
   EncryptedAdjustmentSchema,
@@ -32,6 +35,7 @@ import {
   EncryptedTaskSchema,
   EncryptedProcedureSchema,
   EncryptedEncounterSchema,
+  // @ts-ignore ... Dockerfile copies path into job container
 } from './types/encrypted-schemas.ts'
 
 // --- Configuration ---
@@ -75,6 +79,7 @@ const SCHEMA_MAP: { [key: string]: any } = {
   accounts: EncryptedAccountSchema,
   charges: EncryptedChargeSchema,
   claims: EncryptedClaimSchema,
+  coverages: EncryptedCoverageSchema,
   payments: EncryptedPaymentSchema,
   adjustments: EncryptedAdjustmentSchema,
   identifiers: EncryptedIdentifierSchema,

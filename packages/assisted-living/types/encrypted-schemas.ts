@@ -153,6 +153,26 @@ export const EncryptedAccountSchema = z.object({
   encrypted_updated_at: EncryptedFieldSchema.optional(),
 })
 
+export const EncryptedCoverageSchema = z.object({
+  beneficiary_id: z.string(), // resident_id, plaintext for querying
+  encrypted_dek: z.string(),
+  encrypted_status: EncryptedFieldSchema,
+  encrypted_type: EncryptedFieldSchema.optional(),
+  payor: z.object({
+    id: z.string(), // Plaintext for querying
+    encrypted_organization: EncryptedFieldSchema.nullable().optional(),
+  }),
+  encrypted_period: EncryptedFieldSchema,
+  encrypted_policy_number: EncryptedFieldSchema.nullable().optional(),
+  encrypted_plan_name: EncryptedFieldSchema.nullable().optional(),
+  encrypted_relationship: EncryptedFieldSchema.optional(),
+  encrypted_class: EncryptedFieldSchema.optional(),
+  encrypted_network: EncryptedFieldSchema.optional(),
+  encrypted_cost_to_beneficiary: EncryptedFieldSchema.nullable().optional(),
+  encrypted_authored_on: EncryptedFieldSchema,
+  encrypted_updated_at: EncryptedFieldSchema.nullable().optional(),
+})
+
 export const EncryptedChargeSchema = z.object({
   resident_id: z.string(),
   encrypted_dek: z.string(),

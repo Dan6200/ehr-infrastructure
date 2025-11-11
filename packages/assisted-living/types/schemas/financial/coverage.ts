@@ -39,5 +39,5 @@ export const CoverageSchema = z.object({
 
   // Metadata
   authored_on: z.string(),
-  updated_at: z.string().optional(),
+  last_modified: z.string().optional(),
 })
