@@ -22,7 +22,7 @@ def generate_financial_data_for_resident(
             "data": {
                 "subject": {"id": resident_id, "name": resident_name},
                 "balance": {"value": 0, "currency": "NGN"},  # Updated
-                "created_at": get_random_datetime(start_date, end_date),
+                "authored_on": get_random_datetime(start_date, end_date),
                 "billing_status": {
                     "coding": [
                         {
@@ -51,7 +51,7 @@ def generate_financial_data_for_resident(
                     "start": start_date.isoformat(),
                     "end": end_date.isoformat(),
                 },
-                "created_at": get_random_datetime(start_date, end_date),
+                "authored_on": get_random_datetime(start_date, end_date),
             },
         }
     )
@@ -99,7 +99,7 @@ def generate_financial_data_for_resident(
                 "id": claim_id,
                 "data": {
                     "resident_id": resident_id,
-                    "created": get_random_datetime(start_date, end_date),
+                    "authored_on": get_random_datetime(start_date, end_date),
                     "status": "adjudicated",  # Changed to adjudicated to justify payment
                     "coverage_id": coverage_id,
                     "charge_ids": [c["id"] for c in claim_charges],
@@ -137,7 +137,7 @@ def generate_financial_data_for_resident(
                     "claim_id": claim_id,
                     "reason": "Contractual Adjustment",
                     "approved_amount": {"value": adjustment_amount, "currency": "NGN"},
-                    "created_at": get_random_datetime(start_date, end_date),
+                    "authored_on": get_random_datetime(start_date, end_date),
                 },
             }
         )

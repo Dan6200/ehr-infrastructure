@@ -9,6 +9,6 @@ export const AdjustmentSchema = z.object({
     currency: z.string().default('NGN'),
   }),
   coverage_id: z.string().nullable().optional(),
-  created_at: z.string(),
+  authored_on: z.string(),
   updated_at: z.string().optional(),
 })

@@ -38,6 +38,6 @@ export const CoverageSchema = z.object({
   cost_to_beneficiary: z.number().nullable().optional(),
 
   // Metadata
-  created_at: z.string(),
+  authored_on: z.string(),
   updated_at: z.string().optional(),
 })

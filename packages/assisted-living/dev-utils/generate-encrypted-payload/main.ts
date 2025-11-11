@@ -330,6 +330,7 @@ async function main() {
             }
             continue
           }
+          // All other _id fields and timestamps are kept plaintext
           if (field.endsWith('_id') || field.endsWith('_ids')) {
             encryptedData[field] = item.data[field]
             continue

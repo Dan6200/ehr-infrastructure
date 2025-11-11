@@ -104,8 +104,6 @@ export const EncryptedEpisodesOfCareSchema = z.object({
   care_manager_id: z.string().optional(),
   team_ids: z.array(z.string()).optional(),
   account_id: z.string().optional(),
-  encrypted_created_at: z.string().optional(),
-  encrypted_updated_at: z.string().optional(),
 })
 
 export const EncryptedEmergencyContactSchema = z.object({
@@ -149,7 +147,7 @@ export const EncryptedAccountSchema = z.object({
   }),
   encrypted_billing_status: EncryptedFieldSchema,
   encrypted_balance: EncryptedFieldSchema,
-  encrypted_created_at: EncryptedFieldSchema,
+  encrypted_authored_on: EncryptedFieldSchema,
   encrypted_guarantor: EncryptedFieldSchema.optional(),
   encrypted_service_period: EncryptedFieldSchema.optional(),
   encrypted_updated_at: EncryptedFieldSchema.optional(),
@@ -171,7 +169,7 @@ export const EncryptedClaimSchema = z.object({
   coverage_id: z.string().nullable().optional(),
   charge_ids: z.array(z.string()).default([]),
   encrypted_dek: z.string(),
-  encrypted_created: EncryptedFieldSchema,
+  encrypted_authored_on: EncryptedFieldSchema,
   encrypted_status: EncryptedFieldSchema,
   encrypted_total: EncryptedFieldSchema,
   encrypted_description: EncryptedFieldSchema.nullable().optional(),
@@ -195,7 +193,7 @@ export const EncryptedAdjustmentSchema = z.object({
   encrypted_dek: z.string(),
   encrypted_reason: EncryptedFieldSchema,
   encrypted_approved_amount: EncryptedFieldSchema,
-  encrypted_created_at: EncryptedFieldSchema,
+  encrypted_authored_on: EncryptedFieldSchema,
   encrypted_updated_at: EncryptedFieldSchema.nullable().optional(),
 })
 
@@ -240,9 +238,6 @@ export const EncryptedTaskSchema = z.object({
   encrypted_authored_on: EncryptedFieldSchema,
   encrypted_last_modified: EncryptedFieldSchema,
   encrypted_do_not_perform: EncryptedFieldSchema,
-  encrypted_created_at: EncryptedFieldSchema,
-  encrypted_updated_at: EncryptedFieldSchema,
-  encrypted_viewed_at: EncryptedFieldSchema,
 })
 
 export const EncryptedProcedureSchema = z.object({

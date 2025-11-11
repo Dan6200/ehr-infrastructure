@@ -33,6 +33,6 @@ export const AccountSchema = z.object({
   }),
 
   // Metadata
-  created_at: z.string(),
+  authored_on: z.string(),
   updated_at: z.string().optional(),
 })
