@@ -18,7 +18,7 @@ fi
 # In the 'prod' (Cloud Run) environment, authentication is handled automatically
 # by the service account attached to the job (Application Default Credentials).
 # In the 'dev' environment, we use the local service account key.
-ARGS="--rate-limit 500 --database-id staging"
+ARGS="--rate-limit 500 --database-id staging-beta"
 if [ "$ENVIRONMENT" == "prod" ]; then
   echo "Running in production mode. Using Application Default Credentials."
 else
