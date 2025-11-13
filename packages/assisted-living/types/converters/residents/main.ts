@@ -101,7 +101,7 @@ export async function encryptResident(
 export async function decryptResidentData(
   data: z.infer<typeof EncryptedResidentSchema>,
   roles: string[],
-): Promise<Resident> {
+): Promise<Omit<Resident, 'created_at' | 'viewed_at' | 'updated_at'>> {
   const decryptedData: Partial<Resident> = {}
   decryptedData.facility_id = data.facility_id
 
@@ -206,7 +206,11 @@ export async function decryptResidentData(
       decryptedData.pcp = decryptData(data.encrypted_pcp, clinicalDek)
   }
 
-  return ResidentSchema.parse(decryptedData)
+  return ResidentSchema.omit({
+    created_at: !!1,
+    viewed_at: !!1,
+    updated_at: !!1,
+  }).parse(decryptedData)
 }
 
 export const getResidentConverter = async (): Promise<
