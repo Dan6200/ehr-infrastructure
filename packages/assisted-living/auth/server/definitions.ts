@@ -28,6 +28,11 @@ export async function verifySession() {
       sessionCookie,
       true,
     )
+
+    if (!decodedClaims.provider_id) {
+      throw new Error('Provider ID not found in session claims.')
+    }
+
     return decodedClaims
   } catch (error) {
     if (!(error instanceof Error && error.message.includes('Stale'))) {
@@ -70,6 +75,28 @@ export async function setCustomUserRole(uid: string, role: string) {
   } catch (error: any) {
     console.error('Error setting custom user claims:', error)
     throw new Error(`Error setting custom role: ${error.message}`)
+  }
+}
+
+/**
+ * Sets a custom provider ID for a user.
+ * @param uid The user's ID.
+ * @param providerId The provider ID to set.
+ */
+export async function setCustomUserProviderId(uid: string, providerId: string) {
+  try {
+    const adminAuth = await getAdminAuth()
+    // Important: Merge with existing claims to avoid overwriting roles, etc.
+    const { customClaims } = await adminAuth.getUser(uid)
+    await adminAuth.setCustomUserClaims(uid, {
+      ...customClaims,
+      provider_id: providerId,
+    })
+    console.log(`Custom provider ID '${providerId}' set for user ${uid}.`)
+    return { success: true }
+  } catch (error: any) {
+    console.error('Error setting custom provider ID:', error)
+    throw new Error(`Error setting custom provider ID: ${error.message}`)
   }
 }
 

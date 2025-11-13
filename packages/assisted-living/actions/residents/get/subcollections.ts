@@ -12,18 +12,20 @@ import { redirect } from 'next/navigation'
 import z from 'zod'
 
 async function getSubcollection<T, U>(
+  providerId: string,
   residentId: string,
   collectionName: string,
   converter: () => Promise<FirestoreDataConverter<T>>,
   decryptor: (data: T) => Promise<U>,
 ): Promise<U[]> {
-  await verifySession() // Authenticate the request first
+  const { uid } = await verifySession() // Authenticate and get user claims
 
-  const subcollectionRef = (
-    await collectionWrapper(
-      `providers/GYRHOME/residents/${residentId}/${collectionName}`,
-    )
-  ).withConverter(await converter())
+  const path = `providers/${providerId}/residents/${residentId}/${collectionName}`
+  console.log(`[getSubcollection] Fetching from path: ${path}`)
+
+  const subcollectionRef = (await collectionWrapper(path)).withConverter(
+    await converter(),
+  )
 
   const snapshot = await getDocsWrapper(subcollectionRef)
   const encryptedDocs = snapshot.docs.map((doc) => ({
@@ -39,6 +41,7 @@ async function getSubcollection<T, U>(
 }
 
 export async function getNestedResidentData<K extends SubCollectionKey>(
+  providerId: string,
   residentId: string,
   subCollectionName: K,
 ) {
@@ -46,5 +49,5 @@ export async function getNestedResidentData<K extends SubCollectionKey>(
   return getSubcollection<
     z.infer<SubCollectionMapType[K]['encrypted_schema']>,
     z.infer<SubCollectionMapType[K]['schema']>
-  >(residentId, subCollectionName, converter, decryptor)
+  >(providerId, residentId, subCollectionName, converter, decryptor)
 }
