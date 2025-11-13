@@ -17,7 +17,7 @@ import {
   subCollectionMap,
 } from '@/types'
 import { decryptResidentData, getResidentConverter } from '@/types/converters'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { z } from 'zod'
 import { Query } from 'firebase-admin/firestore'
 import { getNestedResidentData } from './subcollections'
@@ -45,7 +45,12 @@ export async function getResidentData(
 
     if (!residentSnap.exists) throw notFound()
 
-    const resident = await decryptResidentData(residentSnap.data()!, userRoles)
+    const resident = {
+      created_at: residentSnap.createTime!.toDate().toISOString(),
+      ...(await decryptResidentData(residentSnap.data()!, userRoles)), // can override created_at...
+      updated_at: residentSnap.updateTime!.toDate().toISOString(),
+      viewed_at: residentSnap.readTime!.toDate().toISOString(),
+    }
 
     const allFacilities = await getAllFacilities()
     const facility = allFacilities.find((f) => f.id === resident.facility_id)
@@ -159,12 +164,19 @@ export async function getAllResidents({
     let residentsForPage = await Promise.all(
       residentsSnapshot.docs.map(async (doc) => ({
         id: doc.id,
-        ...(await decryptResidentData(doc.data() as any, userRoles)),
-        created_at: doc.createTime,
-        updated_at: doc.updateTime,
-        viewed_at: doc.readTime,
+        created_at: doc.createTime.toDate().toISOString(), // Can be overriding by database values
+        ...(await decryptResidentData(
+          {
+            ...doc.data(),
+          } as any,
+          userRoles,
+        )),
+        updated_at: doc.updateTime.toDate().toISOString(),
+        viewed_at: doc.readTime.toDate().toISOString(),
       })),
     )
+
+    ResidentSchema.parse(residentsForPage[0])
 
     let hasNextPage = false
     let hasPrevPage = false
@@ -218,7 +230,14 @@ export async function getAllResidents({
       hasPrevPage,
     }
   } catch (error: any) {
-    console.error(error)
+    if (error.toString().match(/(cookies|session|authenticate)/i)) {
+      const url = process.env.HOST + ':' + process.env.PORT + '/api/auth/logout'
+      await fetch(url, {
+        method: 'post',
+      }).finally(async () => {
+        redirect('/sign-in') // Navigate to the login page
+      })
+    }
     throw new Error(`Failed to fetch all residents data: ${error.message}`)
   }
 }

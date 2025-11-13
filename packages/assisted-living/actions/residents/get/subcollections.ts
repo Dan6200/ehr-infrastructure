@@ -8,6 +8,7 @@ import {
   SubCollectionMapType,
 } from '@/types'
 import { FirestoreDataConverter } from 'firebase-admin/firestore'
+import { redirect } from 'next/navigation'
 import z from 'zod'
 
 async function getSubcollection<T, U>(
