@@ -29,10 +29,6 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { FormattedChartData } from '@/app/admin/dashboard/page'
 
 const chartConfig = {
-  total: {
-    label: 'Total',
-    color: 'hsl(var(--chart-1))',
-  },
   charges: {
     label: 'Charges',
     color: 'hsl(var(--chart-2))',
@@ -44,6 +40,10 @@ const chartConfig = {
   adjustments: {
     label: 'Adjustments',
     color: 'hsl(var(--chart-4))',
+  },
+  claims: {
+    label: 'Claims',
+    color: 'hsl(var(--chart-5))',
   },
 } satisfies ChartConfig
 
@@ -192,6 +192,18 @@ export function ChartAreaInteractive({
                     stopOpacity={0.1}
                   />
                 </linearGradient>
+                <linearGradient id="fillClaims" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-claims)"
+                    stopOpacity={0.7}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-claims)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
               </defs>
               <CartesianGrid vertical={false} />
               <XAxis
@@ -223,13 +235,6 @@ export function ChartAreaInteractive({
                 }
               />
               <Area
-                dataKey="total"
-                type="natural"
-                fill="url(#fillTotal)"
-                stroke="var(--color-total)"
-                stackId="a"
-              />
-              <Area
                 dataKey="payments"
                 type="natural"
                 fill="url(#fillPayments)"
@@ -248,6 +253,13 @@ export function ChartAreaInteractive({
                 type="natural"
                 fill="url(#fillAdjustments)"
                 stroke="var(--color-adjustments)"
+                stackId="a"
+              />
+              <Area
+                dataKey="claims"
+                type="natural"
+                fill="url(#fillClaims)"
+                stroke="var(--color-claims)"
                 stackId="a"
               />
             </AreaChart>
