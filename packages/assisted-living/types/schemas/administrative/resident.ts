@@ -16,4 +16,8 @@ export const ResidentSchema = z.object({
   cell_phone: z.string().nullable().optional(),
   work_phone: z.string().nullable().optional(),
   home_phone: z.string().nullable().optional(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  viewed_at: z.string(),
+  deactivated_at: z.string().nullable().optional(),
 })
