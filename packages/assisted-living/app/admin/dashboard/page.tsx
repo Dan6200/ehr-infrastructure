@@ -2,7 +2,10 @@
 import { redirect } from 'next/navigation'
 import { DashboardClient } from '@/components/dashboard/dashboard-client'
 import bigqueryClient from '@/lib/bigquery'
-import { getFinancialSummaryQuery } from '@/lib/bigquery/queries'
+import {
+  getFinancialSummaryQuery,
+  getResidentGrowthQuery,
+} from '@/lib/bigquery/queries'
 import { Resident } from '@/types'
 
 // The data types remain the same for the frontend components
@@ -17,41 +20,36 @@ export type FormattedChartData = {
 
 async function getChartData(): Promise<{
   chartData: FormattedChartData
-  residents: Resident[]
+  residents: Pick<Resident, 'created_at'>[]
 } | null> {
   try {
-    const options = {
+    const financialQueryOptions = {
       query: getFinancialSummaryQuery,
-      // Location must match that of the dataset(s) referenced in the query.
       location: 'US', // Or your BigQuery dataset location
     }
+    const growthQueryOptions = {
+      query: getResidentGrowthQuery,
+      location: 'US',
+    }
 
-    // Run the query
-    const [rows] = await bigqueryClient.query(options)
+    // Run the queries in parallel
+    const [[financialRows], [growthRows]] = await Promise.all([
+      bigqueryClient.query(financialQueryOptions),
+      bigqueryClient.query(growthQueryOptions),
+    ])
 
-    // TODO: We will need to process the rows from the real query here.
-    // For now, we will return mock data in the correct shape.
-    const mockChartData: FormattedChartData = [
-      {
-        date: new Date().toISOString().split('T')[0],
-        currency: 'NGN',
-        charges: 1000,
-        claims: 800,
-        payments: 700,
-        adjustments: 100,
-      },
-    ]
+    // The financialRows are already in the correct format due to the SQL query
+    const chartData: FormattedChartData = financialRows
 
-    // TODO: We will also need to fetch resident growth data from BigQuery.
-    const mockResidents: Resident[] = []
+    // The growthRows just contain the creation dates
+    const residents = growthRows as Pick<Resident, 'created_at'>[]
 
     return {
-      chartData: mockChartData,
-      residents: mockResidents,
+      chartData,
+      residents,
     }
   } catch (error) {
     console.error('BigQuery query failed:', error)
-    // Handle authentication errors if necessary
     if (error instanceof Error && error.message.match(/(denied|invalid)/i)) {
       redirect('/sign-in')
     }
