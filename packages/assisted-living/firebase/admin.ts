@@ -5,9 +5,14 @@ import {
   CollectionReference,
   DocumentData,
   DocumentReference,
+  Firestore,
   Query,
 } from 'firebase-admin/firestore'
+import { Auth } from 'firebase-admin/auth'
 import { adminConfig } from './config'
+
+let db: Firestore | null = null
+let auth: Auth | null = null
 
 // A private function to ensure the admin app is initialized on-demand.
 async function initializeAdminApp() {
@@ -19,22 +24,27 @@ async function initializeAdminApp() {
   }
 }
 
-// Async getter for the Firestore admin instance
-// ;(async function () {
-//   await initializeAdminApp()
-//   admin.firestore().settings({ databaseId: 'testing' })
-// })()
-
-// Async getter for the Firestore admin instance
-export async function getAdminDb() {
+// Getter for the Firestore admin instance that ensures it's configured only once.
+export async function getAdminDb(): Promise<Firestore> {
+  if (db) {
+    return db
+  }
   await initializeAdminApp()
-  return admin.firestore()
+  // Apply settings *before* the first use
+  const firestore = admin.firestore()
+  if (!firestore._settingsFrozen) firestore.settings({ databaseId: 'staging' })
+  db = firestore
+  return db
 }
 
-// Async getter for the Auth admin instance
-export async function getAdminAuth() {
+// Getter for the Auth admin instance
+export async function getAdminAuth(): Promise<Auth> {
+  if (auth) {
+    return auth
+  }
   await initializeAdminApp()
-  return admin.auth()
+  auth = admin.auth()
+  return auth
 }
 
 // --- Refactored Wrappers to use Admin SDK ---
