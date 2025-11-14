@@ -62,7 +62,7 @@ firestore-cli set "providers/$PROVIDER_ID" -b -f $ENCRYPTED_PAYLOAD_FILE --jsonl
 
 echo "\n--- Upload Complete! ---"
 
-# --- Step 4: Deploy Firestore Rules and Indexes ---
-echo "--- Step 4: Setting Up Rules and Indexes ---"
+# --- Step 4: Deploy Firestore Rules, Indexes, and Functions ---
+echo "--- Step 4: Setting Up Rules, Indexes, and Functions ---"
 
-firebase deploy --only firestore
+firebase deploy --only firestore,functions
