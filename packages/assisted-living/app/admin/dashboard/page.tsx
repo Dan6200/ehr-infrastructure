@@ -25,11 +25,11 @@ async function getChartData(): Promise<{
   try {
     const financialQueryOptions = {
       query: getFinancialSummaryQuery,
-      location: 'US', // Or your BigQuery dataset location
+      location: 'EU', // Or your BigQuery dataset location
     }
     const growthQueryOptions = {
       query: getResidentGrowthQuery,
-      location: 'US',
+      location: 'EU',
     }
 
     // Run the queries in parallel
