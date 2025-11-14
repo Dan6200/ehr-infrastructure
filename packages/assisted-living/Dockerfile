@@ -7,7 +7,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g minipass-json-stream firebase-tools firestore-cli && pip3 install pytz --break-system-packages
+RUN npm install -g minipass-json-stream firebase-tools firestore-cli && pip3 install pytz python-dateutil --break-system-packages
 
 COPY dev-utils ./dev-utils/
 COPY demo-data ./demo-data/
