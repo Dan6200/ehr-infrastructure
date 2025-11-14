@@ -1,9 +1,9 @@
 import json
 import os
-from dateutil import parser # Added for parsing ISO strings
 from datetime import datetime
 from random import choice,random
-
+import pytz # Added for timezone handling
+from dateutil import parser
 from generators.utils import (
     convert_times,
     load_snomed_file,
@@ -68,9 +68,9 @@ SNOMED_ALLERGY_SUBSTANCES_FILE = "demo-data/snomed-examples/allergies/substance.
 
 # --- Main Script ---
 if __name__ == "__main__":
-    START_DATE = datetime(2023, 1, 1)
-    INTERMEDIARY_DATE = datetime(2024, 1, 1)
-    END_DATE = datetime.now()
+    START_DATE = pytz.utc.localize(datetime(2023, 1, 1))
+    INTERMEDIARY_DATE = pytz.utc.localize(datetime(2024, 1, 1))
+    END_DATE = datetime.now(pytz.utc)
     NUM_STAFF = 6
     STAFF_IDS = [generate_uuid() for _ in range(NUM_STAFF)]
 
