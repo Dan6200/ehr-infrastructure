@@ -118,13 +118,19 @@ if __name__ == "__main__":
         # Decide whether to deactivate the resident (e.g., 20% chance)
         if random() < 0.2:
             # Ensure deactivation date is after creation date
-            # Parse the ISO string back to a datetime object for arithmetic
             deactivation_start_date = resident["data"]["created_at"]
             resident["data"]["deactivated_at"] = get_random_datetime(
                 deactivation_start_date, END_DATE
             )
         else:
             resident["data"]["deactivated_at"] = None
+
+        # Determine the effective end date for generating subcollection data
+        effective_end_date = (
+            resident["data"]["deactivated_at"]
+            if resident["data"]["deactivated_at"]
+            else END_DATE
+        )
 
         # Generate data for each subcollection
         goal_data = generate_goals(resident_id)
@@ -133,7 +139,7 @@ if __name__ == "__main__":
                 resident_id,
                 STAFF_IDS,
                 START_DATE,
-                END_DATE,
+                effective_end_date,
                 snomed_allergy_names,
                 snomed_allergy_reactions,
                 snomed_allergy_substances,
@@ -144,7 +150,7 @@ if __name__ == "__main__":
             STAFF_IDS,
             START_DATE,
             INTERMEDIARY_DATE,
-            END_DATE,
+            effective_end_date,
             PRESCRIPTION_TEMPLATES,
             DOSAGE_INSTRUCTIONS,
         )
@@ -152,17 +158,17 @@ if __name__ == "__main__":
         if resident_prescriptions:
             all_prescription_administration.extend(
                 generate_prescription_administration_for_resident(
-                    resident_id, resident_prescriptions, STAFF_IDS, END_DATE
+                    resident_id, resident_prescriptions, STAFF_IDS, effective_end_date
                 )
             )
         all_observations.extend(
             generate_observations_for_resident(
-                resident_id, STAFF_IDS, START_DATE, END_DATE, loinc_codes
+                resident_id, STAFF_IDS, START_DATE, effective_end_date, loinc_codes
             )
         )
         all_diagnostic_history.extend(
             generate_diagnostic_history_for_resident(
-                resident_id, STAFF_IDS, START_DATE, END_DATE, snomed_disorders
+                resident_id, STAFF_IDS, START_DATE, effective_end_date, snomed_disorders
             )
         )
         episodes_of_care_data = generate_episodes_of_care_for_resident(resident_id)
@@ -170,7 +176,7 @@ if __name__ == "__main__":
         all_goals.extend(goal_data["goals"])
         all_goal_ids.extend(goal_data["goal_ids"])
         care_plan_data = generate_care_plans_for_resident(
-            resident_id, STAFF_IDS, START_DATE, END_DATE, all_goal_ids
+            resident_id, STAFF_IDS, effective_end_date, all_goal_ids
         )
         all_care_plans.extend(care_plan_data["care_plans"])
         all_care_plan_activities.extend(care_plan_data["care_plan_activities"])
@@ -181,7 +187,7 @@ if __name__ == "__main__":
             )
         )
         financial_data = generate_financial_data_for_resident(
-            resident_id, resident["data"]["resident_name"], START_DATE, END_DATE
+            resident_id, resident["data"]["resident_name"], START_DATE, effective_end_date
         )
         all_accounts.extend(financial_data["accounts"])
         all_charges.extend(financial_data["charges"])
@@ -191,7 +197,7 @@ if __name__ == "__main__":
         all_adjustments.extend(financial_data["adjustments"])
 
         all_tasks.extend(
-            generate_tasks_for_resident(resident_id, STAFF_IDS, START_DATE, END_DATE)
+            generate_tasks_for_resident(resident_id, STAFF_IDS, START_DATE, effective_end_date)
         )
         all_procedures.extend(
             generate_procedures_for_resident(
@@ -199,7 +205,7 @@ if __name__ == "__main__":
                 resident["data"]["resident_name"],
                 STAFF_IDS,
                 START_DATE,
-                END_DATE,
+                effective_end_date,
             )
         )
         all_encounters.extend(
@@ -208,7 +214,7 @@ if __name__ == "__main__":
                 resident["data"]["resident_name"],
                 STAFF_IDS,
                 START_DATE,
-                END_DATE,
+                effective_end_date,
                 choice(episodes_of_care_data)["id"],
             )
         )
