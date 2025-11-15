@@ -1,24 +1,36 @@
-import * as functions from 'firebase-functions'
-import bigqueryClient from '../../../lib/bigquery'
+import {
+  FirestoreEvent,
+  Change,
+  QueryDocumentSnapshot,
+} from 'firebase-functions/v2/firestore'
+import bigqueryClient from '../lib/bigquery'
 
 const DATASET_ID = 'firestore_export'
 
 export async function streamToBigQuery(
   collectionName: string,
-  change: functions.Change<functions.firestore.DocumentSnapshot>,
-  context: functions.EventContext,
+  event: FirestoreEvent<Change<QueryDocumentSnapshot> | undefined>,
 ) {
-  const documentId = context.params[Object.keys(context.params)[0]]
+  const documentId = event.params[Object.keys(event.params)[0]]
   const tableId = `${collectionName}_raw`
 
-  if (!change.after.exists) {
+  if (!event.data) {
+    console.log(
+      `No data for event on document ${documentId} in ${collectionName}.`,
+    )
+    return null
+  }
+
+  const { after } = event.data
+
+  if (!after.exists) {
     console.log(
       `Document ${documentId} in ${collectionName} was deleted. No action taken for now.`,
     )
     return null
   }
 
-  const data = change.after.data()
+  const data = after.data()
   if (!data) {
     console.log(
       `No data found for document ${documentId} in ${collectionName}.`,
@@ -30,7 +42,7 @@ export async function streamToBigQuery(
     {
       document_id: documentId,
       data: JSON.stringify(data),
-      timestamp: context.timestamp,
+      timestamp: event.time,
     },
   ]
 

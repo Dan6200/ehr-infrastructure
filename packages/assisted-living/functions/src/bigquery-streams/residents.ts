@@ -1,8 +1,19 @@
-import * as functions from 'firebase-functions'
+import { onDocumentWritten } from 'firebase-functions/v2/firestore'
 import { streamToBigQuery } from './helper'
+import {
+  FirestoreEvent,
+  Change,
+  QueryDocumentSnapshot,
+} from 'firebase-functions/v2/firestore'
 
-export const onResidentWritten = functions
-  .runWith({})
-  .firestore.database('staging-beta')
-  .document('providers/{providerId}/residents/{residentId}')
-  .onWrite((change, context) => streamToBigQuery('residents', change, context))
+export const onResidentWritten = onDocumentWritten(
+  {
+    database: 'staging-beta',
+    document: 'providers/{providerId}/residents/{residentId}',
+  },
+  (event) =>
+    streamToBigQuery(
+      'residents',
+      event as FirestoreEvent<Change<QueryDocumentSnapshot> | undefined>,
+    ),
+)
