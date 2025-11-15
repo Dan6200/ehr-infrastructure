@@ -176,7 +176,7 @@ if __name__ == "__main__":
         all_goals.extend(goal_data["goals"])
         all_goal_ids.extend(goal_data["goal_ids"])
         care_plan_data = generate_care_plans_for_resident(
-            resident_id, STAFF_IDS, effective_end_date, all_goal_ids
+            resident_id, STAFF_IDS, START_DATE, effective_end_date, all_goal_ids
         )
         all_care_plans.extend(care_plan_data["care_plans"])
         all_care_plan_activities.extend(care_plan_data["care_plan_activities"])
