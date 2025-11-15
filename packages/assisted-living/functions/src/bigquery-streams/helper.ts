@@ -4,9 +4,30 @@ import {
   QueryDocumentSnapshot,
 } from 'firebase-functions/v2/firestore'
 import bigqueryClient from '../lib/bigquery'
-import { decryptData } from '../lib/encryption'
+import {
+  decryptData,
+  decryptDataKey,
+  KEK_GENERAL_PATH,
+  KEK_CONTACT_PATH,
+  KEK_CLINICAL_PATH,
+  KEK_FINANCIAL_PATH,
+} from '../lib/encryption'
 
 const DATASET_ID = 'firestore_export'
+
+// Map collection names to their corresponding KEK path
+const COLLECTION_KEK_MAP: { [key: string]: string } = {
+  residents: KEK_GENERAL_PATH,
+  // TODO: Add mappings for all other encrypted collections
+  // Example:
+  // observations: KEK_CLINICAL_PATH,
+  // allergies: KEK_CLINICAL_PATH,
+  charges: KEK_FINANCIAL_PATH,
+  claims: KEK_FINANCIAL_PATH,
+  payments: KEK_FINANCIAL_PATH,
+  adjustments: KEK_FINANCIAL_PATH,
+  // contacts: KEK_CONTACT_PATH,
+}
 
 export async function streamToBigQuery(
   collectionName: string,
@@ -31,20 +52,45 @@ export async function streamToBigQuery(
     return null
   }
 
-  const encryptedData = after.data()
-  if (!encryptedData) {
+  const encryptedFirestoreDocument = after.data()
+  if (!encryptedFirestoreDocument) {
     console.log(
       `No data found for document ${documentId} in ${collectionName}.`,
     )
     return null
   }
 
+  // --- Decryption Step ---
   try {
-    const decryptedData = await decryptData(encryptedData)
+    const { encryptedDek, encryptedData } = encryptedFirestoreDocument
+
+    // Determine which KEK to use based on the collection name
+    const actualKekPath = COLLECTION_KEK_MAP[collectionName]
+
+    if (!actualKekPath || !encryptedDek || !encryptedData) {
+      console.warn(
+        `Document ${documentId} in ${collectionName} is missing encryption fields or a KEK mapping. Skipping decryption.`,
+      )
+      const row = {
+        document_id: documentId,
+        ...encryptedFirestoreDocument,
+      }
+      await bigqueryClient.dataset(DATASET_ID).table(tableId).insert([row])
+      return null
+    }
+
+    // 1. Decrypt the DEK
+    const plaintextDek = await decryptDataKey(encryptedDek, actualKekPath)
+
+    // 2. Decrypt the actual data
+    const decryptedDataString = decryptData(encryptedData, plaintextDek)
+
+    // 3. Parse the decrypted string back into an object
+    const decryptedObject = JSON.parse(decryptedDataString)
 
     const row = {
       document_id: documentId,
-      ...decryptedData,
+      ...decryptedObject,
     }
 
     await bigqueryClient.dataset(DATASET_ID).table(tableId).insert([row])
