@@ -69,7 +69,7 @@ SNOMED_ALLERGY_SUBSTANCES_FILE = "demo-data/snomed-examples/allergies/substance.
 if __name__ == "__main__":
     START_DATE = pytz.utc.localize(datetime(2023, 1, 1))
     INTERMEDIARY_DATE = pytz.utc.localize(datetime(2024, 1, 1))
-    END_DATE = datetime.now(pytz.utc)
+    END_DATE = datetime.now(pytz.utc) + timedelta(days=365 * 2)
     NUM_STAFF = 6
     STAFF_IDS = [generate_uuid() for _ in range(NUM_STAFF)]
 
