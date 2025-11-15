@@ -8,8 +8,8 @@ import {
   decryptData,
   decryptDataKey,
   KEK_GENERAL_PATH,
-  KEK_CONTACT_PATH,
-  KEK_CLINICAL_PATH,
+  // KEK_CONTACT_PATH,
+  // KEK_CLINICAL_PATH,
   KEK_FINANCIAL_PATH,
 } from '../lib/encryption'
 

@@ -14,6 +14,8 @@ import bigqueryClient from './lib/bigquery' // Re-use the client from functions
 import {
   decryptData,
   decryptDataKey,
+  // KEK_CONTACT_PATH,
+  // KEK_CLINICAL_PATH,
   KEK_GENERAL_PATH,
   KEK_FINANCIAL_PATH,
 } from './lib/encryption' // Re-use the encryption logic from functions
@@ -53,7 +55,7 @@ async function backfill() {
   console.log('--- Starting BigQuery Backfill Script ---')
   initializeApp()
   const firestore = getFirestore()
-  if (!firestore._settingsFrozen) firestore.settings({ databaseId: 'staging' })
+  firestore.settings({ databaseId: 'staging' })
   const db = firestore
 
   for (const [collectionName, config] of Object.entries(
