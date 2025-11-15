@@ -1,0 +1,13 @@
+{
+  "name": "create-user",
+  "version": "1.0.0",
+  "description": "Creating users for auth for the Lean EHR.",
+  "type": "module",
+  "main": "main.ts",
+  "scripts": {
+    "start": "NODE_ENV=development node main.ts"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.5.0"
+  }
+}
