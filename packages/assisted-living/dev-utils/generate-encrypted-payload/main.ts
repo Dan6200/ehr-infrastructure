@@ -273,7 +273,6 @@ async function main() {
         item.data.resident_id ??
         item.data.beneficiary_id ??
         item.data.subject?.id
-      console.log(sc.name, residentId)
       if (!groupedSubcollectionData[residentId])
         groupedSubcollectionData[residentId] = {}
       if (!groupedSubcollectionData[residentId][sc.name])
