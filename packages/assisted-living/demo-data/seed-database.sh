@@ -40,38 +40,35 @@ fi
 echo "--- Step 1: Generating all plaintext demo data... ---"
 python3 dev-utils/generate_demo_subcollection_data.py
 
-cat demo-data/prescription_administration/data-plain.json
+# --- Step 2: Generate Encrypted Payload ---
+echo "--- Step 2: Encrypting all data to a single payload... ---"
+cd dev-utils/generate-encrypted-payload/ 
+npm start
+cd /app
 
-# # --- Step 2: Generate Encrypted Payload ---
-# echo "--- Step 2: Encrypting all data to a single payload... ---"
-# cd dev-utils/generate-encrypted-payload/ 
-# npm start
-# cd /app
-#
-#
-# # --- Step 3: Starting Firestore Upload ---
-# echo "--- Step 3: Starting Firestore upload... "
-#
-# if [ ! -f "$ENCRYPTED_PAYLOAD_FILE" ]; then
-#   echo "Error: Encrypted payload file not found at $ENCRYPTED_PAYLOAD_FILE" >&2
-#   exit 1
-# fi
-#
-# # Bulk upload facilities
-# echo "Uploading facilities..."
-# firestore-cli set "providers/$PROVIDER_ID/facilities" -b -f demo-data/facilities/data.json $ARGS
-# # Bulk upload all data from the encrypted payload file
-# echo "Uploading residents and all subcollections..."
-# firestore-cli set "providers/$PROVIDER_ID" -b -f $ENCRYPTED_PAYLOAD_FILE --jsonl $ARGS
-#
-# # echo "\n--- Upload Complete! ---"
-#
-# # --- Step 4: Deploy Firestore Rules, Indexes, and Functions ---
-# echo "--- Step 4: Setting Up Rules, Indexes, and Functions ---"
-#
-# firebase deploy --only firestore,functions
-#
-# # --- Step 5: Backfill Existing Data to BigQuery ---
-# echo "--- Step 5: Backfilling existing Firestore data to BigQuery... ---"
-# cd functions/
-# npm run backfill-bq
+# --- Step 3: Starting Firestore Upload ---
+echo "--- Step 3: Starting Firestore upload... "
+
+if [ ! -f "$ENCRYPTED_PAYLOAD_FILE" ]; then
+  echo "Error: Encrypted payload file not found at $ENCRYPTED_PAYLOAD_FILE" >&2
+  exit 1
+fi
+
+# Bulk upload facilities
+echo "Uploading facilities..."
+firestore-cli set "providers/$PROVIDER_ID/facilities" -b -f demo-data/facilities/data.json $ARGS
+# Bulk upload all data from the encrypted payload file
+echo "Uploading residents and all subcollections..."
+firestore-cli set "providers/$PROVIDER_ID" -b -f $ENCRYPTED_PAYLOAD_FILE --jsonl $ARGS
+
+# echo "\n--- Upload Complete! ---"
+
+# --- Step 4: Deploy Firestore Rules, Indexes, and Functions ---
+echo "--- Step 4: Setting Up Rules, Indexes, and Functions ---"
+
+firebase deploy --only firestore,functions
+
+# --- Step 5: Backfill Existing Data to BigQuery ---
+echo "--- Step 5: Backfilling existing Firestore data to BigQuery... ---"
+cd functions/
+npm run backfill-bq
