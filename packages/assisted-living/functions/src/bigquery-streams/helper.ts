@@ -4,35 +4,36 @@ import {
   QueryDocumentSnapshot,
 } from 'firebase-functions/v2/firestore'
 import bigqueryClient from '../lib/bigquery'
-import {
-  decryptData,
-  decryptDataKey,
-  KEK_GENERAL_PATH,
-  // KEK_CONTACT_PATH,
-  // KEK_CLINICAL_PATH,
-  KEK_FINANCIAL_PATH,
-} from '../lib/encryption'
+import { decryptData, decryptDataKey, getKekPaths } from '../lib/encryption'
 
 const DATASET_ID = 'firestore_export'
-
-// Map collection names to their corresponding KEK path
-const COLLECTION_KEK_MAP: { [key: string]: string } = {
-  residents: KEK_GENERAL_PATH,
-  // TODO: Add mappings for all other encrypted collections
-  // Example:
-  // observations: KEK_CLINICAL_PATH,
-  // allergies: KEK_CLINICAL_PATH,
-  charges: KEK_FINANCIAL_PATH,
-  claims: KEK_FINANCIAL_PATH,
-  payments: KEK_FINANCIAL_PATH,
-  adjustments: KEK_FINANCIAL_PATH,
-  // contacts: KEK_CONTACT_PATH,
-}
 
 export async function streamToBigQuery(
   collectionName: string,
   event: FirestoreEvent<Change<QueryDocumentSnapshot> | undefined>,
 ) {
+  // Load KEK paths at RUNTIME
+  const {
+    KEK_GENERAL_PATH,
+    KEK_FINANCIAL_PATH,
+    // KEK_CLINICAL_PATH,
+    // KEK_CONTACT_PATH,
+  } = getKekPaths()
+
+  // Map collection names to their corresponding KEK path
+  const COLLECTION_KEK_MAP: { [key: string]: string } = {
+    residents: KEK_GENERAL_PATH,
+    // TODO: Add mappings for all other encrypted collections
+    // Example:
+    // observations: KEK_CLINICAL_PATH,
+    // allergies: KEK_CLINICAL_PATH,
+    charges: KEK_FINANCIAL_PATH,
+    claims: KEK_FINANCIAL_PATH,
+    payments: KEK_FINANCIAL_PATH,
+    adjustments: KEK_FINANCIAL_PATH,
+    // contacts: KEK_CONTACT_PATH,
+  }
+
   const documentId = event.params[Object.keys(event.params)[0]]
   const tableId = `${collectionName}_raw`
 

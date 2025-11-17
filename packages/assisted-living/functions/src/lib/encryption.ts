@@ -11,11 +11,17 @@ function getEnvConfig(envVarName: string): string {
   )
 }
 
-// Configuration for KMS from environment variables
-export const KEK_GENERAL_PATH = getEnvConfig('KEK_GENERAL_PATH')
-export const KEK_CONTACT_PATH = getEnvConfig('KEK_CONTACT_PATH')
-export const KEK_CLINICAL_PATH = getEnvConfig('KEK_CLINICAL_PATH')
-export const KEK_FINANCIAL_PATH = getEnvConfig('KEK_FINANCIAL_PATH')
+/**
+ * Retrieves KEK paths from environment variables at runtime.
+ */
+export function getKekPaths() {
+  return {
+    KEK_GENERAL_PATH: getEnvConfig('KEK_GENERAL_PATH'),
+    KEK_CONTACT_PATH: getEnvConfig('KEK_CONTACT_PATH'),
+    KEK_CLINICAL_PATH: getEnvConfig('KEK_CLINICAL_PATH'),
+    KEK_FINANCIAL_PATH: getEnvConfig('KEK_FINANCIAL_PATH'),
+  }
+}
 
 const kmsClient = new KeyManagementServiceClient()
 
