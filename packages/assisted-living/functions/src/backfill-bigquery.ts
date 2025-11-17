@@ -11,48 +11,50 @@
 import { initializeApp } from 'firebase-admin'
 import { getFirestore } from 'firebase-admin/firestore'
 import bigqueryClient from './lib/bigquery' // Re-use the client from functions
-import {
-  decryptData,
-  decryptDataKey,
-  // KEK_CONTACT_PATH,
-  // KEK_CLINICAL_PATH,
-  KEK_GENERAL_PATH,
-  KEK_FINANCIAL_PATH,
-} from './lib/encryption' // Re-use the encryption logic from functions
+import { decryptData, decryptDataKey, getKekPaths } from './lib/encryption' // Re-use the encryption logic from functions
 
 // --- Configuration ---
 const PROVIDER_ID = 'GYRHOME' // Specify the provider to backfill
 const DATASET_ID = 'firestore_export'
 const BATCH_SIZE = 500 // Number of documents to process and insert at a time
 
-// Map collection names to their KEK paths and any parent collections
-const COLLECTIONS_TO_BACKFILL = {
-  residents: {
-    kekPath: KEK_GENERAL_PATH,
-    parent: null,
-  },
-  charges: {
-    kekPath: KEK_FINANCIAL_PATH,
-    parent: 'residents',
-  },
-  claims: {
-    kekPath: KEK_FINANCIAL_PATH,
-    parent: 'residents',
-  },
-  payments: {
-    kekPath: KEK_FINANCIAL_PATH,
-    parent: 'residents',
-  },
-  adjustments: {
-    kekPath: KEK_FINANCIAL_PATH,
-    parent: 'residents',
-  },
-  // TODO: Add other collections here
-  // observations: { kekPath: KEK_CLINICAL_PATH, parent: 'residents' },
-}
-
 async function backfill() {
   console.log('--- Starting BigQuery Backfill Script ---')
+
+  // Load KEK paths at RUNTIME
+  const {
+    KEK_GENERAL_PATH,
+    KEK_FINANCIAL_PATH,
+    // KEK_CLINICAL_PATH,
+    // KEK_CONTACT_PATH,
+  } = getKekPaths()
+
+  // Map collection names to their KEK paths and any parent collections
+  const COLLECTIONS_TO_BACKFILL = {
+    residents: {
+      kekPath: KEK_GENERAL_PATH,
+      parent: null,
+    },
+    charges: {
+      kekPath: KEK_FINANCIAL_PATH,
+      parent: 'residents',
+    },
+    claims: {
+      kekPath: KEK_FINANCIAL_PATH,
+      parent: 'residents',
+    },
+    payments: {
+      kekPath: KEK_FINANCIAL_PATH,
+      parent: 'residents',
+    },
+    adjustments: {
+      kekPath: KEK_FINANCIAL_PATH,
+      parent: 'residents',
+    },
+    // TODO: Add other collections here
+    // observations: { kekPath: KEK_CLINICAL_PATH, parent: 'residents' },
+  }
+
   initializeApp()
   const firestore = getFirestore()
   firestore.settings({ databaseId: 'staging' })
