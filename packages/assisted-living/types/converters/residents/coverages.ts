@@ -1,9 +1,5 @@
 'use server'
-import {
-  KEK_FINANCIAL_PATH,
-  decryptDataKey,
-  decryptData,
-} from '@/lib/encryption'
+import { decryptDataKey, decryptData } from '@/lib/encryption'
 import {
   DocumentData,
   FirestoreDataConverter,
