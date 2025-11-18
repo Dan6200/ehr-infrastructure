@@ -8,7 +8,7 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "backfill-bq": "node lib/backfill-bigquery.ts"
+    "backfill-bq": "node lib/backfill-bigquery.js"
   },
   "engines": {
     "node": "22"
