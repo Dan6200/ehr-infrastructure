@@ -14,7 +14,7 @@ COPY demo-data ./demo-data/
 COPY types ./dev-utils/generate-encrypted-payload/types
 COPY lib/encryption.ts ./dev-utils/generate-encrypted-payload/lib/
 COPY functions ./functions
-COPY types ./functions/
+COPY types ./functions/types
 COPY lib/encryption.ts lib/bigquery ./functions/lib/
 COPY firebase.json .firebaserc firestore.indexes.json firestore.rules ./
 
