@@ -11,7 +11,14 @@
 import admin from 'firebase-admin'
 import { getFirestore } from 'firebase-admin/firestore'
 import bigqueryClient from './lib/bigquery' // Re-use the client from functions
-import { decryptData, decryptDataKey, getKekPaths } from './lib/encryption' // Re-use the encryption logic from functions
+import {
+  decryptResidentData,
+  decryptPayment,
+  decryptAdjustment,
+  decryptCharge,
+  decryptClaim,
+} from './lib/decryptors'
+import { getKekPaths } from './lib/encryption' // Re-use the encryption logic from functions
 
 // --- Configuration ---
 const PROVIDER_ID = 'GYRHOME' // Specify the provider to backfill
@@ -21,122 +28,96 @@ const BATCH_SIZE = 500 // Number of documents to process and insert at a time
 async function backfill() {
   console.log('--- Starting BigQuery Backfill Script ---')
 
-  // Load KEK paths at RUNTIME
-  const {
-    KEK_GENERAL_PATH,
-    KEK_FINANCIAL_PATH,
-    // KEK_CLINICAL_PATH,
-    // KEK_CONTACT_PATH,
-  } = getKekPaths()
-
-  // Map collection names to their KEK paths and any parent collections
-  const COLLECTIONS_TO_BACKFILL = {
-    residents: {
-      kekPath: KEK_GENERAL_PATH,
-      parent: null,
-    },
-    charges: {
-      kekPath: KEK_FINANCIAL_PATH,
-      parent: 'residents',
-    },
-    claims: {
-      kekPath: KEK_FINANCIAL_PATH,
-      parent: 'residents',
-    },
-    payments: {
-      kekPath: KEK_FINANCIAL_PATH,
-      parent: 'residents',
-    },
-    adjustments: {
-      kekPath: KEK_FINANCIAL_PATH,
-      parent: 'residents',
-    },
-    // TODO: Add other collections here
-    // observations: { kekPath: KEK_CLINICAL_PATH, parent: 'residents' },
-  }
-
+  const kekPaths = getKekPaths()
   admin.initializeApp()
   const firestore = getFirestore()
   firestore.settings({ databaseId: 'staging-beta' })
   const db = firestore
 
+  const COLLECTIONS_TO_BACKFILL = {
+    residents: {
+      kekPath: 'complex', // Not a single KEK path
+      parent: null,
+      decryptor: (doc: any) => decryptResidentData(doc, ['ADMIN'], kekPaths),
+    },
+    charges: {
+      kekPath: kekPaths.KEK_FINANCIAL_PATH,
+      parent: 'residents',
+      decryptor: decryptCharge,
+    },
+    payments: {
+      kekPath: kekPaths.KEK_FINANCIAL_PATH,
+      parent: 'residents',
+      decryptor: decryptPayment,
+    },
+    claims: {
+      kekPath: kekPaths.KEK_FINANCIAL_PATH,
+      parent: 'residents',
+      decryptor: decryptClaim,
+    },
+    adjustments: {
+      kekPath: kekPaths.KEK_FINANCIAL_PATH,
+      parent: 'residents',
+      decryptor: decryptAdjustment,
+    },
+  }
+
   for (const [collectionName, config] of Object.entries(
     COLLECTIONS_TO_BACKFILL,
   )) {
     console.log(`\nProcessing collection: ${collectionName}...`)
-    const tableId = `${collectionName}_raw`
+    const tableId = `${collectionName.replace(/-/g, '_')}_raw`
     const table = bigqueryClient.dataset(DATASET_ID).table(tableId)
     let totalDocsProcessed = 0
 
     try {
-      let collectionRef: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>
-
       if (config.parent === 'residents') {
-        // This is a nested collection, we need to iterate through all residents
         const residentsSnapshot = await db
           .collection(`providers/${PROVIDER_ID}/residents`)
           .get()
         for (const residentDoc of residentsSnapshot.docs) {
-          console.log(
-            `  Backfilling ${collectionName} for resident ${residentDoc.id}...`,
-          )
           const nestedCollectionRef = residentDoc.ref.collection(collectionName)
-          await processCollection(nestedCollectionRef, config.kekPath)
+          await processCollection(
+            nestedCollectionRef,
+            config.kekPath,
+            config.decryptor,
+          )
         }
       } else {
-        // This is a root-level collection for the provider
-        collectionRef = db.collection(
+        const collectionRef = db.collection(
           `providers/${PROVIDER_ID}/${collectionName}`,
         )
-        await processCollection(collectionRef, config.kekPath)
+        await processCollection(collectionRef, config.kekPath, config.decryptor)
       }
 
       async function processCollection(
         ref: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>,
         kekPath: string,
+        decryptor: (doc: any, kekPath?: any) => Promise<any>,
       ) {
         const snapshot = await ref.get()
-        if (snapshot.empty) {
-          console.log(`  No documents found in ${collectionName}. Skipping.`)
-          return
-        }
+        if (snapshot.empty) return
 
         let batch: any[] = []
-
         for (const doc of snapshot.docs) {
-          const encryptedDoc = doc.data()
-          const { encryptedDek, encryptedData } = encryptedDoc
+          const decryptedObject =
+            collectionName === 'residents'
+              ? await decryptor(doc.data())
+              : await decryptor(doc.data(), kekPath)
 
-          if (!encryptedDek || !encryptedData) {
-            console.warn(
-              `    - Document ${doc.id} is missing encryption fields. Skipping.`,
-            )
-            continue
-          }
-
-          const plaintextDek = await decryptDataKey(encryptedDek, kekPath)
-          const decryptedString = decryptData(encryptedData, plaintextDek)
-          const decryptedObject = JSON.parse(decryptedString)
-
-          batch.push({
-            document_id: doc.id,
-            ...decryptedObject,
-          })
+          batch.push({ document_id: doc.id, ...decryptedObject })
 
           if (batch.length >= BATCH_SIZE) {
             await table.insert(batch)
             totalDocsProcessed += batch.length
-            console.log(`    ...inserted ${batch.length} rows...`)
             batch = []
           }
         }
-
         if (batch.length > 0) {
           await table.insert(batch)
           totalDocsProcessed += batch.length
         }
       }
-
       console.log(
         `  ✅ Finished processing for ${collectionName}. Total rows inserted: ${totalDocsProcessed}`,
       )
@@ -147,7 +128,6 @@ async function backfill() {
       )
     }
   }
-
   console.log('\n--- BigQuery Backfill Complete! ---')
 }
 
