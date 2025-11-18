@@ -21,7 +21,7 @@ COPY firebase.json .firebaserc firestore.indexes.json firestore.rules ./
 # This leverages Docker layer caching
 RUN cd dev-utils/generate-encrypted-payload && npm install
 
-RUN cd functions/ && npm install && ls -R && npm run build
+RUN cd functions/ && npm install && ls && echo "lib" && ls lib && echo "types" && ls types && npm run build
 
 RUN chmod +x ./demo-data/seed-database.sh
 
