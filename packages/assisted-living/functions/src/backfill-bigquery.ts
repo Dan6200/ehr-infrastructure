@@ -57,7 +57,7 @@ async function backfill() {
 
   admin.initializeApp()
   const firestore = getFirestore()
-  firestore.settings({ databaseId: 'staging' })
+  firestore.settings({ databaseId: 'staging-beta' })
   const db = firestore
 
   for (const [collectionName, config] of Object.entries(
