@@ -22,6 +22,11 @@ import { z } from 'zod'
 import { Query } from 'firebase-admin/firestore'
 import { getNestedResidentData } from './subcollections'
 import { getAllFacilities } from './facilities'
+import {
+  KEK_GENERAL_PATH,
+  KEK_CONTACT_PATH,
+  KEK_CLINICAL_PATH,
+} from '@/lib/encryption'
 
 type K = keyof SubCollectionMapType
 
@@ -33,6 +38,7 @@ export async function getResidentData(
   try {
     const idToken = await verifySession()
     const userRoles: string[] = (idToken?.roles as string[]) || []
+    const kekPaths = { KEK_GENERAL_PATH, KEK_CONTACT_PATH, KEK_CLINICAL_PATH }
 
     const residentsCollection = (
       await collectionWrapper<z.infer<typeof EncryptedResidentSchema>>(
@@ -47,7 +53,7 @@ export async function getResidentData(
 
     const resident = {
       created_at: residentSnap.createTime!.toDate().toISOString(),
-      ...(await decryptResidentData(residentSnap.data()!, userRoles)), // can override created_at...
+      ...(await decryptResidentData(residentSnap.data()!, userRoles, kekPaths)),
       updated_at: residentSnap.updateTime!.toDate().toISOString(),
       viewed_at: residentSnap.readTime!.toDate().toISOString(),
     }
@@ -58,7 +64,9 @@ export async function getResidentData(
 
     // Fetch and decrypt subcollections in parallel
     const nestedData = await Promise.all(
-      subCollections.map((subCol) => getNestedResidentData(documentId, subCol)),
+      subCollections.map((subCol) =>
+        getNestedResidentData('GYRHOME', documentId, subCol),
+      ),
     )
 
     const nestedDataMapped = nestedData.reduce(
@@ -93,6 +101,7 @@ export async function getResidents(): Promise<Resident[]> {
   try {
     const idToken = await verifySession()
     const userRoles: string[] = (idToken.roles as string[]) || []
+    const kekPaths = { KEK_GENERAL_PATH, KEK_CONTACT_PATH, KEK_CLINICAL_PATH }
 
     const residentsCollection = (
       await collectionWrapper<z.infer<typeof EncryptedResidentSchema>>(
@@ -103,7 +112,11 @@ export async function getResidents(): Promise<Resident[]> {
 
     return Promise.all(
       residentsSnap.docs.map(async (doc) => {
-        const resident = await decryptResidentData(doc.data(), userRoles)
+        const resident = await decryptResidentData(
+          doc.data(),
+          userRoles,
+          kekPaths,
+        )
         return ResidentSchema.parse(resident)
       }),
     )
@@ -124,6 +137,7 @@ export async function getAllResidents({
   try {
     const idToken = await verifySession()
     const userRoles: string[] = (idToken?.roles as string[]) || []
+    const kekPaths = { KEK_GENERAL_PATH, KEK_CONTACT_PATH, KEK_CLINICAL_PATH }
 
     const residentsCollection = (
       await collectionWrapper<z.infer<typeof EncryptedResidentSchema>>(
@@ -166,19 +180,16 @@ export async function getAllResidents({
     let residentsForPage = await Promise.all(
       residentsSnapshot.docs.map(async (doc) => ({
         id: doc.id,
-        created_at: doc.createTime.toDate().toISOString(), // Can be overriding by database values
-        ...(await decryptResidentData(
-          {
-            ...doc.data(),
-          } as any,
-          userRoles,
-        )),
+        created_at: doc.createTime.toDate().toISOString(),
+        ...(await decryptResidentData(doc.data(), userRoles, kekPaths)),
         updated_at: doc.updateTime.toDate().toISOString(),
         viewed_at: doc.readTime.toDate().toISOString(),
       })),
     )
 
-    ResidentSchema.parse(residentsForPage[0])
+    if (residentsForPage.length > 0) {
+      ResidentSchema.parse(residentsForPage[0])
+    }
 
     let hasNextPage = false
     let hasPrevPage = false
@@ -186,13 +197,13 @@ export async function getAllResidents({
     if (isPrev) {
       hasPrevPage = residentsForPage.length > limit
       if (hasPrevPage) {
-        residentsForPage.shift() // Remove the extra item from the beginning
+        residentsForPage.shift()
       }
       hasNextPage = true
     } else {
       hasNextPage = residentsForPage.length > limit
       if (hasNextPage) {
-        residentsForPage.pop() // Remove the extra item from the end
+        residentsForPage.pop()
       }
       hasPrevPage = !!nextCursorId
     }
@@ -237,7 +248,7 @@ export async function getAllResidents({
       await fetch(url, {
         method: 'post',
       }).finally(async () => {
-        redirect('/sign-in') // Navigate to the login page
+        redirect('/sign-in')
       })
     }
     throw new Error(`Failed to fetch all residents data: ${error.message}`)

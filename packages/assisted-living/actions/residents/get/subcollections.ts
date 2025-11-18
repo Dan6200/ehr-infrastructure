@@ -11,12 +11,19 @@ import { FirestoreDataConverter } from 'firebase-admin/firestore'
 import { redirect } from 'next/navigation'
 import z from 'zod'
 
+import {
+  KEK_FINANCIAL_PATH,
+  KEK_CLINICAL_PATH,
+  KEK_CONTACT_PATH,
+} from '@/lib/encryption'
+
 async function getSubcollection<T, U>(
   providerId: string,
   residentId: string,
   collectionName: string,
   converter: () => Promise<FirestoreDataConverter<T>>,
-  decryptor: (data: T) => Promise<U>,
+  decryptor: (data: T, kekPath: string) => Promise<U>,
+  kekPath: string,
 ): Promise<U[]> {
   const { uid } = await verifySession() // Authenticate and get user claims
 
@@ -37,7 +44,7 @@ async function getSubcollection<T, U>(
   }))
 
   // TODO: Decrypt each document in parallel with threads
-  return Promise.all(encryptedDocs.map((doc) => decryptor(doc)))
+  return Promise.all(encryptedDocs.map((doc) => decryptor(doc, kekPath)))
 }
 
 export async function getNestedResidentData<K extends SubCollectionKey>(
@@ -45,9 +52,24 @@ export async function getNestedResidentData<K extends SubCollectionKey>(
   residentId: string,
   subCollectionName: K,
 ) {
-  const { converter, decryptor } = subCollectionMap[subCollectionName]
+  const { converter, decryptor, kekType } = subCollectionMap[subCollectionName]
+  let kekPath = ''
+  switch (kekType) {
+    case 'financial':
+      kekPath = KEK_FINANCIAL_PATH
+      break
+    case 'clinical':
+      kekPath = KEK_CLINICAL_PATH
+      break
+    case 'contact':
+      kekPath = KEK_CONTACT_PATH
+      break
+    default:
+      throw new Error(`Invalid KEK type for ${subCollectionName}`)
+  }
+
   return getSubcollection<
     z.infer<SubCollectionMapType[K]['encrypted_schema']>,
     z.infer<SubCollectionMapType[K]['schema']>
-  >(providerId, residentId, subCollectionName, converter, decryptor)
+  >(providerId, residentId, subCollectionName, converter, decryptor, kekPath)
 }
