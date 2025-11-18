@@ -17,10 +17,11 @@ import z from 'zod'
 
 export async function decryptDiagnosticHistory(
   data: z.infer<typeof EncryptedDiagnosticHistorySchema>,
+  kekPath: string,
 ): Promise<z.infer<typeof DiagnosticHistorySchema>> {
   const dek = await decryptDataKey(
     Buffer.from(data.encrypted_dek, 'base64'),
-    KEK_CLINICAL_PATH,
+    kekPath,
   )
   const decryptedData: any = {}
 

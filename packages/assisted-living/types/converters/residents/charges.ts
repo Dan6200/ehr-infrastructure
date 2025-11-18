@@ -14,10 +14,11 @@ import z from 'zod'
 
 export async function decryptCharge(
   data: z.infer<typeof EncryptedChargeSchema>,
+  kekPath: string,
 ): Promise<z.infer<typeof ChargeSchema>> {
   const dek = await decryptDataKey(
     Buffer.from(data.encrypted_dek, 'base64'),
-    KEK_FINANCIAL_PATH,
+    kekPath,
   )
   const decryptedData: any = {}
 

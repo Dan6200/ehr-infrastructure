@@ -13,10 +13,11 @@ import z from 'zod'
 
 export async function decryptEmergencyContact(
   data: z.infer<typeof EncryptedEmergencyContactSchema>,
+  kekPath: string,
 ): Promise<z.infer<typeof EmergencyContactSchema>> {
   const dek = await decryptDataKey(
     Buffer.from(data.encrypted_dek, 'base64'),
-    KEK_CONTACT_PATH,
+    kekPath,
   )
   const decryptedData: any = {}
 

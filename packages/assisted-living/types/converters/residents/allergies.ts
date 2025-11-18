@@ -14,10 +14,11 @@ import z from 'zod'
 
 export async function decryptAllergy(
   data: z.infer<typeof EncryptedAllergySchema>,
+  kekPath: string,
 ): Promise<z.infer<typeof AllergySchema>> {
   const dek = await decryptDataKey(
     Buffer.from(data.encrypted_dek, 'base64'),
-    KEK_CLINICAL_PATH,
+    kekPath,
   )
   const decryptedData: any = {}
 

@@ -10,10 +10,11 @@ import z from 'zod'
 
 export async function decryptIdentifier(
   data: z.infer<typeof EncryptedIdentifierSchema>,
+  kekPath: string,
 ): Promise<z.infer<typeof IdentifierSchema>> {
   const dek = await decryptDataKey(
     Buffer.from(data.encrypted_dek, 'base64'),
-    KEK_GENERAL_PATH,
+    kekPath,
   )
   const decryptedData: any = {}
 

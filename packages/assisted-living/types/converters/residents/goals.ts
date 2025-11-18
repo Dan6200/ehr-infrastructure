@@ -14,10 +14,11 @@ import z from 'zod'
 
 export async function decryptGoal(
   data: z.infer<typeof EncryptedGoalSchema>,
+  kekPath: string,
 ): Promise<z.infer<typeof GoalSchema>> {
   const dek = await decryptDataKey(
     Buffer.from(data.encrypted_dek, 'base64'),
-    KEK_CLINICAL_PATH,
+    kekPath,
   )
   const decryptedData: any = {}
 

@@ -101,6 +101,11 @@ export async function encryptResident(
 export async function decryptResidentData(
   data: z.infer<typeof EncryptedResidentSchema>,
   roles: string[],
+  kekPaths: {
+    KEK_GENERAL_PATH: string
+    KEK_CONTACT_PATH: string
+    KEK_CLINICAL_PATH: string
+  },
 ): Promise<Omit<Resident, 'created_at' | 'viewed_at' | 'updated_at'>> {
   const decryptedData: Partial<Resident> = {}
   decryptedData.facility_id = data.facility_id
@@ -121,7 +126,7 @@ export async function decryptResidentData(
       try {
         generalDek = await decryptDataKey(
           Buffer.from(data.encrypted_dek_general, 'base64'),
-          KEK_GENERAL_PATH,
+          kekPaths.KEK_GENERAL_PATH,
         )
       } catch (e) {
         console.error('Failed to decrypt general DEK:', e)
@@ -138,7 +143,7 @@ export async function decryptResidentData(
       try {
         contactDek = await decryptDataKey(
           Buffer.from(data.encrypted_dek_contact, 'base64'),
-          KEK_CONTACT_PATH,
+          kekPaths.KEK_CONTACT_PATH,
         )
       } catch (e) {
         console.error('Failed to decrypt contact DEK:', e)
@@ -151,7 +156,7 @@ export async function decryptResidentData(
       try {
         clinicalDek = await decryptDataKey(
           Buffer.from(data.encrypted_dek_clinical, 'base64'),
-          KEK_CLINICAL_PATH,
+          kekPaths.KEK_CLINICAL_PATH,
         )
       } catch (e) {
         console.error('Failed to decrypt clinical DEK:', e)

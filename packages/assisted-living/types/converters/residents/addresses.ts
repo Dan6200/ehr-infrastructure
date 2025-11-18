@@ -10,10 +10,11 @@ import z from 'zod'
 
 export async function decryptAddress(
   data: z.infer<typeof EncryptedAddressSchema>,
+  kekPath: string,
 ): Promise<z.infer<typeof AddressSchema>> {
   const dek = await decryptDataKey(
     Buffer.from(data.encrypted_dek, 'base64'),
-    KEK_CONTACT_PATH,
+    kekPath,
   )
   const decryptedData: any = {}
 
