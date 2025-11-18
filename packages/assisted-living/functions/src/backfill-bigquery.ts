@@ -10,15 +10,15 @@
 
 import admin from 'firebase-admin'
 import { getFirestore } from 'firebase-admin/firestore'
-import bigqueryClient from './lib/bigquery' // Re-use the client from functions
+import bigqueryClient from '@/lib/bigquery' // Re-use the client from functions
 import {
   decryptResidentData,
   decryptPayment,
   decryptAdjustment,
   decryptCharge,
   decryptClaim,
-} from './types/converters'
-import { getKekPaths } from './lib/encryption' // Re-use the encryption logic from functions
+} from '@/types/converters'
+import { getKekPaths } from '@/lib/encryption' // Re-use the encryption logic from functions
 
 // --- Configuration ---
 const PROVIDER_ID = 'GYRHOME' // Specify the provider to backfill
