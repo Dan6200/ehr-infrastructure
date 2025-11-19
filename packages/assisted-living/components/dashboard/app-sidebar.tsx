@@ -14,11 +14,11 @@ import {
   IconUsers,
 } from '@tabler/icons-react'
 
-import { auth } from '@/auth/client/config'
-import { NavDocuments } from '@/components/dashboard/nav-documents'
-import { NavMain } from '@/components/dashboard/nav-main'
-import { NavSecondary } from '@/components/dashboard/nav-secondary'
-import { NavUser } from '@/components/dashboard/nav-user'
+import { auth } from '#/auth/client/config'
+import { NavDocuments } from '#/components/dashboard/nav-documents'
+import { NavMain } from '#/components/dashboard/nav-main'
+import { NavSecondary } from '#/components/dashboard/nav-secondary'
+import { NavUser } from '#/components/dashboard/nav-user'
 import {
   Sidebar,
   SidebarContent,
@@ -27,7 +27,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar'
+} from '#/components/ui/sidebar'
 
 const data = {
   navMain: [

@@ -1,12 +1,12 @@
 'use client'
 
 import * as React from 'react'
-import { getResidentData } from '@/actions/residents/get'
-import { EmarRecord } from '@/types'
-import { Button } from '@/components/ui/button'
-import { recordAdministration } from '@/actions/residents/record-administration'
-import { toast } from '@/components/ui/use-toast'
-import { useAuth } from '@/auth/client/auth-context'
+import { getResidentData } from '#/actions/residents/get'
+import { EmarRecord } from '#/types'
+import { Button } from '#/components/ui/button'
+import { recordAdministration } from '#/actions/residents/record-administration'
+import { toast } from '#/components/ui/use-toast'
+import { useAuth } from '#/auth/client/auth-context'
 
 const timeSlots = ['Morning', 'Noon', 'Evening', 'Bedtime']
 

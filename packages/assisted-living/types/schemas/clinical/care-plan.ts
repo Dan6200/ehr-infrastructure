@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { CarePlanStatusTypeEnum } from '@/types/enums'
+import { CarePlanStatusTypeEnum } from '#/types/enums'
 
 export const CarePlanSchema = z.object({
   id: z.string(),

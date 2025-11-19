@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ConditionStatusEnum } from '@/types/enums'
+import { ConditionStatusEnum } from '#/types/enums'
 import { CodeableConceptSchema } from '../codeable-concept'
 
 export const DiagnosticHistorySchema = z

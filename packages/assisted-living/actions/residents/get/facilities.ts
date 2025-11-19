@@ -1,9 +1,9 @@
 'use server'
 
-import { verifySession } from '@/auth/server/definitions'
-import { collectionWrapper, getDocsWrapper } from '@/firebase/admin'
-import { Facility, FacilitySchema } from '@/types'
-import { getFacilityConverter } from '@/types/converters'
+import { verifySession } from '#/auth/server/definitions'
+import { collectionWrapper, getDocsWrapper } from '#/firebase/admin'
+import { Facility, FacilitySchema } from '#/types'
+import { getFacilityConverter } from '#/types/converters'
 import { notFound } from 'next/navigation'
 
 export async function getAllFacilities(): Promise<Facility[]> {

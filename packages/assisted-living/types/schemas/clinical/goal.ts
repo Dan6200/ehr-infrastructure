@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { GoalStatusEnum } from '@/types/enums'
+import { GoalStatusEnum } from '#/types/enums'
 import { GoalConceptSchema } from '../codeable-concept'
 
 export const GoalSchema = z.object({

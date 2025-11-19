@@ -7,9 +7,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { auth } from '@/auth/client/config'
-import { ResidentData } from '@/types'
+} from '#/components/ui/table'
+import { auth } from '#/auth/client/config'
+import { ResidentData } from '#/types'
 import { onAuthStateChanged, User } from 'firebase/auth'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'

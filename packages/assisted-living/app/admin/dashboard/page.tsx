@@ -1,12 +1,12 @@
 'use server'
 import { redirect } from 'next/navigation'
-import { DashboardClient } from '@/components/dashboard/dashboard-client'
-import bigqueryClient from '@/lib/bigquery'
+import { DashboardClient } from '#/components/dashboard/dashboard-client'
+import bigqueryClient from '#/lib/bigquery'
 import {
   getFinancialSummaryQuery,
   getResidentGrowthQuery,
-} from '@/lib/bigquery/queries'
-import { Resident } from '@/types'
+} from '#/lib/bigquery/queries'
+import { Resident } from '#/types'
 
 export type FormattedChartData = {
   date: string

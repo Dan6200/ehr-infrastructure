@@ -1,6 +1,6 @@
 import { deleteResidentData } from '../delete'
 import { getResidentData } from '../get'
-import { loadInitialData, clearFirestore } from '@/test-data/emulatorSetup'
+import { loadInitialData, clearFirestore } from '#/test-data/emulatorSetup'
 import admin from 'firebase-admin'
 
 // Mock next/navigation functions

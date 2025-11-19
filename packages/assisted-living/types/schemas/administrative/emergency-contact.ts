@@ -3,7 +3,7 @@ import {
   RelationshipEnum,
   LegalRelationshipEnum,
   PersonalRelationshipEnum,
-} from '@/types/enums'
+} from '#/types/enums'
 
 export const EmergencyContactSchema = z
   .object({

@@ -7,12 +7,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
+} from '#/components/ui/dropdown-menu'
+import { Button } from '#/components/ui/button'
 import { QrCode, SearchIcon, UserRound, UserRoundPlus } from 'lucide-react'
 import React, { MouseEventHandler, MouseEvent } from 'react'
-import { signOutWrapper } from '@/auth/client/definitions'
-import { toast } from '@/components/ui/use-toast'
+import { signOutWrapper } from '#/auth/client/definitions'
+import { toast } from '#/components/ui/use-toast'
 import { useRouter } from 'next/navigation'
 
 export const UserMenu = () => {

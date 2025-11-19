@@ -1,10 +1,10 @@
 import { notFound, redirect } from 'next/navigation'
-import { getResidentData } from '@/actions/residents/get'
-import { ResidentSchema, Resident as ResidentType } from '@/types'
-import Resident from '@/components/resident'
-import { GoBackLink } from '@/components/go-back-link'
+import { getResidentData } from '#/actions/residents/get'
+import { ResidentSchema, Resident as ResidentType } from '#/types'
+import Resident from '#/components/resident'
+import { GoBackLink } from '#/components/go-back-link'
 import { ReactNode } from 'react'
-import { ResidentNav } from '@/components/resident-nav'
+import { ResidentNav } from '#/components/resident-nav'
 
 export default async function ResidentLayout({
   children,

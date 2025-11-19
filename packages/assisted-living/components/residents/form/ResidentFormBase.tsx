@@ -1,19 +1,19 @@
 'use client'
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
-import { Form } from '@/components/ui/form'
+import { Button } from '#/components/ui/button'
+import { Form } from '#/components/ui/form'
 import { EditableFormField } from './EditableFormField'
-import { UploadButton } from '@/components/cloudinary/upload-button'
+import { UploadButton } from '#/components/cloudinary/upload-button'
 import { useEffect, useState } from 'react'
-import { getAllFacilities } from '@/actions/residents/get'
-import { Facility } from '@/types'
+import { getAllFacilities } from '#/actions/residents/get'
+import { Facility } from '#/types'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '#/components/ui/select'
 import { EmergencyContactBlock } from './EmergencyContactBlock'
 import { Plus, Minus } from 'lucide-react'
 import { v4 as uuid } from 'uuid'

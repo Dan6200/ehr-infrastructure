@@ -1,7 +1,7 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { GoBackLink } from '@/components/go-back-link'
+import { Button } from '#/components/ui/button'
+import { GoBackLink } from '#/components/go-back-link'
 import Image from 'next/image'
 import Link from 'next/link'
 

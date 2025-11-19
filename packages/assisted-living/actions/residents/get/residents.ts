@@ -1,12 +1,12 @@
 'use server'
 
-import { verifySession } from '@/auth/server/definitions'
+import { verifySession } from '#/auth/server/definitions'
 import {
   collectionWrapper,
   docWrapper,
   getDocWrapper,
   getDocsWrapper,
-} from '@/firebase/admin'
+} from '#/firebase/admin'
 import {
   Resident,
   ResidentDataSchema,
@@ -15,8 +15,8 @@ import {
   SubCollectionMapType,
   AllCollectionData,
   subCollectionMap,
-} from '@/types'
-import { decryptResidentData, getResidentConverter } from '@/types/converters'
+} from '#/types'
+import { decryptResidentData, getResidentConverter } from '#/types/converters'
 import { notFound, redirect } from 'next/navigation'
 import { z } from 'zod'
 import { Query } from 'firebase-admin/firestore'
@@ -26,7 +26,7 @@ import {
   KEK_GENERAL_PATH,
   KEK_CONTACT_PATH,
   KEK_CLINICAL_PATH,
-} from '@/lib/encryption'
+} from '#/lib/encryption'
 
 type K = keyof SubCollectionMapType
 

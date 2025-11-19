@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
-import { getAdminAuth } from '@/firebase/admin'
+import { getAdminAuth } from '#/firebase/admin'
 
 const SESSION_EXPIRY_MS = 60 * 60 * 24 * 5 * 1000 // 5 days
 

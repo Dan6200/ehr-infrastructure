@@ -1,5 +1,5 @@
-import { Card, CardFooter, CardHeader } from '@/components/ui/card'
-import { PulsingDiv } from '@/components/ui/pulsing-div'
+import { Card, CardFooter, CardHeader } from '#/components/ui/card'
+import { PulsingDiv } from '#/components/ui/pulsing-div'
 
 export function SectionCardsSkeleton() {
   return (

@@ -1,4 +1,4 @@
-import { Resident } from '@/types'
+import { Resident } from '#/types'
 
 export function calculateMetrics(
   data: any[],

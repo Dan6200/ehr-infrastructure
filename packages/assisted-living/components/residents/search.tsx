@@ -1,12 +1,12 @@
 export {}
 //"use client";
-//import { SearchBar } from "@/components/search-bar";
+//import { SearchBar } from "#/components/search-bar";
 //import { useLayoutEffect, useState } from "react";
-//import type { Resident } from "@/types";
+//import type { Resident } from "#/types";
 //import { SearchSuggestions } from "../search-suggestions";
 //import { redirect } from "next/navigation";
 //import { useAtomValue } from "jotai";
-//import userAtom from "@/atoms/user";
+//import userAtom from "#/atoms/user";
 //
 //interface SearchProps {
 //  residents: Resident[];

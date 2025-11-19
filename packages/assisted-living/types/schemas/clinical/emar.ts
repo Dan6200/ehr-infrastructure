@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { AdministrationStatusEnum } from '@/types/enums'
+import { AdministrationStatusEnum } from '#/types/enums'
 import { MedicationSchema, StrengthSchema } from '.'
 import { CodeableConceptSchema } from '../codeable-concept'
 

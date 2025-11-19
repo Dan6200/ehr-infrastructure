@@ -8,14 +8,14 @@ import {
   KEK_CONTACT_PATH,
   KEK_CLINICAL_PATH,
   KEK_FINANCIAL_PATH,
-} from '@/lib/encryption'
+} from '#/lib/encryption'
 import {
   DocumentData,
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
 import { z } from 'zod'
-import { EncryptedResidentSchema, Resident, ResidentSchema } from '@/types'
+import { EncryptedResidentSchema, Resident, ResidentSchema } from '#/types'
 
 export async function encryptResident(
   resident: Resident,

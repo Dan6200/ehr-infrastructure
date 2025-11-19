@@ -1,8 +1,8 @@
 'use client'
 
 import * as React from 'react'
-import { Resident } from '@/types'
-import { calculateMetrics } from '@/lib/utils/metrics'
+import { Resident } from '#/types'
+import { calculateMetrics } from '#/lib/utils/metrics'
 import { MetricCard } from './metric-card'
 
 interface SectionCardsProps {

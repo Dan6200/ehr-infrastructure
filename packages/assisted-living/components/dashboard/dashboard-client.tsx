@@ -1,10 +1,10 @@
 'use client'
 
 import * as React from 'react'
-import { ChartAreaInteractive } from '@/components/dashboard/chart-area-interactive'
-import { SectionCards } from '@/components/dashboard/section-cards'
-import { FormattedChartData } from '@/app/admin/dashboard/page'
-import { Resident } from '@/types'
+import { ChartAreaInteractive } from '#/components/dashboard/chart-area-interactive'
+import { SectionCards } from '#/components/dashboard/section-cards'
+import { FormattedChartData } from '#/app/admin/dashboard/page'
+import { Resident } from '#/types'
 
 export function DashboardClient({
   chartData,

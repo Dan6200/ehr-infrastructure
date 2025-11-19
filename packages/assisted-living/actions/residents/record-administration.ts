@@ -1,12 +1,12 @@
 'use server'
-import { verifySession } from '@/auth/server/definitions'
-import { EmarRecord, EncryptedEmarRecordSchema } from '@/types'
+import { verifySession } from '#/auth/server/definitions'
+import { EmarRecord, EncryptedEmarRecordSchema } from '#/types'
 import {
   decryptDataKey,
   encryptData,
   KEK_CLINICAL_PATH,
-} from '@/lib/encryption'
-import { getAdminDb, collectionWrapper, addDocWrapper } from '@/firebase/admin'
+} from '#/lib/encryption'
+import { getAdminDb, collectionWrapper, addDocWrapper } from '#/firebase/admin'
 
 export async function recordAdministration(
   residentId: string,

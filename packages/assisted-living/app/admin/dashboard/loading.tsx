@@ -1,5 +1,5 @@
-import { ChartAreaInteractiveSkeleton } from '@/components/dashboard/chart-area-interactive-skeleton'
-import { SectionCardsSkeleton } from '@/components/dashboard/section-cards-skeleton'
+import { ChartAreaInteractiveSkeleton } from '#/components/dashboard/chart-area-interactive-skeleton'
+import { SectionCardsSkeleton } from '#/components/dashboard/section-cards-skeleton'
 
 export default function DashboardLoading() {
   return (

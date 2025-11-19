@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { PulsingDiv } from '@/components/ui/pulsing-div'
+import { Card, CardContent, CardHeader } from '#/components/ui/card'
+import { PulsingDiv } from '#/components/ui/pulsing-div'
 
 export function ChartAreaInteractiveSkeleton() {
   return (

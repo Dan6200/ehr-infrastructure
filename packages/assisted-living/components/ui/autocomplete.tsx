@@ -2,8 +2,8 @@
 
 import * as React from 'react'
 import { Check, ChevronsUpDown } from 'lucide-react'
-import { cn } from '@/components/lib/utils'
-import { Button } from '@/components/ui/button'
+import { cn } from '#/components/lib/utils'
+import { Button } from '#/components/ui/button'
 import {
   Command,
   CommandEmpty,
@@ -11,13 +11,13 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
+} from '#/components/ui/command'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { useDebounce } from '@/hooks/use-debounce' // Assuming you have a debounce hook
+} from '#/components/ui/popover'
+import { useDebounce } from '#/hooks/use-debounce' // Assuming you have a debounce hook
 
 interface AutocompleteProps {
   options: { value: string; label: string }[]

@@ -1,11 +1,11 @@
-import { getAdminDb } from '@/firebase/admin'
-import { Observation, EncryptedObservationSchema } from '@/types'
-import { verifySession } from '@/auth/server/definitions'
+import { getAdminDb } from '#/firebase/admin'
+import { Observation, EncryptedObservationSchema } from '#/types'
+import { verifySession } from '#/auth/server/definitions'
 import {
   decryptDataKey,
   encryptData,
   KEK_CLINICAL_PATH,
-} from '@/lib/encryption'
+} from '#/lib/encryption'
 
 export async function updateObservations(
   observations: Observation[],

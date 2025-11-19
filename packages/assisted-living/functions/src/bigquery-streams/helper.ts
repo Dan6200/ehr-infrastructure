@@ -3,9 +3,9 @@ import {
   Change,
   QueryDocumentSnapshot,
 } from 'firebase-functions/v2/firestore'
-import bigqueryClient from '@/lib/bigquery'
-import { decryptData, decryptDataKey } from '@/lib/encryption'
-import { KEK_GENERAL_PATH, KEK_FINANCIAL_PATH } from '@/lib/encryption'
+import bigqueryClient from '#/lib/bigquery'
+import { decryptData, decryptDataKey } from '#/lib/encryption'
+import { KEK_GENERAL_PATH, KEK_FINANCIAL_PATH } from '#/lib/encryption'
 
 const DATASET_ID = 'firestore_export'
 

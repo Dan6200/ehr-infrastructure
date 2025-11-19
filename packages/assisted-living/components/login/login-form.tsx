@@ -3,27 +3,27 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { toast } from '@/components/ui/use-toast'
+import { toast } from '#/components/ui/use-toast'
 import { useRouter } from 'next/navigation'
-import { signInWithEmailAndPasswordWrapper } from '@/auth/client/definitions'
+import { signInWithEmailAndPasswordWrapper } from '#/auth/client/definitions'
 import { User } from 'firebase/auth'
 
-import { cn } from '@/components/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '#/components/lib/utils'
+import { Button } from '#/components/ui/button'
+import { Card, CardContent } from '#/components/ui/card'
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
+} from '#/components/ui/field'
+import { Input } from '#/components/ui/input'
 import {
   Form,
   FormControl,
   FormField as ShadcnFormField,
-} from '@/components/ui/form'
+} from '#/components/ui/form'
 
 const SignInFormSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),

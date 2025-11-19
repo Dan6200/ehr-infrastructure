@@ -1,3 +1,4 @@
+/**** Web Scraping for Onboarding users ***/
 //import deleteAllFilesInDirectory from "@/dev-utils/delete-all-files-in-directory.js";
 import findCustomerData from './find-customer-data.js'
 import login from './login.js'

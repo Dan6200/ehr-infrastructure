@@ -3,8 +3,8 @@
  * I used route handlers instead...
  *
 "use client";
-import { svgToPngDataURL } from "@/app/utils";
-import { Resident } from "@/types";
+import { svgToPngDataURL } from "#/app/utils";
+import { Resident } from "#/types";
 import jsPDF from "jspdf";
 import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import { useRef, useLayoutEffect, useEffect } from "react";

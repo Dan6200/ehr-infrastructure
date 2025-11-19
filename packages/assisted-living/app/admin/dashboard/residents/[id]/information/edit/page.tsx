@@ -1,5 +1,5 @@
-import { getResidentData } from '@/actions/residents/get'
-import { ResidentFormEdit } from '@/components/residents/form/ResidentFormEdit'
+import { getResidentData } from '#/actions/residents/get'
+import { ResidentFormEdit } from '#/components/residents/form/ResidentFormEdit'
 import { notFound } from 'next/navigation'
 
 export default async function ResidentEditPage({

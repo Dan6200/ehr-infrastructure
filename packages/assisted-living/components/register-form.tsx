@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '#/components/ui/button'
 import {
   Form,
   FormControl,
@@ -13,13 +13,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { toast } from '@/components/ui/use-toast'
+} from '#/components/ui/form'
+import { Input } from '#/components/ui/input'
+import { toast } from '#/components/ui/use-toast'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { onAuthStateChanged, User } from 'firebase/auth'
-import { auth } from '@/auth/client/config'
+import { auth } from '#/auth/client/config'
 
 const AddAdminFormSchema = z.object({
   email: z.string().min(2, {

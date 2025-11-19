@@ -2,8 +2,8 @@
 import { useForm, useFieldArray } from 'react-hook-form'
 import { v4 as uuid } from 'uuid'
 
-import { Button } from '@/components/ui/button'
-import { Form } from '@/components/ui/form'
+import { Button } from '#/components/ui/button'
+import { Form } from '#/components/ui/form'
 import { Minus, Plus } from 'lucide-react'
 import { EmergencyContactBlock } from './EmergencyContactBlock'
 

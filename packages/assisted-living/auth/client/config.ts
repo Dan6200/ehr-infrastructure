@@ -3,7 +3,7 @@ import { getApp, getApps, initializeApp } from 'firebase/app'
 import { getAnalytics, isSupported } from 'firebase/analytics'
 
 const appName = 'lean-ehr-assisted-living-client'
-import { firebaseConfig } from '@/firebase/config'
+import { firebaseConfig } from '#/firebase/config'
 
 // Initialize Firebase client app only in the browser environment
 let clientApp = getApps().find((app) => app?.name === appName)

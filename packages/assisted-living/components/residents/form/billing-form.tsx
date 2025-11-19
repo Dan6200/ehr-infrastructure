@@ -4,14 +4,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
-import { toast } from '@/components/ui/use-toast'
-import { isError } from '@/app/utils'
+import { toast } from '#/components/ui/use-toast'
+import { isError } from '#/app/utils'
 import {
   FinancialTransactionSchema,
   ResidentData,
   FinancialTransactionTypeEnum,
-} from '@/types'
-import { Button } from '@/components/ui/button'
+} from '#/types'
+import { Button } from '#/components/ui/button'
 import {
   Form,
   FormControl,
@@ -19,17 +19,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from '#/components/ui/form'
+import { Input } from '#/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '#/components/ui/select'
 import { Trash2 } from 'lucide-react'
-import { updateFinancials } from '@/actions/residents/update-financials'
+import { updateFinancials } from '#/actions/residents/update-financials'
 
 import * as React from 'react'
 

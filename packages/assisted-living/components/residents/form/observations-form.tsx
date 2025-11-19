@@ -2,10 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
-import { toast } from '@/components/ui/use-toast'
-import { isError } from '@/app/utils'
-import { ObservationSchema, ResidentData } from '@/types'
-import { Button } from '@/components/ui/button'
+import { toast } from '#/components/ui/use-toast'
+import { isError } from '#/app/utils'
+import { ObservationSchema, ResidentData } from '#/types'
+import { Button } from '#/components/ui/button'
 import {
   Form,
   FormControl,
@@ -13,10 +13,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from '#/components/ui/form'
+import { Input } from '#/components/ui/input'
 import { Trash2 } from 'lucide-react'
-import { updateObservations } from '@/actions/residents/update-observations'
+import { updateObservations } from '#/actions/residents/update-observations'
 
 import * as React from 'react'
 

@@ -1,13 +1,13 @@
 'use client'
-import { Button } from '@/components/ui/button'
+import { Button } from '#/components/ui/button'
 import {
   Dialog,
   DialogClose,
   DialogContent,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { toast } from '@/components/ui/use-toast'
-import { Nullable } from '@/types'
+} from '#/components/ui/dialog'
+import { toast } from '#/components/ui/use-toast'
+import { Nullable } from '#/types'
 import { useRouter } from 'next/navigation'
 
 export default function DeleteResident({

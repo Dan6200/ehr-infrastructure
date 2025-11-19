@@ -3,7 +3,7 @@ import {
   AllergyClinicalStatusEnum,
   AllergyVerificationStatusEnum,
   AllergyTypeEnum,
-} from '@/types/enums'
+} from '#/types/enums'
 import { CodeableConceptSchema } from '../codeable-concept'
 
 export const AllergySchema = z

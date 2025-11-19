@@ -4,10 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
-import { toast } from '@/components/ui/use-toast'
-import { isError } from '@/app/utils'
-import { PrescriptionSchema, ResidentData } from '@/types'
-import { Button } from '@/components/ui/button'
+import { toast } from '#/components/ui/use-toast'
+import { isError } from '#/app/utils'
+import { PrescriptionSchema, ResidentData } from '#/types'
+import { Button } from '#/components/ui/button'
 import {
   Form,
   FormControl,
@@ -15,13 +15,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from '#/components/ui/form'
+import { Input } from '#/components/ui/input'
 import { Trash2 } from 'lucide-react'
-import { updatePrescriptions } from '@/actions/residents/update-prescriptions'
+import { updatePrescriptions } from '#/actions/residents/update-prescriptions'
 
-import { Autocomplete } from '@/components/ui/autocomplete'
-import { searchRxNorm } from '@/actions/lookups/search-rxnorm'
+import { Autocomplete } from '#/components/ui/autocomplete'
+import { searchRxNorm } from '#/actions/lookups/search-rxnorm'
 
 import * as React from 'react'
 

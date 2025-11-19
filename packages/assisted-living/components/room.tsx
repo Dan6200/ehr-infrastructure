@@ -1,16 +1,16 @@
 export {}
 // 'use client'
-// import type { RoomData } from '@/types'
+// import type { RoomData } from '#/types'
 // import Link from 'next/link'
 // import { useRouter } from 'next/navigation'
 // import { Button } from './ui/button'
 // import { Card, CardContent, CardFooter, CardHeader } from './ui/card'
 // import Image from 'next/image'
-// import { deleteResidentData } from '@/actions/residents/delete'
-// import DeleteResident from '@/app/room/[id]/residents/delete'
+// import { deleteResidentData } from '#/actions/residents/delete'
+// import DeleteResident from '#/app/room/[id]/residents/delete'
 // import { useEffect, useState } from 'react'
 // import { onAuthStateChanged, User } from 'firebase/auth'
-// import { auth } from '@/firebase/client/config'
+// import { auth } from '#/firebase/client/config'
 //
 // export default function Room({ roomData }: { roomData: RoomData }) {
 //   const [admin, setAdmin] = useState<User | null>(null),

@@ -3,10 +3,10 @@ import {
   collectionWrapper,
   docWrapper,
   updateDocWrapper,
-} from '@/firebase/admin'
-import { Resident, EncryptedResident } from '@/types'
-import { verifySession } from '@/auth/server/definitions'
-import { encryptResident, getResidentConverter } from '@/types/converters'
+} from '#/firebase/admin'
+import { Resident, EncryptedResident } from '#/types'
+import { verifySession } from '#/auth/server/definitions'
+import { encryptResident, getResidentConverter } from '#/types/converters'
 
 export async function updateResident(
   newResidentData: Resident,

@@ -1,5 +1,5 @@
-import { GoBackLink } from '@/components/go-back-link'
-import { ResidentForm } from '@/components/residents/form'
+import { GoBackLink } from '#/components/go-back-link'
+import { ResidentForm } from '#/components/residents/form'
 
 export default async function AddResidentPage({
   params,

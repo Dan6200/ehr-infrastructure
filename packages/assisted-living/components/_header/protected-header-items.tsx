@@ -2,10 +2,10 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { onAuthStateChanged, User } from 'firebase/auth'
-import { getAllResidentsData } from '@/actions/residents/get'
-import { ResidentData } from '@/types'
+import { getAllResidentsData } from '#/actions/residents/get'
+import { ResidentData } from '#/types'
 import Search from './search/index'
-import { auth } from '@/auth/client/config'
+import { auth } from '#/auth/client/config'
 import { UserMenu } from './user-menu'
 
 export const SEARCHBOX_WIDTH = 'w-full md:w-[40vw]'

@@ -1,6 +1,6 @@
 'use server'
 
-import { bigqueryClient } from '@/lib/bigquery'
+import { bigqueryClient } from '#/lib/bigquery'
 
 export async function searchRxNorm(
   searchTerm: string,

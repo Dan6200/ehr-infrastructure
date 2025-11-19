@@ -1,6 +1,6 @@
-import { getNestedResidentData } from '@/actions/residents/get'
-import { CarePlanClient } from '@/components/residents/care-plan-client'
-import { CarePlan, Goal } from '@/types/schemas'
+import { getNestedResidentData } from '#/actions/residents/get'
+import { CarePlanClient } from '#/components/residents/care-plan-client'
+import { CarePlan, Goal } from '#/types/schemas'
 
 type CarePlanPageProps = {
   params: {

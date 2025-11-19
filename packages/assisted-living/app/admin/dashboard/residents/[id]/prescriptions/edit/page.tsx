@@ -1,5 +1,5 @@
-import { getResidentData } from '@/actions/residents/get'
-import { PrescriptionsForm } from '@/components/residents/form/prescriptions-form'
+import { getResidentData } from '#/actions/residents/get'
+import { PrescriptionsForm } from '#/components/residents/form/prescriptions-form'
 import { notFound } from 'next/navigation'
 
 export default async function EditPrescriptionsPage({

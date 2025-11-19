@@ -1,5 +1,5 @@
-import { getAllResidents } from '@/actions/residents/get'
-import { ResidentsTable } from '@/components/dashboard/residents-table'
+import { getAllResidents } from '#/actions/residents/get'
+import { ResidentsTable } from '#/components/dashboard/residents-table'
 
 export default async function ResidentsPage() {
   const { residents } = await getAllResidents({})

@@ -1,5 +1,5 @@
-import { getResidentData } from '@/actions/residents/get'
-import { EmergencyContactsFormEdit } from '@/components/residents/form/EmergencyContactsFormEdit'
+import { getResidentData } from '#/actions/residents/get'
+import { EmergencyContactsFormEdit } from '#/components/residents/form/EmergencyContactsFormEdit'
 import { notFound } from 'next/navigation'
 
 export default async function EditEmergencyContactsPage({

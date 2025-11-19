@@ -1,5 +1,5 @@
-import { getResidentData } from '@/actions/residents/get'
-import { ObservationsForm } from '@/components/residents/form/observations-form'
+import { getResidentData } from '#/actions/residents/get'
+import { ObservationsForm } from '#/components/residents/form/observations-form'
 import { notFound } from 'next/navigation'
 
 export default async function EditObservationsPage({

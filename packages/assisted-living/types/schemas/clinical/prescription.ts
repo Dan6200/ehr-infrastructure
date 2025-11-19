@@ -2,7 +2,7 @@ import { z } from 'zod'
 import {
   PrescriptionStatusEnum,
   PrescriptionAdherenceStatusEnum,
-} from '@/types/enums'
+} from '#/types/enums'
 import { PeriodSchema, MedicationSchema, DosageInstructionSchema } from '.'
 
 export const PrescriptionSchema = z

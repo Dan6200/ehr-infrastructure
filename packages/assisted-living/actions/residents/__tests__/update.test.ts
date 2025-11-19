@@ -1,6 +1,6 @@
 import { updateResident } from '../update'
 import { getResidentData } from '../get'
-import { loadInitialData, clearFirestore } from '@/test-data/emulatorSetup'
+import { loadInitialData, clearFirestore } from '#/test-data/emulatorSetup'
 import admin from 'firebase-admin'
 
 describe('updateResident', () => {

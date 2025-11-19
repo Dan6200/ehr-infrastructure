@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ClaimStatusEnum } from '@/types/enums'
+import { ClaimStatusEnum } from '#/types/enums'
 
 export const ClaimSchema = z.object({
   id: z.string(),

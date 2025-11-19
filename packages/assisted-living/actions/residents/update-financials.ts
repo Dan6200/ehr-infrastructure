@@ -1,15 +1,15 @@
 'use server'
-import { getAdminDb } from '@/firebase/admin'
+import { getAdminDb } from '#/firebase/admin'
 import {
   FinancialTransaction,
   EncryptedFinancialTransactionSchema,
-} from '@/types'
-import { verifySession } from '@/auth/server/definitions'
+} from '#/types'
+import { verifySession } from '#/auth/server/definitions'
 import {
   decryptDataKey,
   encryptData,
   KEK_FINANCIAL_PATH,
-} from '@/lib/encryption'
+} from '#/lib/encryption'
 
 export async function updateFinancials(
   financials: (FinancialTransaction & { id: string })[],

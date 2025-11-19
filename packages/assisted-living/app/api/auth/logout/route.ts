@@ -3,7 +3,7 @@ import {
   deleteSessionCookie,
   verifySession,
   revokeAllSessions,
-} from '@/auth/server/definitions'
+} from '#/auth/server/definitions'
 
 // The endpoint the client calls to sign out and clear the session.
 export async function POST(_request: NextRequest) {

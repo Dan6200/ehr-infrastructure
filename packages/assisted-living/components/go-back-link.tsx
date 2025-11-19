@@ -1,5 +1,5 @@
 'use client'
-import { cn } from '@/components/lib/utils'
+import { cn } from '#/components/lib/utils'
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { FC, ReactNode } from 'react'

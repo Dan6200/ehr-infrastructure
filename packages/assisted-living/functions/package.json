@@ -10,6 +10,9 @@
     "logs": "firebase functions:log",
     "backfill-bq": "node lib/src/backfill-bigquery.js"
   },
+  "imports": {
+    "#/*": "lib/*"
+  },
   "engines": {
     "node": "22"
   },

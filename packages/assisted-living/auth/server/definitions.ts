@@ -1,7 +1,7 @@
 'use server'
 import { cookies } from 'next/headers'
-import { getAdminAuth } from '@/firebase/admin'
-import redis from '@/lib/redis'
+import { getAdminAuth } from '#/firebase/admin'
+import redis from '#/lib/redis'
 
 const STALE_COOKIE_TTL = 60 * 5 // 5 minutes
 

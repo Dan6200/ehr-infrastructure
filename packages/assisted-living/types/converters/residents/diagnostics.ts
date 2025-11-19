@@ -1,5 +1,5 @@
 'use server'
-import { decryptDataKey, decryptData } from '@/lib/encryption'
+import { decryptDataKey, decryptData } from '#/lib/encryption'
 import {
   DocumentData,
   FirestoreDataConverter,
@@ -8,7 +8,7 @@ import {
 import {
   EncryptedDiagnosticHistorySchema,
   DiagnosticHistorySchema,
-} from '@/types'
+} from '#/types'
 import z from 'zod'
 
 export async function decryptDiagnosticHistory(

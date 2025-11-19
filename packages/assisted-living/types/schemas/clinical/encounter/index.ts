@@ -7,7 +7,7 @@ import {
   EncounterTypeSchema,
   SnomedConceptSchema,
 } from '../../codeable-concept'
-import { EncounterStatusEnum } from '@/types/enums'
+import { EncounterStatusEnum } from '#/types/enums'
 
 export const EncounterSchema = z.object({
   id: z.string(),

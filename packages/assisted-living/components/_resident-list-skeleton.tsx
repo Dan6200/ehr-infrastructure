@@ -6,7 +6,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '#/components/ui/table'
 import { PulsingDiv } from './ui/pulsing-div'
 
 export default function ResidentListSkeleton() {

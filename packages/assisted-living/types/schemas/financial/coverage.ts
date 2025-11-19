@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { CoverageStatusEnum } from '@/types/enums'
+import { CoverageStatusEnum } from '#/types/enums'
 import { PeriodSchema } from '../clinical'
 
 export const CoverageSchema = z.object({

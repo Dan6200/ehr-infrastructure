@@ -1,4 +1,4 @@
-import { PulsingDiv } from '@/components/ui/pulsing-div'
+import { PulsingDiv } from '#/components/ui/pulsing-div'
 import {
   Table,
   TableBody,
@@ -6,7 +6,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '#/components/ui/table'
 
 export function DataTableSkeleton() {
   return (

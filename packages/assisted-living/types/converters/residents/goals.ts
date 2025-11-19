@@ -1,11 +1,11 @@
 'use server'
-import { decryptDataKey, decryptData } from '@/lib/encryption'
+import { decryptDataKey, decryptData } from '#/lib/encryption'
 import {
   DocumentData,
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedGoalSchema, GoalSchema } from '@/types'
+import { EncryptedGoalSchema, GoalSchema } from '#/types'
 import z from 'zod'
 
 export async function decryptGoal(

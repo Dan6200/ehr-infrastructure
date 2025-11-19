@@ -1,8 +1,8 @@
 'use client'
 import { CldImage } from 'next-cloudinary'
 import Image from 'next/image'
-import type { ResidentData } from '@/types'
-import { useAuth } from '@/auth/client/auth-context'
+import type { ResidentData } from '#/types'
+import { useAuth } from '#/auth/client/auth-context'
 
 const CLOUDINARY_FOLDER = 'lean-ehr/assisted-living/'
 

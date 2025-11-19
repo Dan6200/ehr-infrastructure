@@ -1,8 +1,8 @@
 'use server'
-import { addDocWrapper, collectionWrapper } from '@/firebase/admin'
-import { Resident, EncryptedResident } from '@/types'
-import { verifySession } from '@/auth/server/definitions'
-import { encryptResident, getResidentConverter } from '@/types/converters'
+import { addDocWrapper, collectionWrapper } from '#/firebase/admin'
+import { Resident, EncryptedResident } from '#/types'
+import { verifySession } from '#/auth/server/definitions'
+import { encryptResident, getResidentConverter } from '#/types/converters'
 
 export async function addNewResident(
   residentData: Omit<Resident, 'resident_id'>,

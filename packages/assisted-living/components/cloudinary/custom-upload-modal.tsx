@@ -1,14 +1,14 @@
 'use client'
 
 import { CldUploadWidget } from 'next-cloudinary'
-import { Button } from '@/components/ui/button'
+import { Button } from '#/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '#/components/ui/dialog'
 
 interface CustomUploadModalProps {
   isOpen: boolean
