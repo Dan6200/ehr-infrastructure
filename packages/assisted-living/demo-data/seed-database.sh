@@ -71,4 +71,8 @@ set -e # Exit immediately if a command exits with a non-zero status.
 # --- Step 5: Backfill Existing Data to BigQuery ---
 echo "--- Step 5: Backfilling existing Firestore data to BigQuery... ---"
 cd functions/
+echo "ls lib/"
+ls lib/
+echo "ls lib/lib/"
+ls lib/lib/
 npm run backfill-bq
