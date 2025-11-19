@@ -21,7 +21,7 @@ import {
 import {
   KEK_GENERAL_PATH,
   KEK_CONTACT_PATH,
-  KEK_FINANCIAL_PATH,
+  KEK_CLINICAL_PATH,
 } from '@/lib/encryption'
 
 // --- Configuration ---
@@ -35,7 +35,7 @@ async function backfill() {
   const kekPaths = {
     KEK_GENERAL_PATH,
     KEK_CONTACT_PATH,
-    KEK_FINANCIAL_PATH,
+    KEK_CLINICAL_PATH,
   }
   admin.initializeApp()
   const firestore = getFirestore()

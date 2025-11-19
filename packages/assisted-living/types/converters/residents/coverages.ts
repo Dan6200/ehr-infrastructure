@@ -24,8 +24,8 @@ export async function decryptCoverage(
     } else if (key === 'payor') {
       decryptedData.payor = {
         id: data.payor.id,
-        organization: data.payor.encrypted_organization
-          ? decryptData(data.payor.encrypted_organization, dek)
+        organization: !!data.payor.encrypted_organization
+          ? decryptData(data.payor.encrypted_organization!, dek)
           : null,
       }
     } else if (
