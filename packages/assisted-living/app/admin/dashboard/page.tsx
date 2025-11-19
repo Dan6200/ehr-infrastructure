@@ -8,7 +8,6 @@ import {
 } from '@/lib/bigquery/queries'
 import { Resident } from '@/types'
 
-// The data types remain the same for the frontend components
 export type FormattedChartData = {
   date: string
   currency: string
@@ -25,11 +24,11 @@ async function getChartData(): Promise<{
   try {
     const financialQueryOptions = {
       query: getFinancialSummaryQuery,
-      location: 'EU', // Or your BigQuery dataset location
+      location: 'EU', // Updated to EU as per your .env file
     }
     const growthQueryOptions = {
       query: getResidentGrowthQuery,
-      location: 'EU',
+      location: 'EU', // Updated to EU as per your .env file
     }
 
     // Run the queries in parallel
@@ -50,6 +49,7 @@ async function getChartData(): Promise<{
     }
   } catch (error) {
     console.error('BigQuery query failed:', error)
+    // More specific error handling can be added here
     if (error instanceof Error && error.message.match(/(denied|invalid)/i)) {
       redirect('/sign-in')
     }
@@ -59,7 +59,7 @@ async function getChartData(): Promise<{
 
 export default async function DashboardPage() {
   const data = await getChartData()
-  if (!data) return <div>Error loading chart data from BigQuery.</div>
+  if (!data) return <div>Error loading dashboard data from BigQuery.</div>
   return (
     <DashboardClient chartData={data.chartData} residents={data.residents} />
   )
