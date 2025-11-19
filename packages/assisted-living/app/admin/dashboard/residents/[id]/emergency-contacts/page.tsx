@@ -1,6 +1,6 @@
-import { getResidentData } from '#lib/actions/residents/get'
-import EmergencyContacts from '#lib/components/emergency-contacts'
-import { Button } from '#lib/components/ui/button'
+import { getResidentData } from '#root/actions/residents/get'
+import EmergencyContacts from '#root/components/emergency-contacts'
+import { Button } from '#root/components/ui/button'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 

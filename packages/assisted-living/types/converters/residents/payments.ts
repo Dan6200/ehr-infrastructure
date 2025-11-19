@@ -1,11 +1,11 @@
 'use server'
-import { decryptDataKey, decryptData } from '#lib/lib/encryption'
+import { decryptDataKey, decryptData } from '#root/lib/encryption'
 import {
   DocumentData,
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedPaymentSchema, PaymentSchema } from '#lib/types'
+import { EncryptedPaymentSchema, PaymentSchema } from '#root/types'
 import z from 'zod'
 
 export async function decryptPayment(

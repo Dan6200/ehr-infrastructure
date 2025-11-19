@@ -1,4 +1,4 @@
-import { PulsingDiv } from '#lib/components/ui/pulsing-div'
+import { PulsingDiv } from '#root/components/ui/pulsing-div'
 
 export function ResidentInfoSkeleton() {
   return (

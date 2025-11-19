@@ -1,7 +1,7 @@
 'use client'
 import { ResidentFormAdd } from './ResidentFormAdd'
 import { ResidentFormEdit } from './ResidentFormEdit'
-import type { Nullable, ResidentData } from '#lib/types'
+import type { Nullable, ResidentData } from '#root/types'
 
 export function ResidentForm({
   ...residentData

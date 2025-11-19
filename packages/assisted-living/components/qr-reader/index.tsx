@@ -1,5 +1,5 @@
 //"use client";
-//import { toast } from "#lib/components/ui/use-toast";
+//import { toast } from "#root/components/ui/use-toast";
 //import { useEffect, useState } from "react";
 //import { QrReader } from "react-qr-reader";
 //import { CameraOff } from "lucide-react";

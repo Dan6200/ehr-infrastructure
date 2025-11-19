@@ -4,7 +4,7 @@ import {
   EncounterDiagnosisUseCode,
   EncounterReasonUseCode,
 } from '../codeable-concept'
-import { EncounterStatusEnum } from '#lib/types/enums'
+import { EncounterStatusEnum } from '#root/types/enums'
 
 export const EncounterSchema = z.object({
   id: z.string(),

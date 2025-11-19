@@ -5,13 +5,13 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '#lib/auth/client/config'
+import { auth } from '#root/auth/client/config'
 
-import { toast } from '#lib/components/ui/use-toast'
-import { isError } from '#lib/app/utils'
-import { updateResident } from '#lib/actions/residents/update'
+import { toast } from '#root/components/ui/use-toast'
+import { isError } from '#root/app/utils'
+import { updateResident } from '#root/actions/residents/update'
 import { ResidentFormBase } from './ResidentFormBase'
-import { type ResidentData, ResidentDataSchema } from '#lib/types'
+import { type ResidentData, ResidentDataSchema } from '#root/types'
 
 export function ResidentFormEdit({
   ...residentData

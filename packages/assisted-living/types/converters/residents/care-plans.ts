@@ -1,11 +1,11 @@
 'use server'
-import { decryptDataKey, decryptData } from '#lib/lib/encryption'
+import { decryptDataKey, decryptData } from '#root/lib/encryption'
 import {
   DocumentData,
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedCarePlanSchema, CarePlanSchema } from '#lib/types'
+import { EncryptedCarePlanSchema, CarePlanSchema } from '#root/types'
 import z from 'zod'
 
 export async function decryptCarePlan(

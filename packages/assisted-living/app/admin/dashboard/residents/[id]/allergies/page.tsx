@@ -1,5 +1,5 @@
-import { getResidentData } from '#lib/actions/residents/get'
-import { Button } from '#lib/components/ui/button'
+import { getResidentData } from '#root/actions/residents/get'
+import { Button } from '#root/components/ui/button'
 import {
   Table,
   TableBody,
@@ -7,8 +7,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '#lib/components/ui/table'
-import { Allergy } from '#lib/types'
+} from '#root/components/ui/table'
+import { Allergy } from '#root/types'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 

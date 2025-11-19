@@ -5,13 +5,13 @@ import { z } from 'zod'
 import { useState, useEffect } from 'react'
 import { onAuthStateChanged } from 'firebase/auth' // Added imports
 
-import { toast } from '#lib/components/ui/use-toast'
-import { isError } from '#lib/app/utils'
-import { addNewResident } from '#lib/actions/residents/add'
+import { toast } from '#root/components/ui/use-toast'
+import { isError } from '#root/app/utils'
+import { addNewResident } from '#root/actions/residents/add'
 import { ResidentFormBase } from './ResidentFormBase'
-import type { ResidentData } from '#lib/types'
-import { ResidentDataSchema } from '#lib/types'
-import { auth } from '#lib/auth/client/config'
+import type { ResidentData } from '#root/types'
+import { ResidentDataSchema } from '#root/types'
+import { auth } from '#root/auth/client/config'
 
 export function ResidentFormAdd({
   facility_id,

@@ -1,4 +1,4 @@
-import { IntentEnum, PriorityEnum, TaskStatusEnum } from '#lib/types/enums'
+import { IntentEnum, PriorityEnum, TaskStatusEnum } from '#root/types/enums'
 import { z } from 'zod'
 import { PeriodSchema } from './period'
 

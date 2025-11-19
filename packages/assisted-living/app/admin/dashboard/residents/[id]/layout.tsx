@@ -1,9 +1,9 @@
 import { notFound, redirect } from 'next/navigation'
-import { getResidentData } from '#lib/actions/residents/get'
-import Resident from '#lib/components/resident'
-import { GoBackLink } from '#lib/components/go-back-link'
+import { getResidentData } from '#root/actions/residents/get'
+import Resident from '#root/components/resident'
+import { GoBackLink } from '#root/components/go-back-link'
 import { ReactNode, Suspense } from 'react'
-import { ResidentNav } from '#lib/components/resident-nav'
+import { ResidentNav } from '#root/components/resident-nav'
 import { ResidentLayoutSkeleton } from './loading-skeleton'
 
 async function ResidentDataContainer({

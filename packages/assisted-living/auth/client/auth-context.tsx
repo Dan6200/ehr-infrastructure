@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User } from 'firebase/auth'
-import { auth } from '#lib/auth/client/config' // Assuming you have a client-side firebase config
+import { auth } from '#root/auth/client/config' // Assuming you have a client-side firebase config
 
 interface AuthContextType {
   user: User | null

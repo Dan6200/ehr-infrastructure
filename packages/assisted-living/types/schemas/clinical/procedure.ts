@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { SnomedConceptSchema } from '../codeable-concept'
-import { ProcedureStatusEnum } from '#lib/types/enums'
+import { ProcedureStatusEnum } from '#root/types/enums'
 import { PeriodSchema } from './period'
 import { OccurrenceSchema } from './occurrence'
 

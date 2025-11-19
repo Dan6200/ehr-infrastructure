@@ -1,5 +1,5 @@
 import { getResidentData, getResidents } from '../get'
-import { loadInitialData, clearFirestore } from '#lib/test-data/emulatorSetup'
+import { loadInitialData, clearFirestore } from '#root/test-data/emulatorSetup'
 import admin from 'firebase-admin'
 
 // Mock next/navigation functions

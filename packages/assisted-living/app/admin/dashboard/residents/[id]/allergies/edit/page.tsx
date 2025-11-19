@@ -1,5 +1,5 @@
-import { getResidentData } from '#lib/actions/residents/get'
-import { AllergiesForm } from '#lib/components/residents/form/allergies-form'
+import { getResidentData } from '#root/actions/residents/get'
+import { AllergiesForm } from '#root/components/residents/form/allergies-form'
 import { notFound } from 'next/navigation'
 
 export default async function EditAllergiesPage({

@@ -1,8 +1,8 @@
 'use server'
 
-import { getAuthenticatedAppAndClaims } from '#lib/auth/server/definitions'
-import { KEK_RESPONDER_PATH } from '#lib/lib/encryption'
-import { logger } from '#lib/lib/logger' // Assuming a logger utility exists
+import { getAuthenticatedAppAndClaims } from '#root/auth/server/definitions'
+import { KEK_RESPONDER_PATH } from '#root/lib/encryption'
+import { logger } from '#root/lib/logger' // Assuming a logger utility exists
 
 /**
  * Simulates the "break-glass" workflow for emergency access.

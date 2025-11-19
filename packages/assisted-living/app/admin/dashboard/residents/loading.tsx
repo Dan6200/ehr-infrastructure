@@ -1,4 +1,4 @@
-import { DataTableSkeleton } from '#lib/components/dashboard/data-table-skeleton'
+import { DataTableSkeleton } from '#root/components/dashboard/data-table-skeleton'
 
 export default function ResidentsLoading() {
   return (

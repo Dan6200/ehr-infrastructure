@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ObservationStatusEnum } from '#lib/types/enums'
+import { ObservationStatusEnum } from '#root/types/enums'
 import { CodeableConceptSchema } from '../codeable-concept'
 import { ValueQuantitySchema } from '.'
 

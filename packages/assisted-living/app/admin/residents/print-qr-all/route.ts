@@ -2,13 +2,13 @@
 export {}
 /***** Moved To A Standalone Application *******************/
 /*
-import { getAllRooms } from "#/app/admin/residents/data-actions";
-import { Facility } from "#/types";
+import { getAllRooms } from "#root/app/admin/residents/data-actions";
+import { Facility } from "#root/types";
 import jsPDF from "jspdf";
 import { NextResponse } from "next/server";
 import logo from "./logo";
 import QRcode from "qrcode";
-import redis from "#/lib/redis";
+import redis from "#root/redis";
 
 // Add base64 for the logo if you want it embedded
 // You can convert the logo into base64 using an online tool and place the result here

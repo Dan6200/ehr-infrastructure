@@ -1,24 +1,24 @@
 'use client'
 
 import * as React from 'react'
-import { useIsMobile } from '#lib/hooks/use-mobile'
-import { Button } from '#lib/components/ui/button'
+import { useIsMobile } from '#root/hooks/use-mobile'
+import { Button } from '#root/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '#lib/components/ui/dialog'
+} from '#root/components/ui/dialog'
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from '#lib/components/ui/drawer'
-import { EmergencyContact } from '#lib/types'
-import { EmergencyContactsFormEdit } from '#lib/components/residents/form/EmergencyContactsFormEdit'
+} from '#root/components/ui/drawer'
+import { EmergencyContact } from '#root/types'
+import { EmergencyContactsFormEdit } from '#root/components/residents/form/EmergencyContactsFormEdit'
 
 interface EditEmergencyContactsDialogProps {
   documentId: string

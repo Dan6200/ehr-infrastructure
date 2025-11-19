@@ -1,5 +1,5 @@
-import { getResidentData } from '#lib/actions/residents/get'
-import { DiagnosticHistoryForm } from '#lib/components/residents/form/diagnostic-history-form'
+import { getResidentData } from '#root/actions/residents/get'
+import { DiagnosticHistoryForm } from '#root/components/residents/form/diagnostic-history-form'
 import { notFound } from 'next/navigation'
 
 export default async function EditDiagnosticHistoryPage({

@@ -1,6 +1,6 @@
-import { GoBackLink } from '#lib/components/go-back-link'
-import { ResidentForm } from '#lib/components/residents/form'
-import { getResidentData } from '#lib/actions/residents/get'
+import { GoBackLink } from '#root/components/go-back-link'
+import { ResidentForm } from '#root/components/residents/form'
+import { getResidentData } from '#root/actions/residents/get'
 
 export default async function EditResidentPage({
   params,
