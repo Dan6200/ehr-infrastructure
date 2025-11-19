@@ -11,7 +11,7 @@
     "backfill-bq": "node lib/src/backfill-bigquery.js"
   },
   "imports": {
-    "#root/*": "./lib/*"
+    "#root/*": "./lib/src/*"
   },
   "engines": {
     "node": "22"

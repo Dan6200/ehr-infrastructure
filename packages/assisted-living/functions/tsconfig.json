@@ -12,7 +12,7 @@
     "target": "es2017",
     "skipLibCheck": true,
     "paths": {
-      "#root/*": ["./lib/*"]
+      "#root/*": ["./lib/src/*"]
     }
   },
   "compileOnSave": true,
