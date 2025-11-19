@@ -22,6 +22,7 @@ import {
   KEK_GENERAL_PATH,
   KEK_CONTACT_PATH,
   KEK_CLINICAL_PATH,
+  KEK_FINANCIAL_PATH,
 } from '@/lib/encryption'
 
 // --- Configuration ---
@@ -32,7 +33,7 @@ const BATCH_SIZE = 500 // Number of documents to process and insert at a time
 async function backfill() {
   console.log('--- Starting BigQuery Backfill Script ---')
 
-  const kekPaths = {
+  const residentKekPaths = {
     KEK_GENERAL_PATH,
     KEK_CONTACT_PATH,
     KEK_CLINICAL_PATH,
@@ -46,25 +47,26 @@ async function backfill() {
     residents: {
       kekPath: 'complex',
       parent: null,
-      decryptor: (doc: any) => decryptResidentData(doc, ['ADMIN'], kekPaths),
+      decryptor: (doc: any) =>
+        decryptResidentData(doc, ['ADMIN'], residentKekPaths),
     },
     charges: {
-      kekPath: kekPaths.KEK_FINANCIAL_PATH,
+      kekPath: KEK_FINANCIAL_PATH,
       parent: 'residents',
       decryptor: decryptCharge,
     },
     payments: {
-      kekPath: kekPaths.KEK_FINANCIAL_PATH,
+      kekPath: KEK_FINANCIAL_PATH,
       parent: 'residents',
       decryptor: decryptPayment,
     },
     claims: {
-      kekPath: kekPaths.KEK_FINANCIAL_PATH,
+      kekPath: KEK_FINANCIAL_PATH,
       parent: 'residents',
       decryptor: decryptClaim,
     },
     adjustments: {
-      kekPath: kekPaths.KEK_FINANCIAL_PATH,
+      kekPath: KEK_FINANCIAL_PATH,
       parent: 'residents',
       decryptor: decryptAdjustment,
     },
