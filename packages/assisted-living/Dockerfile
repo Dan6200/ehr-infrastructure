@@ -15,8 +15,8 @@ COPY types ./dev-utils/generate-encrypted-payload/types
 COPY lib/encryption.ts ./dev-utils/generate-encrypted-payload/lib/
 COPY functions ./functions
 COPY types ./functions/lib/types
-COPY lib/encryption.ts ./functions/lib/
-COPY lib/bigquery/index.ts ./functions/lib/bigquery/index.ts
+COPY lib/encryption.ts ./functions/lib/lib/
+COPY lib/bigquery/index.ts ./functions/lib/lib/bigquery/index.ts
 COPY firebase.json .firebaserc firestore.indexes.json firestore.rules ./
 
 # This leverages Docker layer caching
