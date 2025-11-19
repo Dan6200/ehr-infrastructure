@@ -26,7 +26,7 @@ export async function decryptProcedure(
       decryptedData.performer = {
         id: data.performer.id,
         name: !!data.performer.encrypted_name
-          ? decryptData(data.performer.encrypted_name!, dek)
+          ? decryptData(data.performer.encrypted_name, dek)
           : null,
         period: JSON.parse(decryptData(data.performer.encrypted_period, dek)),
       }
