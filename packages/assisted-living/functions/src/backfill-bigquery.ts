@@ -33,23 +33,23 @@ const BATCH_SIZE = 500 // Number of documents to process and insert at a time
 async function backfill() {
   console.log('--- Starting BigQuery Backfill Script ---')
 
-  const residentKekPaths = {
-    KEK_GENERAL_PATH,
-    KEK_CONTACT_PATH,
-    KEK_CLINICAL_PATH,
-  }
+  // const residentKekPaths = {
+  //   KEK_GENERAL_PATH,
+  //   KEK_CONTACT_PATH,
+  //   KEK_CLINICAL_PATH,
+  // }
   admin.initializeApp()
   const firestore = getFirestore()
   firestore.settings({ databaseId: 'staging-beta' })
   const db = firestore
 
   const COLLECTIONS_TO_BACKFILL = {
-    residents: {
-      kekPath: 'complex',
-      parent: null,
-      decryptor: (doc: any) =>
-        decryptResidentData(doc, ['ADMIN'], residentKekPaths),
-    },
+    // residents: {
+    //   kekPath: 'complex',
+    //   parent: null,
+    //   decryptor: (doc: any) =>
+    //     decryptResidentData(doc, ['ADMIN'], residentKekPaths),
+    // },
     charges: {
       kekPath: KEK_FINANCIAL_PATH,
       parent: 'residents',
@@ -111,9 +111,9 @@ async function backfill() {
         let batch: any[] = []
         for (const doc of snapshot.docs) {
           const decryptedObject =
-            collectionName === 'residents'
-              ? await decryptor(doc.data())
-              : await decryptor(doc.data(), kekPath)
+            // collectionName === 'residents'
+            //   ? await decryptor(doc.data()) :
+            await decryptor(doc.data(), kekPath)
 
           batch.push({ document_id: doc.id, ...decryptedObject })
 

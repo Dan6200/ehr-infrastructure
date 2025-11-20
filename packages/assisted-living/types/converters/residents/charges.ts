@@ -31,6 +31,8 @@ export async function decryptCharge(
     }
   }
 
+  console.log('****Debugging: Decrypted Data *****')
+  console.log(decryptedData)
   if (decryptedData.unit_price) {
     decryptedData.unit_price = JSON.parse(decryptedData.unit_price)
   }
