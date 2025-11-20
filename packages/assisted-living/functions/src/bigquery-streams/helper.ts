@@ -107,6 +107,10 @@ export async function streamToBigQuery(
       { id: documentId, ...encryptedFirestoreDocument },
       (kekPath === 'complex' ? residentKekPaths : kekPath) as any,
     )
+    const tableId =
+      collectionName === 'residents'
+        ? 'resident_timestamps_raw'
+        : `${collectionName.replace(/-/g, '_')}_raw`
 
     await bigqueryClient
       .dataset(DATASET_ID)
