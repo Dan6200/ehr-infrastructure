@@ -134,8 +134,9 @@ async function backfill() {
     } catch (error) {
       console.error(
         `  ❌ Error processing collection ${collectionName}:`,
-        error,
+        JSON.stringify(error),
       )
+      throw error
     }
   }
   console.log('\n--- BigQuery Backfill Complete! ---')
