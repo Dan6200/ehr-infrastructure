@@ -21,6 +21,7 @@
     {
       "source": "functions",
       "codebase": "default",
+      "region": "europe-west1",
       "ignore": [
         "node_modules",
         ".git",
@@ -34,12 +35,8 @@
     "rules": "storage.rules"
   },
   "firestore": {
-    "database": "staging-beta",
+    "database": "staging",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
-  },
-  "functions": {
-    "source": "functions",
-    "region": "europe-west1"
   }
 }
