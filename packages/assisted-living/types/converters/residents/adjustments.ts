@@ -32,7 +32,11 @@ export async function decryptAdjustment(
   }
 
   if (decryptedData.approved_amount) {
-    decryptedData.approved_amount = JSON.parse(decryptedData.approved_amount)
+    const parsed = JSON.parse(decryptedData.approved_amount)
+    if (typeof parsed.value === 'number') {
+      parsed.value = parseFloat(parsed.value.toFixed(2))
+    }
+    decryptedData.approved_amount = parsed
   }
 
   return AdjustmentSchema.parse(decryptedData)

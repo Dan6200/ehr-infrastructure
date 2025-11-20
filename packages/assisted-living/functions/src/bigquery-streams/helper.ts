@@ -4,27 +4,37 @@ import {
   QueryDocumentSnapshot,
 } from 'firebase-functions/v2/firestore'
 import bigqueryClient from '#root/lib/bigquery'
-import { decryptData, decryptDataKey } from '#root/lib/encryption'
-import { KEK_GENERAL_PATH, KEK_FINANCIAL_PATH } from '#root/lib/encryption'
+import {
+  decryptResidentData,
+  decryptPayment,
+  decryptAdjustment,
+  decryptCharge,
+  decryptClaim,
+} from '#root/types/converters'
+import {
+  KEK_GENERAL_PATH,
+  KEK_CONTACT_PATH,
+  KEK_CLINICAL_PATH,
+  KEK_FINANCIAL_PATH,
+} from '#root/lib/encryption'
 
 const DATASET_ID = 'firestore_export'
+
+const DECRYPTOR_MAP: {
+  [key: string]: (doc: any, kek: string) => Promise<any>
+} = {
+  charges: decryptCharge,
+  claims: decryptClaim,
+  payments: decryptPayment,
+  adjustments: decryptAdjustment,
+}
 
 export async function streamToBigQuery(
   collectionName: string,
   event: FirestoreEvent<Change<QueryDocumentSnapshot> | undefined>,
 ) {
-  // Load KEK paths at RUNTIME
-
-  // Map collection names to their corresponding KEK path
-  const COLLECTION_KEK_MAP: { [key: string]: string } = {
-    residents: KEK_GENERAL_PATH,
-    charges: KEK_FINANCIAL_PATH,
-    claims: KEK_FINANCIAL_PATH,
-    payments: KEK_FINANCIAL_PATH,
-    adjustments: KEK_FINANCIAL_PATH,
-  }
-
   const documentId = event.params[Object.keys(event.params)[0]]
+  // I don't understand your reasoning for this =>   const documentId = event.params.adjustmentId || event.params.paymentId || event.params.claimId || event.params.chargeId || event.params.residentId;
   const tableId = `${collectionName}_raw`
 
   if (!event.data) {
@@ -38,7 +48,7 @@ export async function streamToBigQuery(
 
   if (!after.exists) {
     console.log(
-      `Document ${documentId} in ${collectionName} was deleted. No action taken for now.`,
+      `Document ${documentId} in ${collectionName} was deleted. No action taken.`,
     )
     return null
   }
@@ -51,40 +61,24 @@ export async function streamToBigQuery(
     return null
   }
 
-  // --- Decryption Step ---
+  const decryptor = DECRYPTOR_MAP[collectionName]
+  if (!decryptor) {
+    console.warn(
+      `No decryptor found for collection: ${collectionName}. Skipping.`,
+    )
+    return null
+  }
+
   try {
-    const { encryptedDek, encryptedData } = encryptedFirestoreDocument
+    const decryptedObject = await decryptor(
+      { document_id: documentId, ...encryptedFirestoreDocument },
+      KEK_FINANCIAL_PATH,
+    )
 
-    // Determine which KEK to use based on the collection name
-    const actualKekPath = COLLECTION_KEK_MAP[collectionName]
-
-    if (!actualKekPath || !encryptedDek || !encryptedData) {
-      console.warn(
-        `Document ${documentId} in ${collectionName} is missing encryption fields or a KEK mapping. Skipping decryption.`,
-      )
-      const row = {
-        document_id: documentId,
-        ...encryptedFirestoreDocument,
-      }
-      await bigqueryClient.dataset(DATASET_ID).table(tableId).insert([row])
-      return null
-    }
-
-    // 1. Decrypt the DEK
-    const plaintextDek = await decryptDataKey(encryptedDek, actualKekPath)
-
-    // 2. Decrypt the actual data
-    const decryptedDataString = decryptData(encryptedData, plaintextDek)
-
-    // 3. Parse the decrypted string back into an object
-    const decryptedObject = JSON.parse(decryptedDataString)
-
-    const row = {
-      document_id: documentId,
-      ...decryptedObject,
-    }
-
-    await bigqueryClient.dataset(DATASET_ID).table(tableId).insert([row])
+    await bigqueryClient
+      .dataset(DATASET_ID)
+      .table(tableId)
+      .insert([decryptedObject])
     console.log(
       `Successfully decrypted and streamed document ${documentId} from ${collectionName} to BigQuery.`,
     )

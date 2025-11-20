@@ -32,7 +32,11 @@ export async function decryptCharge(
   }
 
   if (decryptedData.unit_price) {
-    decryptedData.unit_price = JSON.parse(decryptedData.unit_price)
+    const parsed = JSON.parse(decryptedData.unit_price)
+    if (typeof parsed.value === 'number') {
+      parsed.value = parseFloat(parsed.value.toFixed(2))
+    }
+    decryptedData.unit_price = parsed
   }
   if (decryptedData.quantity) {
     decryptedData.quantity = parseInt(decryptedData.quantity, 10)

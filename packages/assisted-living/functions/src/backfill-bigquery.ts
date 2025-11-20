@@ -12,16 +12,16 @@ import admin from 'firebase-admin'
 import { getFirestore } from 'firebase-admin/firestore'
 import bigqueryClient from '#root/lib/bigquery' // Re-use the client from functions
 import {
-  // decryptResidentData,
+  decryptResidentData,
   decryptPayment,
   decryptAdjustment,
   decryptCharge,
   decryptClaim,
 } from '#root/types/converters'
 import {
-  // KEK_GENERAL_PATH,
-  // KEK_CONTACT_PATH,
-  // KEK_CLINICAL_PATH,
+  KEK_GENERAL_PATH,
+  KEK_CONTACT_PATH,
+  KEK_CLINICAL_PATH,
   KEK_FINANCIAL_PATH,
 } from '#root/lib/encryption'
 
@@ -134,9 +134,8 @@ async function backfill() {
     } catch (error) {
       console.error(
         `  ❌ Error processing collection ${collectionName}:`,
-        JSON.stringify(error),
+        JSON.stringify(error, null, 2),
       )
-      throw error
     }
   }
   console.log('\n--- BigQuery Backfill Complete! ---')

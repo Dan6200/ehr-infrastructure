@@ -32,7 +32,11 @@ export async function decryptPayment(
   }
 
   if (decryptedData.amount) {
-    decryptedData.amount = JSON.parse(decryptedData.amount)
+    const parsed = JSON.parse(decryptedData.amount)
+    if (typeof parsed.value === 'number') {
+      parsed.value = parseFloat(parsed.value.toFixed(2))
+    }
+    decryptedData.amount = parsed
   }
 
   return PaymentSchema.parse(decryptedData)

@@ -32,7 +32,11 @@ export async function decryptClaim(
   }
 
   if (decryptedData.total) {
-    decryptedData.total = JSON.parse(decryptedData.total)
+    const parsed = JSON.parse(decryptedData.total)
+    if (typeof parsed.value === 'number') {
+      parsed.value = parseFloat(parsed.value.toFixed(2))
+    }
+    decryptedData.total = parsed
   }
 
   return ClaimSchema.parse(decryptedData)
