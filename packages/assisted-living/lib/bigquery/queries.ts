@@ -5,7 +5,7 @@ export const getFinancialSummaryQuery = `
 WITH all_transactions AS (
   -- Charges
   SELECT
-    PARSE_DATE('%Y-%m-%d', SUBSTR(occurrence_datetime, 1, 10)) as event_date,
+    DATE(occurrence_datetime) as event_date,
     'charges' as type,
     (unit_price.value * quantity) as amount,
     unit_price.currency as currency
@@ -14,7 +14,7 @@ WITH all_transactions AS (
   UNION ALL
   -- Claims
   SELECT
-    PARSE_DATE('%Y-%m-%d', SUBSTR(authored_on, 1, 10)) as event_date,
+    DATE(authored_on) as event_date,
     'claims' as type,
     total.value as amount,
     total.currency as currency
@@ -23,7 +23,7 @@ WITH all_transactions AS (
   UNION ALL
   -- Payments
   SELECT
-    PARSE_DATE('%Y-%m-%d', SUBSTR(occurrence_datetime, 1, 10)) as event_date,
+    DATE(occurrence_datetime) as event_date,
     'payments' as type,
     amount.value as amount,
     amount.currency as currency
@@ -32,7 +32,7 @@ WITH all_transactions AS (
   UNION ALL
   -- Adjustments
   SELECT
-    PARSE_DATE('%Y-%m-%d', SUBSTR(authored_on, 1, 10)) as event_date,
+    DATE(authored_on) as event_date,
     'adjustments' as type,
     approved_amount.value as amount,
     approved_amount.currency as currency
@@ -56,7 +56,7 @@ ORDER BY
 
 export const getResidentGrowthQuery = `
 SELECT
-  created_at
+  DATE(created_at) as created_at
 FROM
   \`lean-ehr.firestore_export.residents_raw\`
 `
