@@ -50,11 +50,11 @@ async function backfill() {
     //   decryptor: (doc: any) =>
     //     decryptResidentData(doc, ['ADMIN'], residentKekPaths),
     // },
-    charges: {
-      kekPath: KEK_FINANCIAL_PATH,
-      parent: 'residents',
-      decryptor: decryptCharge,
-    },
+    // charges: {
+    //   kekPath: KEK_FINANCIAL_PATH,
+    //   parent: 'residents',
+    //   decryptor: decryptCharge,
+    // },
     payments: {
       kekPath: KEK_FINANCIAL_PATH,
       parent: 'residents',

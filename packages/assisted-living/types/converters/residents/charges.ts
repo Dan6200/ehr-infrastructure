@@ -38,8 +38,6 @@ export async function decryptCharge(
     decryptedData.quantity = parseInt(decryptedData.quantity, 10)
   }
 
-  console.log('****Debugging: Decrypted Data *****')
-  console.log(decryptedData)
   return ChargeSchema.parse(decryptedData)
 }
 

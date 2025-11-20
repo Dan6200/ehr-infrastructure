@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const PaymentSchema = z.object({
-  id: z.string(),
+  document_id: z.string(),
   claim_id: z.string().nullable().optional(),
   coverage_id: z.string().nullable().optional(),
   amount: z.object({ value: z.number(), currency: z.string().default('NGN') }),
