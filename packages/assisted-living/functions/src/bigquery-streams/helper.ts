@@ -20,17 +20,48 @@ import {
 
 const DATASET_ID = 'firestore_export'
 
-const DECRYPTOR_MAP: {
-  [key: string]: (doc: any, kek: string) => Promise<any>
-} = {
-  charges: decryptCharge,
-  claims: decryptClaim,
-  payments: decryptPayment,
-  adjustments: decryptAdjustment,
+const residentKekPaths = {
+  KEK_GENERAL_PATH,
+  KEK_CONTACT_PATH,
+  KEK_CLINICAL_PATH,
+}
+
+const COLLECTIONS_MAP = {
+  residents: {
+    kekPath: 'complex',
+    parent: null,
+    decryptor: (doc: any) =>
+      decryptResidentData(doc, ['ADMIN'], residentKekPaths),
+  },
+  charges: {
+    kekPath: KEK_FINANCIAL_PATH,
+    parent: 'residents',
+    decryptor: decryptCharge,
+  },
+  payments: {
+    kekPath: KEK_FINANCIAL_PATH,
+    parent: 'residents',
+    decryptor: decryptPayment,
+  },
+  claims: {
+    kekPath: KEK_FINANCIAL_PATH,
+    parent: 'residents',
+    decryptor: decryptClaim,
+  },
+  adjustments: {
+    kekPath: KEK_FINANCIAL_PATH,
+    parent: 'residents',
+    decryptor: decryptAdjustment,
+  },
 }
 
 export async function streamToBigQuery(
-  collectionName: string,
+  collectionName:
+    | 'residents'
+    | 'charges'
+    | 'payments'
+    | 'adjustments'
+    | 'claims',
   event: FirestoreEvent<Change<QueryDocumentSnapshot> | undefined>,
 ) {
   const documentId = event.params[Object.keys(event.params)[0]]
@@ -61,7 +92,7 @@ export async function streamToBigQuery(
     return null
   }
 
-  const decryptor = DECRYPTOR_MAP[collectionName]
+  const { kekPath, decryptor } = COLLECTIONS_MAP[collectionName]
   if (!decryptor) {
     console.warn(
       `No decryptor found for collection: ${collectionName}. Skipping.`,
@@ -72,7 +103,7 @@ export async function streamToBigQuery(
   try {
     const decryptedObject = await decryptor(
       { document_id: documentId, ...encryptedFirestoreDocument },
-      KEK_FINANCIAL_PATH,
+      kekPath === 'complex' ? residentKekPaths : kekPath,
     )
 
     await bigqueryClient

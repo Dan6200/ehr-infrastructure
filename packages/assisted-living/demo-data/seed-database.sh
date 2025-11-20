@@ -63,12 +63,12 @@ set -e # Exit immediately if a command exits with a non-zero status.
 #
 # # echo "\n--- Upload Complete! ---"
 #
-# # --- Step 4: Deploy Firestore Rules, Indexes, and Functions ---
-# echo "--- Step 4: Setting Up Rules, Indexes, and Functions ---"
-#
-# firebase deploy --only firestore,functions --force
-#
-# --- Step 5: Backfill Existing Data to BigQuery ---
-echo "--- Step 5: Backfilling existing Firestore data to BigQuery... ---"
-cd functions/
-npm run backfill-bq
+# --- Step 4: Deploy Firestore Rules, Indexes, and Functions ---
+echo "--- Step 4: Setting Up Rules, Indexes, and Functions ---"
+
+firebase deploy --only firestore,functions --force
+
+# # --- Step 5: Backfill Existing Data to BigQuery ---
+# echo "--- Step 5: Backfilling existing Firestore data to BigQuery... ---"
+# cd functions/
+# npm run backfill-bq
