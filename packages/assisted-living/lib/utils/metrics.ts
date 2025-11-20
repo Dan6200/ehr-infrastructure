@@ -1,11 +1,21 @@
 import { Resident } from '#root/types'
 
+function calculatePercentageChange(current: number, previous: number): number {
+  if (previous === 0) {
+    return current > 0 ? 100.0 : 0.0
+  }
+  if (current === 0 && previous > 0) {
+    return -100.0
+  }
+  return ((current - previous) / previous) * 100
+}
+
 export function calculateMetrics(
   data: any[],
   timeRange: string,
   residents: Resident[],
 ) {
-  // --- Financial Metrics Calculation ---
+  // --- Date Range Calculation ---
   const now = new Date()
   let daysToSubtract = 90
   if (timeRange === '365d') daysToSubtract = 365
@@ -31,36 +41,34 @@ export function calculateMetrics(
   const currentPeriodData = filterDataByDate(data, startDate, endDate)
   const previousPeriodData = filterDataByDate(data, prevStartDate, prevEndDate)
 
+  // --- Financial Metrics Calculation ---
   const sum = (d: any[], key: string) =>
-    d.reduce((acc, item) => acc + item[key], 0)
+    d.reduce((acc, item) => acc + parseFloat(item[key]), 0)
 
   const currentCharges = sum(currentPeriodData, 'charges')
   const previousCharges = sum(previousPeriodData, 'charges')
-  const chargesChange =
-    previousCharges === 0
-      ? 100
-      : ((currentCharges - previousCharges) / previousCharges) * 100
+  const chargesChange = calculatePercentageChange(
+    currentCharges,
+    previousCharges,
+  )
 
   const currentPayments = sum(currentPeriodData, 'payments')
   const previousPayments = sum(previousPeriodData, 'payments')
-  const paymentsChange =
-    previousPayments === 0
-      ? 100
-      : ((currentPayments - previousPayments) / previousPayments) * 100
+  const paymentsChange = calculatePercentageChange(
+    currentPayments,
+    previousPayments,
+  )
 
   const currentAdjustments = sum(currentPeriodData, 'adjustments')
   const previousAdjustments = sum(previousPeriodData, 'adjustments')
-  const adjustmentsChange =
-    previousAdjustments === 0
-      ? 100
-      : ((currentAdjustments - previousAdjustments) / previousAdjustments) * 100
+  const adjustmentsChange = calculatePercentageChange(
+    currentAdjustments,
+    previousAdjustments,
+  )
 
   const currentClaims = sum(currentPeriodData, 'claims')
   const previousClaims = sum(previousPeriodData, 'claims')
-  const claimsChange =
-    previousClaims === 0
-      ? 100
-      : ((currentClaims - previousClaims) / previousClaims) * 100
+  const claimsChange = calculatePercentageChange(currentClaims, previousClaims)
 
   // --- Growth Metrics Calculation ---
   const filterResidentsByDate = (res: Resident[], start: Date, end: Date) => {
@@ -84,14 +92,10 @@ export function calculateMetrics(
 
   const currentPeriodCount = currentPeriodResidents.length
   const previousPeriodCount = previousPeriodResidents.length
-  console.log(currentPeriodCount, previousPeriodCount)
-
-  const growthRate =
-    previousPeriodCount === 0
-      ? currentPeriodCount > 0
-        ? 100
-        : 0
-      : ((currentPeriodCount - previousPeriodCount) / previousPeriodCount) * 100
+  const growthRate = calculatePercentageChange(
+    currentPeriodCount,
+    previousPeriodCount,
+  )
 
   return {
     charges: { amount: currentCharges, change: chargesChange },
