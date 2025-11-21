@@ -94,7 +94,7 @@ async function backfill() {
       async function processCollection(
         ref: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>,
         kekPath: string,
-        decryptor: (doc: any, kekPath: string) => Promise<any>,
+        decryptor: (doc: any, kekPath: string) => Promise<any> | null,
       ) {
         const snapshot = await ref.get()
         if (snapshot.empty) return

@@ -97,7 +97,7 @@ export async function streamToBigQuery(
       }
     } else {
       objectToInsert = await config.decryptor(
-        { id: documentId, ...encryptedFirestoreDocument },
+        { id: documentId, ...encryptedFirestoreDocument } as any,
         config.kekPath as string,
       )
     }
