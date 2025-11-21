@@ -11,26 +11,14 @@ import {
   decryptCharge,
   decryptClaim,
 } from '#root/types/converters'
-import {
-  KEK_GENERAL_PATH,
-  KEK_CONTACT_PATH,
-  KEK_CLINICAL_PATH,
-  KEK_FINANCIAL_PATH,
-} from '#root/lib/encryption'
+import { KEK_FINANCIAL_PATH } from '#root/lib/encryption'
 
 const DATASET_ID = process.env.BQ_DATASET_ID || 'firestore_export_staging'
-
-const residentKekPaths = {
-  KEK_GENERAL_PATH,
-  KEK_CONTACT_PATH,
-  KEK_CLINICAL_PATH,
-}
 
 const COLLECTIONS_MAP = {
   residents: {
     kekPath: 'complex',
-    decryptor: (doc: any) =>
-      decryptResidentData(doc, ['ADMIN'], residentKekPaths),
+    decryptor: null,
   },
   charges: {
     kekPath: KEK_FINANCIAL_PATH,
@@ -101,9 +89,7 @@ export async function streamToBigQuery(
         : `${collectionName.replace(/-/g, '_')}_raw`
 
     if (collectionName === 'residents') {
-      const decryptedResident = await config.decryptor(
-        encryptedFirestoreDocument,
-      ) // Pass encrypted data directly
+      const decryptedResident = encryptedFirestoreDocument
       objectToInsert = {
         id: documentId,
         created_at: decryptedResident.created_at,

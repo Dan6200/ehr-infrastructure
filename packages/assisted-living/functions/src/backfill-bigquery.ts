@@ -12,7 +12,6 @@ import admin from 'firebase-admin'
 import { getFirestore } from 'firebase-admin/firestore'
 import bigqueryClient from '#root/lib/bigquery' // Re-use the client from functions
 import {
-  decryptResidentData,
   decryptPayment,
   decryptAdjustment,
   decryptCharge,
@@ -37,7 +36,7 @@ async function backfill() {
     residents: {
       kekPath: 'complex',
       parent: null,
-      decryptor: () => null,
+      decryptor: null,
     },
     charges: {
       kekPath: KEK_FINANCIAL_PATH,
