@@ -6,6 +6,7 @@ import { execSync } from 'child_process'
 function getKmsConfig(envVarName: string, gcloudCommand: string): string {
   // In a deployed Google Cloud environment (Functions, Run), variables are set.
   if (process.env.K_SERVICE) {
+    console.log('runs')
     if (process.env[envVarName]) {
       return process.env[envVarName]!
     }

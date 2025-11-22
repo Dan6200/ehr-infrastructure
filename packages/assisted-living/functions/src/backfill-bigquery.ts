@@ -132,11 +132,22 @@ async function backfill() {
       console.log(
         `  ✅ Finished processing for ${collectionName}. Total rows inserted: ${totalDocsProcessed}`,
       )
-    } catch (error) {
-      console.error(
-        `  ❌ Error processing collection ${collectionName}:`,
-        JSON.stringify(error, null, 2),
-      )
+    } catch (error: any) {
+      console.error(`❌ Error processing collection ${collectionName}:`)
+      if (error.name === 'PartialFailureError') {
+        // This error is specific to BigQuery insertAll operations
+        console.error('BigQuery PartialFailureError Details:')
+        error.errors.forEach((err: any) => {
+          console.error(`- Row: ${JSON.stringify(err.row)}`)
+          console.error(`  Errors:`)
+          err.errors.forEach((e: any) => {
+            console.error(`    - ${e.reason}: ${e.message}`)
+          })
+        })
+      } else {
+        // Fallback for other types of errors
+        console.error(JSON.stringify(error, null, 2))
+      }
     }
   }
   console.log('\n--- BigQuery Backfill Complete! ---')
