@@ -22,7 +22,7 @@ fi
 if [ ! -f "$DATABASE_ID" ]; then
 	echo "Error: Must explicitly set DATABASE_ID before running script"
 fi
-ARGS="--rate-limit 500 --database-id DATABASE_ID"
+ARGS="--rate-limit 500 --database-id $DATABASE_ID"
 if [ "$ENVIRONMENT" == "prod" ]; then
   echo "Running in production mode. Using Application Default Credentials."
 else
