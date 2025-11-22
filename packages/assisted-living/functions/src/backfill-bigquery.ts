@@ -25,11 +25,13 @@ const DATASET_ID = process.env.BQ_DATASET_ID || 'firestore_export_staging'
 const BATCH_SIZE = 500 // Number of documents to process and insert at a time
 
 async function backfill() {
+  if (process.env.DATABASE_ID)
+    throw new Error('Must set DATABASE_ID before running backfill-bq script')
   console.log('--- Starting BigQuery Backfill Script ---')
 
   admin.initializeApp()
   const firestore = getFirestore()
-  firestore.settings({ databaseId: 'staging' })
+  firestore.settings({ databaseId: process.env.DATABASE_ID })
   const db = firestore
 
   const COLLECTIONS_TO_BACKFILL = {

@@ -8,7 +8,7 @@ import {
 
 export const onClaimWritten = onDocumentWritten(
   {
-    database: 'staging-beta',
+    database: process.env.DATABASE_ID,
     document: 'providers/{providerId}/residents/{residentId}/claims/{claimId}',
     region: 'europe-west1',
   },

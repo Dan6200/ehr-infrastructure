@@ -8,7 +8,7 @@ import {
 
 export const onPaymentWritten = onDocumentWritten(
   {
-    database: 'staging-beta',
+    database: process.env.DATABASE_ID,
     document:
       'providers/{providerId}/residents/{residentId}/payments/{paymentId}',
     region: 'europe-west1',
