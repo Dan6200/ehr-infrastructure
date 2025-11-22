@@ -219,6 +219,14 @@ if __name__ == "__main__":
             )
         )
 
+    # --- Write Updated Residents Data Back to File ---
+    os.makedirs(os.path.dirname(RESIDENTS_FILE), exist_ok=True)
+    with open(RESIDENTS_FILE, "w") as f:
+        residents_data=convert_times(residents_data)
+        json.dump(residents_data, f, indent=2) # Use default=str for datetime objects
+
+    print("Resident data updated with created_at and deactivated_at.")
+
     # --- Write Sub-Collection Files (Corrected Pathing) ---
     for sub_dir, sub_file in SUBCOLLECTION_FILES.items():
         # Ensure the directory exists (e.g., 'demo-data/allergies')
