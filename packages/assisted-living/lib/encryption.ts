@@ -5,7 +5,7 @@ import { execSync } from 'child_process'
 // Helper function to get config value from env or gcloud fallback
 function getKmsConfig(envVarName: string, gcloudCommand: string): string {
   // In a deployed Google Cloud environment (Functions, Run), variables are set.
-  if (process.env.K_SERVICE) {
+  if (process.env.K_SERVICE || process.env.FUNCTION_TARGET) {
     console.log('runs')
     if (process.env[envVarName]) {
       return process.env[envVarName]!
