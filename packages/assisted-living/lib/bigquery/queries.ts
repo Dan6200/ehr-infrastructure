@@ -10,7 +10,7 @@ WITH all_transactions AS (
     (unit_price.value * quantity) as amount,
     unit_price.currency as currency
   FROM
-    \`lean-ehr.firestore_export.charges_raw\`
+    \`lean-ehr.${process.env.NEXT_PUBLIC_BQ_DATASET_ID}.charges_raw\`
   UNION ALL
   -- Claims
   SELECT
@@ -19,7 +19,7 @@ WITH all_transactions AS (
     total.value as amount,
     total.currency as currency
   FROM
-    \`lean-ehr.firestore_export.claims_raw\`
+    \`lean-ehr.${process.env.NEXT_PUBLIC_BQ_DATASET_ID}.claims_raw\`
   UNION ALL
   -- Payments
   SELECT
@@ -28,7 +28,7 @@ WITH all_transactions AS (
     amount.value as amount,
     amount.currency as currency
   FROM
-    \`lean-ehr.firestore_export.payments_raw\`
+    \`lean-ehr.${process.env.NEXT_PUBLIC_BQ_DATASET_ID}.payments_raw\`
   UNION ALL
   -- Adjustments
   SELECT
@@ -37,7 +37,7 @@ WITH all_transactions AS (
     approved_amount.value as amount,
     approved_amount.currency as currency
   FROM
-    \`lean-ehr.firestore_export.adjustments_raw\`
+    \`lean-ehr.${process.env.NEXT_PUBLIC_BQ_DATASET_ID}.adjustments_raw\`
 )
 SELECT
   FORMAT_DATE('%Y-%m-%d', event_date) as date,
@@ -56,7 +56,8 @@ ORDER BY
 
 export const getResidentGrowthQuery = `
 SELECT
-  DATE(created_at) as created_at
+  DATE(created_at) as created_at,
+  DATE(deactivated_at) as deactivated_at
 FROM
-  \`lean-ehr.firestore_export.residents_raw\`
+  \`lean-ehr.${process.env.NEXT_PUBLIC_BQ_DATASET_ID}.resident_timestamps_raw\`
 `
