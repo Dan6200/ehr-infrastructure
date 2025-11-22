@@ -31,7 +31,7 @@ async function backfill() {
 
   admin.initializeApp()
   const firestore = getFirestore()
-  firestore.settings({ databaseId: process.env.DATABASE_ID })
+  firestore.settings({ databaseId: process.env.DATABASE_ID || 'staging' })
   const db = firestore
 
   const COLLECTIONS_TO_BACKFILL = {
