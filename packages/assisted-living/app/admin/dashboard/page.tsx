@@ -19,7 +19,7 @@ export type FormattedChartData = {
 
 async function getChartData(): Promise<{
   chartData: FormattedChartData
-  residents: Pick<Resident, 'created_at'>[]
+  residents: Pick<Resident, 'created_at' | 'deactivated_at'>[]
 } | null> {
   try {
     const financialQueryOptions = {
@@ -37,14 +37,35 @@ async function getChartData(): Promise<{
       bigqueryClient.query(growthQueryOptions),
     ])
 
-    // The financialRows are already in the correct format due to the SQL query
-    const chartData: FormattedChartData = financialRows
+    // Convert BigQuery's custom types (BigQueryNumeric, BigQueryDate) to standard JS types
+    const chartData: FormattedChartData = financialRows.map((row: any) => ({
+      date: row.date,
+      currency: row.currency,
+      charges: row.charges.toNumber(),
+      claims: row.claims.toNumber(),
+      payments: row.payments.toNumber(),
+      adjustments: row.adjustments.toNumber(),
+    }))
 
-    // The growthRows just contain the creation dates
-    const residents = growthRows as Pick<Resident, 'created_at'>[]
+    // Filter out any data points from the future
+    const today = new Date()
+    const filteredChartData = chartData.filter(
+      (item) => new Date(item.date) <= today,
+    )
+
+    // The growthRows contain BigQuery DATE objects, which need to be parsed
+    const residents = growthRows.map(
+      (row: {
+        created_at: { value: string }
+        deactivated_at: { value: string } | null
+      }) => ({
+        created_at: row.created_at.value,
+        deactivated_at: row.deactivated_at ? row.deactivated_at.value : null,
+      }),
+    ) as Pick<Resident, 'created_at' | 'deactivated_at'>[]
 
     return {
-      chartData,
+      chartData: filteredChartData,
       residents,
     }
   } catch (error) {
