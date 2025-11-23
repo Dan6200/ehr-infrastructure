@@ -22,7 +22,10 @@ export async function POST(_request: NextRequest) {
   } catch (error) {
     // This block will run if the cookie is already invalid, expired, or missing.
     // In this case, we still want to ensure the client-side cookie is cleared.
-    console.error('Error during logout, forcing cookie deletion:', error)
+    console.error(
+      'Error during logout, forcing cookie deletion.\nDetails:',
+      error,
+    )
     await deleteSessionCookie() // Ensure client cookie is removed
     return NextResponse.json(
       { message: 'Logout successful, session cleanup complete' },
