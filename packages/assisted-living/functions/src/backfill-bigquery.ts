@@ -62,8 +62,6 @@ async function backfill() {
     },
   }
 
-  return
-
   for (const [collectionName, config] of Object.entries(
     COLLECTIONS_TO_BACKFILL,
   )) {
