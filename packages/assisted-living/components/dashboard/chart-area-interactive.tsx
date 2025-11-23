@@ -66,8 +66,8 @@ export function ChartAreaInteractive({
     }
   }, [isMobile])
 
-  const filteredData = chartData.filter((item) => {
-    const date = new Date(item.date)
+  const filteredData = chartData.filter((item, index) => {
+    const date = new Date(`${item.date}T00:00:00`)
     const now = new Date()
     let daysToSubtract = 180
     if (timeRange === '90d') {
@@ -79,6 +79,8 @@ export function ChartAreaInteractive({
     }
     const startDate = new Date(now)
     startDate.setDate(startDate.getDate() - daysToSubtract)
+    startDate.setHours(0, 0, 0, 0)
+
     return date >= startDate
   })
 
