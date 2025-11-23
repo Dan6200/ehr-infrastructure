@@ -6,7 +6,6 @@ import { execSync } from 'child_process'
 function getKmsConfig(envVarName: string, gcloudCommand: string): string {
   // In a deployed Google Cloud environment (Functions, Run), variables are set.
   if (process.env.K_SERVICE || process.env.FUNCTION_TARGET) {
-    console.log('uses env vars')
     if (process.env[envVarName]) {
       return process.env[envVarName]!
     }
@@ -17,13 +16,11 @@ function getKmsConfig(envVarName: string, gcloudCommand: string): string {
 
   // For local development, try env var first, then gcloud fallback.
   if (process.env[envVarName]) {
-    console.log('uses env vars but does not detect Cloud Run environment')
     return process.env[envVarName]!
   }
 
   try {
     const value = execSync(gcloudCommand).toString().trim()
-    console.log('uses gcloud')
     if (value) {
       console.warn(`KMS config: Fetched ${envVarName} from gcloud: ${value}`)
       return value
