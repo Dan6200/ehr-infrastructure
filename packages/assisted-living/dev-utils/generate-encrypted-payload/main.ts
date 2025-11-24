@@ -189,6 +189,7 @@ async function main() {
       created_at: resident.data.created_at,
       updated_at: resident.data.updated_at,
       viewed_at: resident.data.viewed_at,
+      deactivated_at: resident.data.deactivated_at,
       encrypted_dek_general: deks.general.encryptedDek.toString('base64'),
       encrypted_dek_contact: deks.contact.encryptedDek.toString('base64'),
       encrypted_dek_clinical: deks.clinical.encryptedDek.toString('base64'),
