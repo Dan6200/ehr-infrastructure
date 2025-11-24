@@ -21,7 +21,7 @@ import { KEK_FINANCIAL_PATH } from '#root/lib/encryption'
 
 // --- Configuration ---
 const PROVIDER_ID = 'GYRHOME' // Specify the provider to backfill
-const DATASET_ID = process.env.BQ_DATASET_ID || 'firestore_export'
+const DATASET_ID = process.env.BQ_DATASET_ID || 'firestore_export_staging'
 const BATCH_SIZE = 500 // Number of documents to process and insert at a time
 
 async function backfill() {
