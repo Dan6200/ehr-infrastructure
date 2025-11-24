@@ -60,8 +60,8 @@ jobs:
             --image "${{ github.event.inputs.region }}-docker.pkg.dev/${{ github.event.inputs.project_id }}/lean-ehr-repo/lean-ehr-uploader:latest" \
             --region "${{ github.event.inputs.region }}" \
             --project "${{ github.event.inputs.project_id }}" \
-            --cpu 3 \
-            --memory 12Gi \
+            --cpu 4 \
+            --memory 16Gi \
             --task-timeout 10800 \
             --max-retries 0 \
             --set-env-vars="GCP_PROJECT_ID=${{ github.event.inputs.project_id }},KMS_LOCATION=europe-west1,KMS_KEY_RING=${{ env.KMS_KEY_RING }},KEK_GENERAL_PATH=${{ env.KEK_GENERAL_PATH }},KEK_CONTACT_PATH=${{ env.KEK_CONTACT_PATH }},KEK_CLINICAL_PATH=${{ env.KEK_CLINICAL_PATH }},KEK_FINANCIAL_PATH=${{ env.KEK_FINANCIAL_PATH }}"
