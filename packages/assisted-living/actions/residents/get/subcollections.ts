@@ -8,7 +8,6 @@ import {
   SubCollectionMapType,
 } from '#root/types'
 import { FirestoreDataConverter } from 'firebase-admin/firestore'
-import { redirect } from 'next/navigation'
 import z from 'zod'
 
 import {
@@ -25,7 +24,7 @@ async function getSubcollection<T, U>(
   decryptor: (data: T, kekPath: string) => Promise<U>,
   kekPath: string,
 ): Promise<U[]> {
-  const { uid } = await verifySession() // Authenticate and get user claims
+  await verifySession() // Authenticate and get user claims
 
   const path = `providers/${providerId}/residents/${residentId}/${collectionName}`
   console.log(`[getSubcollection] Fetching from path: ${path}`)
@@ -71,5 +70,12 @@ export async function getNestedResidentData<K extends SubCollectionKey>(
   return getSubcollection<
     z.infer<SubCollectionMapType[K]['encrypted_schema']>,
     z.infer<SubCollectionMapType[K]['schema']>
-  >(providerId, residentId, subCollectionName, converter, decryptor, kekPath)
+  >(
+    providerId,
+    residentId,
+    subCollectionName,
+    converter,
+    decryptor as any,
+    kekPath,
+  )
 }

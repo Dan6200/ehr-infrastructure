@@ -13,8 +13,6 @@ import {
   ResidentSchema,
   EncryptedResidentSchema,
   SubCollectionMapType,
-  AllCollectionData,
-  subCollectionMap,
 } from '#root/types'
 import {
   decryptResidentData,

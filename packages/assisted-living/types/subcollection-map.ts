@@ -227,7 +227,7 @@ export const subCollectionMap = {
     encrypted_schema: EncryptedAddressSchema,
     kekType: 'contact',
   },
-} as const
+}
 
 export type SubCollectionMapType = typeof subCollectionMap
 
