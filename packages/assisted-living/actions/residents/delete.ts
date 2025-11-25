@@ -5,15 +5,16 @@ import {
   docWrapper,
 } from '#root/firebase/admin'
 import { verifySession } from '#root/auth/server/definitions'
-import { EncryptedResident } from '#root/types'
+import { EncryptedResidentSchema } from '#root/types'
 import { getResidentConverter } from '#root/types/converters'
+import { z } from 'zod'
 
 export async function deleteResidentData(documentId: string) {
   try {
     const { provider_id } = await verifySession() // Authenticate the request first
 
     const residentsCollection = (
-      await collectionWrapper<EncryptedResident>(
+      await collectionWrapper<z.infer<typeof EncryptedResidentSchema>>(
         `providers/${provider_id}/residents`,
       )
     ).withConverter(await getResidentConverter())
