@@ -51,14 +51,8 @@ const FormSchema = z.object({
 
 export function PrescriptionsForm({
   residentData,
-  updatePrescriptions,
 }: {
   residentData: ResidentData
-  updatePrescriptions: (
-    prescriptions: any[],
-    residentId: string,
-    deletedIds: string[],
-  ) => Promise<{ success: boolean; message: string }>
 }) {
   const router = useRouter()
   const [deletedPrescriptionIds, setDeletedPrescriptionIds] = React.useState<
