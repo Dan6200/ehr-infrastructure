@@ -1,8 +1,9 @@
 'use server'
 import { addDocWrapper, collectionWrapper } from '#root/firebase/admin'
-import { Resident, EncryptedResident } from '#root/types'
+import { Resident, EncryptedResidentSchema } from '#root/types'
 import { verifySession } from '#root/auth/server/definitions'
 import { encryptResident, getResidentConverter } from '#root/types/converters'
+import { z } from 'zod'
 
 export async function addNewResident(
   residentData: Omit<Resident, 'resident_id'>,
@@ -15,7 +16,7 @@ export async function addNewResident(
     const encryptedResident = await encryptResident(resident)
 
     const residentsCollection = (
-      await collectionWrapper<EncryptedResident>(
+      await collectionWrapper<z.infer<typeof EncryptedResidentSchema>>(
         `providers/${provider_id}/residents`,
       )
     ).withConverter(await getResidentConverter())
