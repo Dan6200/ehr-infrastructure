@@ -9,7 +9,9 @@ import {
 } from '#root/lib/encryption'
 
 export async function updateObservations(
-  observations: Observation[],
+  observations: (Omit<Observation, 'resident_id' | 'recorder_id'> & {
+    id?: string
+  })[],
   residentId: string,
   deletedObservationIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
@@ -42,11 +44,21 @@ export async function updateObservations(
       const { id, ...observationData } = observation
       const docRef = id ? observationsRef.doc(id) : observationsRef.doc()
 
-      const encryptedObservation: any = { encrypted_dek: encryptedDek }
+      const encryptedObservation: any = {}
 
       if (observationData.status)
         encryptedObservation.encrypted_status = encryptData(
           observationData.status,
+          clinicalDek,
+        )
+      if (observationData.category)
+        encryptedObservation.encrypted_category = encryptData(
+          JSON.stringify(observationData.category),
+          clinicalDek,
+        )
+      if (observationData.code)
+        encryptedObservation.encrypted_code = encryptData(
+          JSON.stringify(observationData.code),
           clinicalDek,
         )
       if (observationData.effective_datetime)
@@ -54,24 +66,9 @@ export async function updateObservations(
           observationData.effective_datetime,
           clinicalDek,
         )
-      if (observationData.loinc_code)
-        encryptedObservation.encrypted_loinc_code = encryptData(
-          observationData.loinc_code,
-          clinicalDek,
-        )
-      if (observationData.name)
-        encryptedObservation.encrypted_name = encryptData(
-          observationData.name,
-          clinicalDek,
-        )
-      if (observationData.value)
-        encryptedObservation.encrypted_value = encryptData(
-          observationData.value.toString(),
-          clinicalDek,
-        )
-      if (observationData.unit)
-        encryptedObservation.encrypted_unit = encryptData(
-          observationData.unit,
+      if (observationData.value_quantity)
+        encryptedObservation.encrypted_value_quantity = encryptData(
+          JSON.stringify(observationData.value_quantity),
           clinicalDek,
         )
       if (observationData.body_site)
