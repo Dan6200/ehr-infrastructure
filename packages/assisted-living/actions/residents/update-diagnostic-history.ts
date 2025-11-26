@@ -12,7 +12,9 @@ import {
 } from '#root/lib/encryption'
 
 export async function updateDiagnosticHistory(
-  records: (DiagnosticHistory & { id: string })[],
+  records: (Omit<DiagnosticHistory, 'resident_id' | 'recorder_id'> & {
+    id?: string
+  })[],
   residentId: string,
   deletedRecordIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
@@ -46,9 +48,25 @@ export async function updateDiagnosticHistory(
       const docRef = id ? recordsRef.doc(id) : recordsRef.doc()
 
       const encryptedRecord: any = {}
-      if (recordData.date)
-        encryptedRecord.encrypted_date = encryptData(
-          recordData.date,
+
+      if (recordData.clinical_status)
+        encryptedRecord.encrypted_clinical_status = encryptData(
+          recordData.clinical_status,
+          clinicalDek,
+        )
+      if (recordData.recorded_date)
+        encryptedRecord.encrypted_recorded_date = encryptData(
+          recordData.recorded_date,
+          clinicalDek,
+        )
+      if (recordData.onset_datetime)
+        encryptedRecord.encrypted_onset_datetime = encryptData(
+          recordData.onset_datetime,
+          clinicalDek,
+        )
+      if (recordData.abatement_datetime)
+        encryptedRecord.encrypted_abatement_datetime = encryptData(
+          recordData.abatement_datetime,
           clinicalDek,
         )
       if (recordData.title)
@@ -56,14 +74,9 @@ export async function updateDiagnosticHistory(
           recordData.title,
           clinicalDek,
         )
-      if (recordData.notes)
-        encryptedRecord.encrypted_notes = encryptData(
-          recordData.notes,
-          clinicalDek,
-        )
-      if (recordData.snomed_code)
-        encryptedRecord.encrypted_snomed_code = encryptData(
-          recordData.snomed_code,
+      if (recordData.code)
+        encryptedRecord.encrypted_code = encryptData(
+          JSON.stringify(recordData.code),
           clinicalDek,
         )
 
