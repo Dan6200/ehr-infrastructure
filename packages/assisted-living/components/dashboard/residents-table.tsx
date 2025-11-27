@@ -1,12 +1,12 @@
 'use client'
 
 import { DataTable } from '#root/components/dashboard/data-table'
-import { LeanResidentData } from '#root/types'
+import { ResidentData } from '#root/types'
 import { ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
 
-export function ResidentsTable({ data }: { data: LeanResidentData[] }) {
-  const columns: ColumnDef<LeanResidentData>[] = [
+export function ResidentsTable({ data }: { data: ResidentData[] }) {
+  const columns: ColumnDef<ResidentData>[] = [
     {
       accessorKey: 'resident_name',
       header: 'Name',
