@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { TimingSchema } from '.'
+import { PeriodSchema, TimingSchema } from '.'
 import { SnomedConceptSchema } from '../codeable-concept'
 
 export const CarePlanActivitySchema = z.object({
@@ -8,5 +8,10 @@ export const CarePlanActivitySchema = z.object({
   code: SnomedConceptSchema,
   status: z.string(),
   timing: TimingSchema,
+  performer: z.object({
+    id: z.string(),
+    name: z.string().optional(),
+    period: PeriodSchema,
+  }),
   staff_instructions: z.string(),
 })
