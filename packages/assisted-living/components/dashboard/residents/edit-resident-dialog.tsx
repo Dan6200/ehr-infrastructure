@@ -18,12 +18,12 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '#root/components/ui/drawer'
-import { ResidentData } from '#root/types'
+import { Resident } from '#root/types'
 
 export function EditResidentDialog({
   residentData,
 }: {
-  residentData: ResidentData
+  residentData: Resident
 }) {
   const [open, setOpen] = React.useState(false)
   const isMobile = useIsMobile()

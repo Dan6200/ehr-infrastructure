@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { AddressSchema } from './address'
 
 export const ResidentSchema = z.object({
+  id: z.string().optional(),
   resident_code: z.string().optional(),
   resident_name: z.string().nullable().optional(),
   gender: z.string().optional(),

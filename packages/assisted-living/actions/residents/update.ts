@@ -10,7 +10,7 @@ import { encryptResident, getResidentConverter } from '#root/types/converters'
 import { z } from 'zod'
 
 export async function updateResident(
-  newResidentData: Resident,
+  newResidentData: Partial<Resident>,
   documentId: string,
 ) {
   try {

@@ -18,7 +18,7 @@ import { z } from 'zod'
 import { EncryptedResidentSchema, Resident, ResidentSchema } from '#root/types'
 
 export async function encryptResident(
-  resident: Resident,
+  resident: Resident | Partial<Resident>,
 ): Promise<z.infer<typeof EncryptedResidentSchema>> {
   const dataToEncrypt: any = { ...resident }
   const encryptedData: any = {}

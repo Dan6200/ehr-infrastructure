@@ -11,11 +11,11 @@ import { toast } from '#root/components/ui/use-toast'
 import { isError } from '#root/app/utils'
 import { updateResident } from '#root/actions/residents/update'
 import { ResidentFormBase } from './ResidentFormBase'
-import { type ResidentData, ResidentDataSchema } from '#root/types'
+import { type Resident, ResidentSchema } from '#root/types'
 
 export function ResidentFormEdit({
   ...residentData
-}: Omit<ResidentData, 'address'>) {
+}: Omit<Resident, 'address'> & { id: string }) {
   const router = useRouter()
   const [idToken, setIdToken] = useState<string | null>(null)
   const [newAvatarUrl, setNewAvatarUrl] = useState<string | null>(null)
@@ -46,10 +46,8 @@ export function ResidentFormEdit({
     }
   }, [])
 
-  const form = useForm<Omit<ResidentData, 'emergency_contacts'>>({
-    resolver: zodResolver(
-      ResidentDataSchema.omit({ emergency_contacts: true }),
-    ),
+  const form = useForm<Resident>({
+    resolver: zodResolver(ResidentSchema),
     defaultValues: {
       resident_name: resident_name ?? undefined,
       dob: dob ?? undefined,
@@ -62,9 +60,7 @@ export function ResidentFormEdit({
     },
   })
 
-  async function onSubmit(
-    data: Omit<z.infer<typeof ResidentDataSchema>, 'emergency_contacts'>,
-  ) {
+  async function onSubmit(data: Resident) {
     if (!idToken) {
       toast({
         title: 'Authentication Error',
@@ -74,7 +70,7 @@ export function ResidentFormEdit({
       return
     }
 
-    let residentUpdateData: Partial<ResidentData> = {
+    let residentUpdateData: Partial<Resident> = {
       resident_name: data.resident_name ?? null,
       dob: data.dob ?? null,
       pcp: data.pcp ?? null,
