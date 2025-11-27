@@ -4,7 +4,7 @@ import QRcode from 'qrcode'
 
 export async function GET(
   req: NextRequest,
-  ctx: RouteContext<'/admin/residents/print-qr/[url]'>,
+  ctx: RouteContext<'/admin/dashboard/residents/print-qr/[url]'>,
 ) {
   const { url } = await ctx.params
   const { searchParams } = req.nextUrl

@@ -1,6 +1,6 @@
 // cspell:disable
 export {}
-/***** Moved To A Standalone Application *******************/
+/***** TODO: Move to Cloud Function / Cloud Run Job *******************/
 /*
 import { getAllRooms } from "#root/app/admin/residents/data-actions";
 import { Facility } from "#root/types";

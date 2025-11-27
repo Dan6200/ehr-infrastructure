@@ -7,7 +7,6 @@ import {
   DialogTrigger,
 } from '#root/components/ui/dialog'
 import { toast } from '#root/components/ui/use-toast'
-import { Nullable } from '#root/types'
 import { useRouter } from 'next/navigation'
 
 export default function DeleteResident({
@@ -15,7 +14,7 @@ export default function DeleteResident({
   resident_id,
   deleteResidentData,
 }: {
-  resident_name: Nullable<string>
+  resident_name?: string | null
   resident_id: string
   deleteResidentData: (resident_id: string) => Promise<
     | {

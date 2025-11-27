@@ -18,14 +18,12 @@ export default async function AddResidentPage({
       </GoBackLink>
       <ResidentForm
         {...{
-          id: null,
           resident_name: '',
           facility_id: '',
           dob: '',
           avatar_url: '',
           room_no: '',
           pcp: '',
-          emergency_contacts: [],
         }}
       />
     </main>

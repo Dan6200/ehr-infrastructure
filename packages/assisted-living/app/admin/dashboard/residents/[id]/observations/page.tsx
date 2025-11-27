@@ -11,7 +11,6 @@ import {
 import { Observation } from '#root/types'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { verifySession } from '#root/auth/server/definitions'
 
 export default async function ObservationsPage({
   params,
@@ -19,18 +18,15 @@ export default async function ObservationsPage({
   params: Promise<{ id: string }>
 }) {
   const { id: residentId } = await params
-  const { provider_id } = await verifySession()
 
-  const residentData = await getResidentData(
-    provider_id,
-    residentId,
-    'observations',
-  ).catch((e) => {
-    if (e.message.match(/not_found/i)) notFound()
-    throw new Error(
-      `Unable to fetch resident data for observations page: ${e.message}`,
-    )
-  })
+  const residentData = await getResidentData(residentId, 'observations').catch(
+    (e) => {
+      if (e.message.match(/not_found/i)) notFound()
+      throw new Error(
+        `Unable to fetch resident data for observations page: ${e.message}`,
+      )
+    },
+  )
 
   const observations = residentData.observations || []
 
