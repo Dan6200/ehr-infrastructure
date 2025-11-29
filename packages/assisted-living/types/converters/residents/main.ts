@@ -116,7 +116,7 @@ export async function decryptResidentData(
     KEK_CONTACT_PATH: string
     KEK_CLINICAL_PATH: string
   },
-): Promise<Omit<Resident, 'created_at' | 'viewed_at' | 'updated_at'>> {
+) {
   const decryptedData: Partial<Resident> = {}
   decryptedData.facility_id = data.facility_id
 
