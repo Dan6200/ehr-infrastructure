@@ -23,9 +23,12 @@ import {
   CoverageSchema,
 } from '#root/types/schemas'
 import { Badge } from '#root/components/ui/badge'
+import { Button } from '#root/components/ui/button'
+import Link from 'next/link'
 import { z } from 'zod'
 
 type BillingClientProps = {
+  residentId: string
   accounts: z.infer<typeof AccountSchema>[]
   charges: z.infer<typeof ChargeSchema>[]
   claims: z.infer<typeof ClaimSchema>[]
@@ -42,6 +45,7 @@ function formatCurrency(amount: number, currency: string = 'NGN') {
 }
 
 export function BillingClient({
+  residentId,
   accounts,
   charges,
   claims,
@@ -87,8 +91,15 @@ export function BillingClient({
 
       {/* Charges Section */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>Charges</CardTitle>
+          <Button variant="outline" size="sm" asChild>
+            <Link
+              href={`/admin/dashboard/residents/${residentId}/billing/charges/edit`}
+            >
+              Manage
+            </Link>
+          </Button>
         </CardHeader>
         <CardContent>
           <Table>
@@ -152,8 +163,15 @@ export function BillingClient({
 
       {/* Payments Section */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>Payments</CardTitle>
+          <Button variant="outline" size="sm" asChild>
+            <Link
+              href={`/admin/dashboard/residents/${residentId}/billing/payments/edit`}
+            >
+              Manage
+            </Link>
+          </Button>
         </CardHeader>
         <CardContent>
           <Table>
@@ -186,8 +204,15 @@ export function BillingClient({
 
       {/* Adjustments Section */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>Adjustments</CardTitle>
+          <Button variant="outline" size="sm" asChild>
+            <Link
+              href={`/admin/dashboard/residents/${residentId}/billing/adjustments/edit`}
+            >
+              Manage
+            </Link>
+          </Button>
         </CardHeader>
         <CardContent>
           <Table>
