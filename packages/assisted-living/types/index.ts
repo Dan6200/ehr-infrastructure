@@ -33,9 +33,3 @@ export type Payment = z.infer<typeof PaymentSchema>
 export type EpisodeOfCare = z.infer<typeof EpisodesOfCareSchema>
 export type CarePlan = z.infer<typeof CarePlanSchema>
 export type Facility = z.infer<typeof FacilitySchema>
-
-// --- Barrel Exports ---
-export * from './enums'
-export * from './schemas'
-export * from './encrypted-schemas'
-export * from './subcollection-map'
