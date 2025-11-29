@@ -43,7 +43,7 @@ export function EmarClient({
   const handleAdminister = async (
     prescription: Prescription,
     timeSlot: string,
-    status: 'given' | 'not-given' | 'on-hold', // Matches AdministrationStatusEnum
+    status: 'completed' | 'not-done' | 'on-hold',
   ) => {
     if (!user || !user.uid) {
       toast({ title: 'Authentication Error', variant: 'destructive' })
@@ -53,6 +53,15 @@ export function EmarClient({
     const administrationTime = new Date()
     administrationTime.setHours(getTimeForSlot(timeSlot), 0, 0, 0)
 
+    const route = prescription.dosage_instruction?.[0]?.route
+    if (!route) {
+      toast({
+        title: 'Prescription missing route information',
+        variant: 'destructive',
+      })
+      return
+    }
+
     const newEmarRecord: Omit<EmarRecord, 'id' | 'resident_id'> = {
       prescription_id: prescription.id,
       medication: prescription.medication,
@@ -60,12 +69,8 @@ export function EmarClient({
       status: status,
       effective_datetime: administrationTime.toISOString(),
       dosage: {
-        // This is a simplified dosage. A real implementation would get this from the prescription.
-        route: {
-          code: '26643006',
-          system: 'http://snomed.info/sct',
-          text: 'Oral',
-        },
+        // Fetch route and dose from the actual prescription
+        route: route,
         administered_dose: prescription.dosage_instruction[0]?.dose_and_rate[0]
           ?.dose_quantity || { value: 1, unit: 'tablet' },
         dose_number: 1,
@@ -125,17 +130,19 @@ export function EmarClient({
                   {administration ? (
                     <span
                       className={`p-2 rounded-md font-semibold ${
-                        administration.status === 'given'
+                        administration.status === 'completed'
                           ? 'bg-green-200 text-green-800'
                           : 'bg-red-200 text-red-800'
                       }`}
                     >
-                      {administration.status.toUpperCase()}
+                      {administration.status === 'completed'
+                        ? 'GIVEN'
+                        : administration.status.toUpperCase()}
                     </span>
                   ) : (
                     <Button
                       size="sm"
-                      onClick={() => handleAdminister(med, slot, 'given')}
+                      onClick={() => handleAdminister(med, slot, 'completed')}
                     >
                       Administer
                     </Button>

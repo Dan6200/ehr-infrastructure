@@ -13,14 +13,24 @@ import {
   AccordionTrigger,
 } from '#root/components/ui/accordion'
 import { Badge } from '#root/components/ui/badge'
-import { CarePlan, Goal } from '#root/types/schemas'
+import {
+  CarePlanActivitySchema,
+  CarePlanSchema,
+  GoalSchema,
+} from '#root/types/schemas'
+import { z } from 'zod'
 
 type CarePlanClientProps = {
-  carePlans: CarePlan[]
-  goals: Goal[]
+  carePlans: z.infer<typeof CarePlanSchema>[]
+  carePlanActivities: z.infer<typeof CarePlanActivitySchema>[]
+  goals: z.infer<typeof GoalSchema>[]
 }
 
-export function CarePlanClient({ carePlans, goals }: CarePlanClientProps) {
+export function CarePlanClient({
+  carePlans,
+  carePlanActivities,
+  goals,
+}: CarePlanClientProps) {
   // Map goals by ID for easy lookup
   const goalsMap = new Map(goals.map((goal) => [goal.id, goal]))
 
@@ -58,7 +68,7 @@ export function CarePlanClient({ carePlans, goals }: CarePlanClientProps) {
                       <AccordionItem value={goal.id} key={goal.id}>
                         <AccordionTrigger>
                           <div className="flex items-center justify-between w-full pr-4">
-                            <span>{goal.description.text}</span>
+                            <span>{goal.description.code.text}</span>
                             <Badge variant="secondary">
                               {goal.lifecycle_status}
                             </Badge>
@@ -67,10 +77,10 @@ export function CarePlanClient({ carePlans, goals }: CarePlanClientProps) {
                         <AccordionContent>
                           <div className="pl-4 text-sm text-muted-foreground space-y-1">
                             <p>
-                              <strong>Category:</strong> {goal.category.text}
+                              <strong>Category:</strong> {goal.category}
                             </p>
                             <p>
-                              <strong>Priority:</strong> {goal.priority.text}
+                              <strong>Priority:</strong> {goal.priority}
                             </p>
                           </div>
                         </AccordionContent>
@@ -81,43 +91,70 @@ export function CarePlanClient({ carePlans, goals }: CarePlanClientProps) {
               </div>
             )}
 
-            {carePlan.activities && carePlan.activities.length > 0 && (
-              <div className="mt-4">
-                <h3 className="text-md font-semibold mb-2">Activities:</h3>
-                <Accordion type="multiple" className="w-full">
-                  {carePlan.activities.map((activity, index) => (
-                    <AccordionItem value={`activity-${index}`} key={index}>
-                      <AccordionTrigger>
-                        {activity.detail.code.text}
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="pl-4 text-sm text-muted-foreground space-y-1">
-                          <p>
-                            <strong>Status:</strong> {activity.detail.status}
-                          </p>
-                          <p>
-                            <strong>Description:</strong>{' '}
-                            {activity.detail.description}
-                          </p>
-                          {activity.detail.scheduled_string && (
-                            <p>
-                              <strong>Scheduled:</strong>{' '}
-                              {activity.detail.scheduled_string}
-                            </p>
-                          )}
-                          {activity.detail.performer && (
-                            <p>
-                              <strong>Performer:</strong>{' '}
-                              {activity.detail.performer.display}
-                            </p>
-                          )}
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </div>
-            )}
+            {carePlanActivities &&
+              carePlanActivities.filter((a) => a.careplan_id === carePlan.id)
+                .length > 0 && (
+                <div className="mt-4">
+                  <h3 className="text-md font-semibold mb-2">Activities:</h3>
+                  <Accordion type="multiple" className="w-full">
+                    {carePlanActivities
+                      .filter((a) => a.careplan_id === carePlan.id)
+                      .map((activity, index) => (
+                        <AccordionItem value={`activity-${index}`} key={index}>
+                          <AccordionTrigger>
+                            {activity.code.text}
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="pl-4 text-sm text-muted-foreground space-y-1">
+                              <p>
+                                <strong>Status:</strong> {activity.status}
+                              </p>
+                              <p>
+                                <strong>Description:</strong>{' '}
+                                {activity.code.text}
+                              </p>
+                              {activity.timing && (
+                                <div className="mt-2 border-l-2 pl-2 border-muted">
+                                  <p>
+                                    <strong>Schedule:</strong>{' '}
+                                    {activity.timing.code?.text ||
+                                      'Specific Time'}
+                                  </p>
+                                  {activity.timing.repeat && (
+                                    <div className="text-xs text-muted-foreground ml-2 mt-1">
+                                      <p>
+                                        Every {activity.timing.repeat.frequency}{' '}
+                                        time(s) per{' '}
+                                        {activity.timing.repeat.period}{' '}
+                                        {activity.timing.repeat.period_unit}
+                                      </p>
+                                      {activity.timing.repeat.time_of_day &&
+                                        activity.timing.repeat.time_of_day
+                                          .length > 0 && (
+                                          <p>
+                                            At:{' '}
+                                            {activity.timing.repeat.time_of_day.join(
+                                              ', ',
+                                            )}
+                                          </p>
+                                        )}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                              {activity.performer && (
+                                <p>
+                                  <strong>Performer:</strong>{' '}
+                                  {activity.performer.name}
+                                </p>
+                              )}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                  </Accordion>
+                </div>
+              )}
           </CardContent>
         </Card>
       ))}
