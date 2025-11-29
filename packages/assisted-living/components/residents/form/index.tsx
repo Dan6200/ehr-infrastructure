@@ -1,13 +1,13 @@
 'use client'
+import { ResidentData } from '#root/types'
 import { ResidentFormAdd } from './ResidentFormAdd'
 import { ResidentFormEdit } from './ResidentFormEdit'
-import type { Resident } from '#root/types'
 
 export function ResidentForm({
   ...residentData
-}: Partial<Resident> & { id?: string }) {
+}: Omit<ResidentData, 'address'>) {
   if (residentData.id) {
-    return <ResidentFormEdit {...(residentData as Resident & { id: string })} />
+    return <ResidentFormEdit residentData={residentData} />
   } else {
     return <ResidentFormAdd facility_id={residentData.facility_id || ''} />
   }
