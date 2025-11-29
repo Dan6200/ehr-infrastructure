@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedChargeSchema, ChargeSchema } from '#root/types'
+import { EncryptedChargeSchema } from '#root/types/encrypted-schemas'
+import { ChargeSchema } from '#root/types/schemas/financial/charge'
 import z from 'zod'
 
 export async function decryptCharge(

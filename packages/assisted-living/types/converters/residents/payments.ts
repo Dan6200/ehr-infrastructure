@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedPaymentSchema, PaymentSchema } from '#root/types'
+import { EncryptedPaymentSchema } from '#root/types/encrypted-schemas'
+import { PaymentSchema } from '#root/types/schemas/financial/payment'
 import z from 'zod'
 
 export async function decryptPayment(

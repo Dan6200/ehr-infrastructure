@@ -5,10 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import {
-  EncryptedEmergencyContactSchema,
-  EmergencyContactSchema,
-} from '#root/types'
+import { EncryptedEmergencyContactSchema } from '#root/types/encrypted-schemas'
+import { EmergencyContactSchema } from '#root/types/schemas/administrative/emergency-contact'
 import z from 'zod'
 
 export async function decryptEmergencyContact(

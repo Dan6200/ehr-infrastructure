@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedCarePlanSchema, CarePlanSchema } from '#root/types'
+import { EncryptedCarePlanSchema } from '#root/types/encrypted-schemas'
+import { CarePlanSchema } from '#root/types/schemas/clinical/care-plan'
 import z from 'zod'
 
 export async function decryptCarePlan(

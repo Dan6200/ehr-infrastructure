@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedObservationSchema, ObservationSchema } from '#root/types'
+import { EncryptedObservationSchema } from '#root/types/encrypted-schemas'
+import { ObservationSchema } from '#root/types/schemas/clinical/observation'
 import z from 'zod'
 
 export async function decryptObservation(

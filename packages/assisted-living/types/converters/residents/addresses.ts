@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedAddressSchema, AddressSchema } from '#root/types'
+import { EncryptedAddressSchema } from '#root/types/encrypted-schemas'
+import { AddressSchema } from '#root/types/schemas/administrative/address'
 import z from 'zod'
 
 export async function decryptAddress(

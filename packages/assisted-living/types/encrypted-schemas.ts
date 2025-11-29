@@ -56,7 +56,7 @@ export const EncryptedDiagnosticHistorySchema = z.object({
   encrypted_onset_datetime: EncryptedFieldSchema,
   encrypted_abatement_datetime: EncryptedFieldSchema.nullable(),
   encrypted_title: EncryptedFieldSchema,
-  encrypted_coding: EncryptedFieldSchema,
+  encrypted_code: EncryptedFieldSchema,
 })
 
 export const EncryptedEmarRecordSchema = z.object({

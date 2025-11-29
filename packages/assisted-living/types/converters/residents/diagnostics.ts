@@ -5,10 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import {
-  EncryptedDiagnosticHistorySchema,
-  DiagnosticHistorySchema,
-} from '#root/types'
+import { EncryptedDiagnosticHistorySchema } from '#root/types/encrypted-schemas'
+import { DiagnosticHistorySchema } from '#root/types/schemas/clinical/diagnostic-history'
 import z from 'zod'
 
 export async function decryptDiagnosticHistory(
@@ -33,8 +31,8 @@ export async function decryptDiagnosticHistory(
       decryptedData[newKey] = decryptData((data as any)[key], dek)
     }
   }
-  if (decryptedData.coding) {
-    decryptedData.coding = JSON.parse(decryptedData.coding)
+  if (decryptedData.code) {
+    decryptedData.code = JSON.parse(decryptedData.code)
   }
 
   return DiagnosticHistorySchema.parse(decryptedData)

@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedEncounterSchema, EncounterSchema } from '#root/types'
+import { EncryptedEncounterSchema } from '#root/types/encrypted-schemas'
+import { EncounterSchema } from '#root/types/schemas/clinical/encounter'
 import z from 'zod'
 
 export async function decryptEncounter(

@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedGoalSchema, GoalSchema } from '#root/types'
+import { EncryptedGoalSchema } from '#root/types/encrypted-schemas'
+import { GoalSchema } from '#root/types/schemas/clinical/goal'
 import z from 'zod'
 
 export async function decryptGoal(

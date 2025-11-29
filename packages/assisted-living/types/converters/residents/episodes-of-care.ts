@@ -5,10 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import {
-  EncryptedEpisodesOfCareSchema,
-  EpisodesOfCareSchema,
-} from '#root/types'
+import { EncryptedEpisodesOfCareSchema } from '#root/types/encrypted-schemas'
+import { EpisodesOfCareSchema } from '#root/types/schemas/clinical/episodes-of-care'
 import z from 'zod'
 
 export async function decryptEpisodesOfCare(

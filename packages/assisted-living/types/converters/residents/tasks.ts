@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedTaskSchema, TaskSchema } from '#root/types'
+import { EncryptedTaskSchema } from '#root/types/encrypted-schemas'
+import { TaskSchema } from '#root/types/schemas/clinical/task'
 import z from 'zod'
 
 export async function decryptTask(

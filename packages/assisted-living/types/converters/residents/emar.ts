@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedEmarRecordSchema, EmarRecordSchema } from '#root/types'
+import { EncryptedEmarRecordSchema } from '#root/types/encrypted-schemas'
+import { EmarRecordSchema } from '#root/types/schemas/clinical/emar'
 import z from 'zod'
 
 export async function decryptEmarRecord(

@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedCoverageSchema, CoverageSchema } from '#root/types'
+import { EncryptedCoverageSchema } from '#root/types/encrypted-schemas'
+import { CoverageSchema } from '#root/types/schemas/financial/coverage'
 import z from 'zod'
 
 export async function decryptCoverage(

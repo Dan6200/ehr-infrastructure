@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedAllergySchema, AllergySchema } from '#root/types'
+import { EncryptedAllergySchema } from '#root/types/encrypted-schemas'
+import { AllergySchema } from '#root/types/schemas/clinical/allergy'
 import z from 'zod'
 
 export async function decryptAllergy(

@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedClaimSchema, ClaimSchema } from '#root/types'
+import { EncryptedClaimSchema } from '#root/types/encrypted-schemas'
+import { ClaimSchema } from '#root/types/schemas/financial/claim'
 import z from 'zod'
 
 export async function decryptClaim(

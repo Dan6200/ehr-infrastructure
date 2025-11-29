@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedAccountSchema, AccountSchema } from '#root/types'
+import { EncryptedAccountSchema } from '#root/types/encrypted-schemas'
+import { AccountSchema } from '#root/types/schemas/financial/account'
 import z from 'zod'
 
 export async function decryptAccount(

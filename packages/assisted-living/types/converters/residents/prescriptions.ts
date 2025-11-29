@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedPrescriptionSchema, PrescriptionSchema } from '#root/types'
+import { EncryptedPrescriptionSchema } from '#root/types/encrypted-schemas'
+import { PrescriptionSchema } from '#root/types/schemas/clinical/prescription'
 import z from 'zod'
 
 export async function decryptPrescription(

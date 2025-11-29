@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedProcedureSchema, ProcedureSchema } from '#root/types'
+import { EncryptedProcedureSchema } from '#root/types/encrypted-schemas'
+import { ProcedureSchema } from '#root/types/schemas/clinical/procedure'
 import z from 'zod'
 
 export async function decryptProcedure(

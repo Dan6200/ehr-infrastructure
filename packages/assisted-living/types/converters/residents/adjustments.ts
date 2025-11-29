@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedAdjustmentSchema, AdjustmentSchema } from '#root/types'
+import { EncryptedAdjustmentSchema } from '#root/types/encrypted-schemas'
+import { AdjustmentSchema } from '#root/types/schemas/financial/adjustment'
 import z from 'zod'
 
 export async function decryptAdjustment(

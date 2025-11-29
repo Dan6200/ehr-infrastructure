@@ -5,7 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import { EncryptedIdentifierSchema, IdentifierSchema } from '#root/types'
+import { EncryptedIdentifierSchema } from '#root/types/encrypted-schemas'
+import { IdentifierSchema } from '#root/types/schemas/administrative/identifier'
 import z from 'zod'
 
 export async function decryptIdentifier(

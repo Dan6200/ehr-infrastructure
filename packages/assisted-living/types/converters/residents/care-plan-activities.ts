@@ -5,10 +5,8 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
 } from 'firebase-admin/firestore'
-import {
-  EncryptedCarePlanActivitySchema,
-  CarePlanActivitySchema,
-} from '#root/types'
+import { EncryptedCarePlanActivitySchema } from '#root/types/encrypted-schemas'
+import { CarePlanActivitySchema } from '#root/types/schemas/clinical/care-plan-activity'
 import z from 'zod'
 
 export async function decryptCarePlanActivity(
