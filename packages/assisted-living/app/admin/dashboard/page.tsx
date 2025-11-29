@@ -6,16 +6,9 @@ import {
   getFinancialSummaryQuery,
   getResidentGrowthQuery,
 } from '#root/lib/bigquery/queries'
-import { Resident } from '#root/types/schemas'
+import { Resident } from '#root/types/schemas/administrative/resident'
 
-export type FormattedChartData = {
-  date: string
-  currency: string
-  charges: number
-  claims: number
-  payments: number
-  adjustments: number
-}[]
+import { FormattedChartData } from '#root/types/dashboard'
 
 async function getChartData(): Promise<{
   chartData: FormattedChartData
