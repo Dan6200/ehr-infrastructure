@@ -34,7 +34,7 @@ export async function getAdminDb(): Promise<Firestore> {
   await initializeAdminApp()
   // Apply settings *before* the first use
   const firestore = admin.firestore()
-  if (!firestore._settingsFrozen)
+  if (!(firestore as any)._settingsFrozen)
     firestore.settings({ databaseId: process.env.NEXT_PUBLIC_DATABASE_ID })
   db = firestore
   return db
