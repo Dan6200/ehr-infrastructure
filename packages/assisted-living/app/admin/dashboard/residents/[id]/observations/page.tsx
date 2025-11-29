@@ -1,4 +1,5 @@
-import { getResidentData } from '#root/actions/residents/get'
+import { getNestedResidentData } from '#root/actions/residents/get/subcollections'
+import { verifySession } from '#root/auth/server/definitions'
 import { Button } from '#root/components/ui/button'
 import {
   Table,
@@ -18,17 +19,18 @@ export default async function ObservationsPage({
   params: Promise<{ id: string }>
 }) {
   const { id: residentId } = await params
+  const { provider_id } = await verifySession()
 
-  const residentData = await getResidentData(residentId, 'observations').catch(
-    (e) => {
-      if (e.message.match(/not_found/i)) notFound()
-      throw new Error(
-        `Unable to fetch resident data for observations page: ${e.message}`,
-      )
-    },
-  )
-
-  const observations = residentData.observations || []
+  const observations = await getNestedResidentData(
+    provider_id,
+    residentId,
+    'observations',
+  ).catch((e) => {
+    if (e.message.match(/not_found/i)) notFound()
+    throw new Error(
+      `Unable to fetch resident data for observations page: ${e.message}`,
+    )
+  })
 
   return (
     <div className="space-y-8">
@@ -42,7 +44,7 @@ export default async function ObservationsPage({
           </Link>
         </Button>
       </div>
-      {observations.length > 0 ? (
+      {observations && observations.length > 0 ? (
         <Table>
           <TableHeader>
             <TableRow>
