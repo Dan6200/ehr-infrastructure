@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { toast } from '#root/components/ui/use-toast'
 import { isError } from '#root/app/utils'
-import { ObservationSchema, ResidentData } from '#root/types'
+import { Observation, ObservationSchema } from '#root/types'
 import { Button } from '#root/components/ui/button'
 import {
   Form,
@@ -45,9 +45,11 @@ const FormSchema = z.object({
 })
 
 export function ObservationsForm({
-  residentData,
+  observations,
+  residentId,
 }: {
-  residentData: ResidentData
+  observations: Observation[]
+  residentId: string
 }) {
   const router = useRouter()
   const [deletedObservationIds, setDeletedObservationIds] = React.useState<
@@ -57,7 +59,7 @@ export function ObservationsForm({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      observations: residentData.observations || [],
+      observations: observations || [],
     },
   })
 
@@ -67,7 +69,7 @@ export function ObservationsForm({
   })
 
   const handleRemove = (index: number) => {
-    const observationId = residentData.observations?.[index]?.id
+    const observationId = observations?.[index]?.id
     if (observationId) {
       setDeletedObservationIds((prev) => [...prev, observationId])
     }
@@ -79,13 +81,13 @@ export function ObservationsForm({
       const observationsWithIds = (data.observations || []).map(
         (obs, index) => ({
           ...obs,
-          id: residentData.observations?.[index]?.id || '',
+          id: observations?.[index]?.id || '',
         }),
       )
 
       const { message, success } = await updateObservations(
         observationsWithIds,
-        residentData.id!,
+        residentId,
         deletedObservationIds,
       )
       toast({ title: message, variant: success ? 'default' : 'destructive' })
@@ -115,19 +117,36 @@ export function ObservationsForm({
                   <FormLabel>Observation (LOINC)</FormLabel>
                   <FormControl>
                     <Autocomplete
-                      value={field.value?.code || ''}
+                      value={field.value?.coding?.[0]?.code || ''}
+                      options={
+                        field.value?.coding?.[0]?.code
+                          ? [
+                              {
+                                value: field.value.coding[0].code,
+                                label:
+                                  field.value.text ||
+                                  field.value.coding[0].display ||
+                                  '',
+                              },
+                            ]
+                          : []
+                      }
                       onValueChange={(option) => {
                         if (option) {
                           form.setValue(`observations.${index}.code`, {
-                            code: option.value,
+                            coding: [
+                              {
+                                system: 'http://loinc.org',
+                                code: option.value,
+                                display: option.label,
+                              },
+                            ],
                             text: option.label,
-                            system: 'http://loinc.org',
                           })
                         }
                       }}
                       onSearch={searchLoinc}
                       placeholder="Search LOINC code..."
-                      options={[]}
                     />
                   </FormControl>
                   <FormMessage />
@@ -225,12 +244,12 @@ export function ObservationsForm({
             append({
               status: 'final',
               category: [],
-              code: { system: '', code: '', text: '' },
+              code: { coding: [], text: '' },
               effective_datetime: new Date().toISOString(),
               value_quantity: { value: 0, unit: '' },
-              body_site: { system: '', code: '', text: '' },
-              method: { system: '', code: '', text: '' },
-              device: { system: '', code: '', text: '' },
+              body_site: { coding: [], text: '' },
+              method: { coding: [], text: '' },
+              device: { coding: [], text: '' },
             })
           }
         >

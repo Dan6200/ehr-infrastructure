@@ -122,6 +122,19 @@ export function PrescriptionsForm({
                   <FormControl>
                     <Autocomplete
                       value={field.value?.code?.coding?.[0]?.code || ''}
+                      options={
+                        field.value?.code?.coding?.[0]?.code
+                          ? [
+                              {
+                                value: field.value.code.coding[0].code,
+                                label:
+                                  field.value.code.text ||
+                                  field.value.code.coding[0].display ||
+                                  '',
+                              },
+                            ]
+                          : []
+                      }
                       onValueChange={(option) => {
                         if (option) {
                           form.setValue(`prescriptions.${index}.medication`, {
@@ -142,7 +155,6 @@ export function PrescriptionsForm({
                       }}
                       onSearch={searchRxNorm}
                       placeholder="Search RxNorm..."
-                      options={[]}
                     />
                   </FormControl>
                   <FormMessage />

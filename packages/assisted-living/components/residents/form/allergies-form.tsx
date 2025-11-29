@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { toast } from '#root/components/ui/use-toast'
 import { isError } from '#root/app/utils'
-import { AllergySchema, ResidentData } from '#root/types'
+import { Allergy, AllergySchema } from '#root/types'
 import { Button } from '#root/components/ui/button'
 import {
   Form,
@@ -19,20 +19,42 @@ import {
 import { Input } from '#root/components/ui/input'
 import { Trash2 } from 'lucide-react'
 import { updateAllergies } from '#root/actions/residents/update-allergies'
-
 import { Autocomplete } from '#root/components/ui/autocomplete'
 import { searchSnomed } from '#root/actions/lookups/search-snomed'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '#root/components/ui/select'
+import {
+  AllergyClinicalStatusEnum,
+  AllergyVerificationStatusEnum,
+  AllergyTypeEnum,
+} from '#root/types/enums'
 
 import * as React from 'react'
 
 const FormSchema = z.object({
-  allergies: z.array(AllergySchema).nullable().optional(),
+  allergies: z
+    .array(
+      AllergySchema.omit({
+        id: true,
+        resident_id: true,
+        recorder_id: true,
+      }),
+    )
+    .nullable()
+    .optional(),
 })
 
 export function AllergiesForm({
-  residentData,
+  allergies,
+  residentId,
 }: {
-  residentData: ResidentData
+  allergies: Allergy[]
+  residentId: string
 }) {
   const router = useRouter()
   const [deletedAllergyIds, setDeletedAllergyIds] = React.useState<string[]>([])
@@ -40,7 +62,7 @@ export function AllergiesForm({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      allergies: residentData.allergies || [],
+      allergies: allergies || [],
     },
   })
 
@@ -50,7 +72,7 @@ export function AllergiesForm({
   })
 
   const handleRemove = (index: number) => {
-    const allergyId = residentData.allergies?.[index]?.id
+    const allergyId = allergies?.[index]?.id
     if (allergyId) {
       setDeletedAllergyIds((prev) => [...prev, allergyId])
     }
@@ -59,9 +81,14 @@ export function AllergiesForm({
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
+      const allergiesWithIds = (data.allergies || []).map((a, index) => ({
+        ...a,
+        id: allergies?.[index]?.id || '',
+      }))
+
       const { message, success } = await updateAllergies(
-        data.allergies || [],
-        residentData.id!,
+        allergiesWithIds,
+        residentId,
         deletedAllergyIds,
       )
       toast({ title: message, variant: success ? 'default' : 'destructive' })
@@ -81,74 +108,277 @@ export function AllergiesForm({
         {fields.map((field, index) => (
           <div
             key={field.id}
-            className="flex items-end gap-4 p-4 border rounded-md"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border rounded-md relative"
           >
             <FormField
               control={form.control}
               name={`allergies.${index}.name`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Allergy Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Peanuts" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name={`allergies.${index}.reaction`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Reaction</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Anaphylaxis" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name={`allergies.${index}.snomed_code`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>SNOMED Code</FormLabel>
+                  <FormLabel>Allergy (SNOMED)</FormLabel>
                   <FormControl>
                     <Autocomplete
-                      value={field.value || ''}
+                      value={field.value?.coding?.[0]?.code || ''}
+                      options={
+                        field.value?.coding?.[0]?.code
+                          ? [
+                              {
+                                value: field.value.coding[0].code,
+                                label:
+                                  field.value.text ||
+                                  field.value.coding[0].display ||
+                                  '',
+                              },
+                            ]
+                          : []
+                      }
                       onValueChange={(option) => {
                         if (option) {
-                          form.setValue(
-                            `allergies.${index}.snomed_code`,
-                            option.value,
-                          )
-                          form.setValue(`allergies.${index}.name`, option.label)
+                          form.setValue(`allergies.${index}.name`, {
+                            coding: [
+                              {
+                                system: 'http://snomed.info/sct',
+                                code: option.value,
+                                display: option.label,
+                              },
+                            ],
+                            text: option.label,
+                          })
                         }
                       }}
                       onSearch={searchSnomed}
-                      placeholder="Search SNOMED..."
-                      options={[]}
+                      placeholder="Search..."
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={() => handleRemove(index)}
-            >
-              <Trash2 />
-            </Button>
+            <FormField
+              control={form.control}
+              name={`allergies.${index}.type`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {AllergyTypeEnum.options.map((opt) => (
+                        <SelectItem key={opt} value={opt}>
+                          {opt}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`allergies.${index}.clinical_status`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Clinical Status</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {AllergyClinicalStatusEnum.options.map((opt) => (
+                        <SelectItem key={opt} value={opt}>
+                          {opt}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`allergies.${index}.verification_status`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Verification Status</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {AllergyVerificationStatusEnum.options.map((opt) => (
+                        <SelectItem key={opt} value={opt}>
+                          {opt}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`allergies.${index}.recorded_date`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Recorded Date</FormLabel>
+                  <FormControl>
+                    <Input type="datetime-local" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`allergies.${index}.substance`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Substance (SNOMED)</FormLabel>
+                  <FormControl>
+                    <Autocomplete
+                      value={field.value?.coding?.[0]?.code || ''}
+                      options={
+                        field.value?.coding?.[0]?.code
+                          ? [
+                              {
+                                value: field.value.coding[0].code,
+                                label:
+                                  field.value.text ||
+                                  field.value.coding[0].display ||
+                                  '',
+                              },
+                            ]
+                          : []
+                      }
+                      onValueChange={(option) => {
+                        if (option) {
+                          form.setValue(`allergies.${index}.substance`, {
+                            coding: [
+                              {
+                                system: 'http://snomed.info/sct',
+                                code: option.value,
+                                display: option.label,
+                              },
+                            ],
+                            text: option.label,
+                          })
+                        }
+                      }}
+                      onSearch={searchSnomed}
+                      placeholder="Search Substance..."
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`allergies.${index}.reaction.code`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Reaction (SNOMED)</FormLabel>
+                  <FormControl>
+                    <Autocomplete
+                      value={field.value?.coding?.[0]?.code || ''}
+                      options={
+                        field.value?.coding?.[0]?.code
+                          ? [
+                              {
+                                value: field.value.coding[0].code,
+                                label:
+                                  field.value.text ||
+                                  field.value.coding[0].display ||
+                                  '',
+                              },
+                            ]
+                          : []
+                      }
+                      onValueChange={(option) => {
+                        if (option) {
+                          form.setValue(`allergies.${index}.reaction.code`, {
+                            coding: [
+                              {
+                                system: 'http://snomed.info/sct',
+                                code: option.value,
+                                display: option.label,
+                              },
+                            ],
+                            text: option.label,
+                          })
+                        }
+                      }}
+                      onSearch={searchSnomed}
+                      placeholder="Search Reaction..."
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`allergies.${index}.reaction.severity`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Severity</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Mild, Severe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="absolute top-2 right-2">
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                onClick={() => handleRemove(index)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         ))}
         <Button
           type="button"
           variant="outline"
-          onClick={() => append({ name: '', reaction: '', snomed_code: '' })}
+          onClick={() =>
+            append({
+              clinical_status: 'active',
+              verification_status: 'unconfirmed',
+              type: 'allergy',
+              recorded_date: new Date().toISOString(),
+              name: { coding: [], text: '' },
+              substance: { coding: [], text: '' },
+              reaction: {
+                code: { coding: [], text: '' },
+                severity: '',
+              },
+            })
+          }
         >
           Add Allergy
         </Button>

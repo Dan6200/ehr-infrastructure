@@ -116,6 +116,16 @@ export function DiagnosticHistoryForm({
                   <FormControl>
                     <Autocomplete
                       value={field.value?.code?.code || ''}
+                      options={
+                        field.value?.code?.code
+                          ? [
+                              {
+                                value: field.value.code.code,
+                                label: field.value.code.text || '',
+                              },
+                            ]
+                          : []
+                      }
                       onValueChange={(option) => {
                         if (option) {
                           form.setValue(`diagnostic_history.${index}.code`, {
@@ -131,7 +141,6 @@ export function DiagnosticHistoryForm({
                       }}
                       onSearch={searchSnomed}
                       placeholder="Search SNOMED..."
-                      options={[]}
                     />
                   </FormControl>
                   <FormMessage />
