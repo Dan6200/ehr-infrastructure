@@ -6,7 +6,10 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { toast } from '#root/components/ui/use-toast'
 import { isError } from '#root/app/utils'
-import { Adjustment, AdjustmentSchema } from '#root/types'
+import {
+  AdjustmentSchema,
+  Adjustment,
+} from '#root/types/schemas/financial/adjustment'
 import { Button } from '#root/components/ui/button'
 import {
   Form,

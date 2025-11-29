@@ -5,7 +5,10 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { toast } from '#root/components/ui/use-toast'
 import { isError } from '#root/app/utils'
-import { DiagnosticHistorySchema, DiagnosticHistory } from '#root/types'
+import {
+  DiagnosticHistorySchema,
+  DiagnosticHistory,
+} from '#root/types/schemas/clinical/diagnostic-history'
 import { Button } from '#root/components/ui/button'
 import {
   Form,

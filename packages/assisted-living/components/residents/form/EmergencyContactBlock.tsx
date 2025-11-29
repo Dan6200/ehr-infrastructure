@@ -4,7 +4,10 @@ import { Edit, Lock, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { EditableFormField } from './EditableFormField'
-import { LegalRelationshipEnum, PersonalRelationshipEnum } from '#root/types'
+import {
+  LegalRelationshipEnum,
+  PersonalRelationshipEnum,
+} from '#root/types/enums'
 import { MultiSelect } from '#root/components/ui/multi-select'
 
 interface EmergencyContactBlockProps {

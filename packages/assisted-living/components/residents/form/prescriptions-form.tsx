@@ -6,7 +6,10 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { toast } from '#root/components/ui/use-toast'
 import { isError } from '#root/app/utils'
-import { Prescription, PrescriptionSchema } from '#root/types'
+import {
+  PrescriptionSchema,
+  Prescription,
+} from '#root/types/schemas/clinical/prescription'
 import { Button } from '#root/components/ui/button'
 import {
   Form,

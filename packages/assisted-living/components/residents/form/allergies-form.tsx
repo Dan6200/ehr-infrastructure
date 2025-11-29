@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { toast } from '#root/components/ui/use-toast'
 import { isError } from '#root/app/utils'
-import { Allergy, AllergySchema } from '#root/types'
+import { AllergySchema, Allergy } from '#root/types/schemas/clinical/allergy'
 import { Button } from '#root/components/ui/button'
 import {
   Form,

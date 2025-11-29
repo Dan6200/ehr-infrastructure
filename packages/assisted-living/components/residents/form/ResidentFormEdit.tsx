@@ -10,7 +10,7 @@ import { toast } from '#root/components/ui/use-toast'
 import { isError } from '#root/app/utils'
 import { updateResident } from '#root/actions/residents/update'
 import { ResidentFormBase } from './ResidentFormBase'
-import { type Resident, ResidentSchema } from '#root/types'
+import { ResidentSchema } from '#root/types/schemas/administrative/resident'
 
 export function ResidentFormEdit({
   residentData,

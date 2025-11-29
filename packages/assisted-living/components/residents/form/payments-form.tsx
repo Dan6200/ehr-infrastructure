@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { toast } from '#root/components/ui/use-toast'
 import { isError } from '#root/app/utils'
-import { Payment, PaymentSchema } from '#root/types'
+import { PaymentSchema, Payment } from '#root/types/schemas/financial/payment'
 import { Button } from '#root/components/ui/button'
 import {
   Form,

@@ -10,7 +10,7 @@ import { isError } from '#root/app/utils'
 import { addNewResident } from '#root/actions/residents/add'
 import { ResidentFormBase } from './ResidentFormBase'
 import type { Resident } from '#root/types'
-import { ResidentSchema } from '#root/types'
+import { ResidentSchema } from '#root/types/schemas/administrative/resident'
 import { auth } from '#root/auth/client/config'
 
 export function ResidentFormAdd({
