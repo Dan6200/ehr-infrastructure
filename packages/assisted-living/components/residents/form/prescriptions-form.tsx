@@ -292,9 +292,9 @@ export function PrescriptionsForm({
           variant="outline"
           onClick={() =>
             append({
-              period: { start: new Date().toISOString() },
+              period: { start: new Date().toISOString(), end: '' },
               status: 'active',
-              adherence: 'not-applicable',
+              adherence: 'taking',
               medication: {
                 code: {
                   coding: [],
