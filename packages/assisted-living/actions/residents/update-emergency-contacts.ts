@@ -1,6 +1,7 @@
 'use server'
 import { getAdminDb } from '#root/firebase/admin'
-import { EmergencyContact, EncryptedEmergencyContactSchema } from '#root/types'
+import { EmergencyContact } from '#root/types/schemas/administrative/emergency-contact'
+import { EncryptedEmergencyContactSchema } from '#root/types/encrypted-schemas'
 import { verifySession } from '#root/auth/server/definitions'
 import {
   decryptDataKey,

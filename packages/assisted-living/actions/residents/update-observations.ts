@@ -1,6 +1,7 @@
 'use server'
 import { getAdminDb } from '#root/firebase/admin'
-import { Observation, EncryptedObservationSchema } from '#root/types'
+import { Observation } from '#root/types/schemas/clinical/observation'
+import { EncryptedObservationSchema } from '#root/types/encrypted-schemas'
 import { verifySession } from '#root/auth/server/definitions'
 import {
   decryptDataKey,

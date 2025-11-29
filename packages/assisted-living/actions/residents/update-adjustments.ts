@@ -1,6 +1,7 @@
 'use server'
 import { getAdminDb } from '#root/firebase/admin'
-import { Adjustment, EncryptedAdjustmentSchema } from '#root/types'
+import { Adjustment } from '#root/types/schemas/financial/adjustment'
+import { EncryptedAdjustmentSchema } from '#root/types/encrypted-schemas'
 import { verifySession } from '#root/auth/server/definitions'
 import {
   decryptDataKey,

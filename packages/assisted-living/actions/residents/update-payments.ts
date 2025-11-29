@@ -1,6 +1,7 @@
 'use server'
 import { getAdminDb } from '#root/firebase/admin'
-import { Payment, EncryptedPaymentSchema } from '#root/types'
+import { Payment } from '#root/types/schemas/financial/payment'
+import { EncryptedPaymentSchema } from '#root/types/encrypted-schemas'
 import { verifySession } from '#root/auth/server/definitions'
 import {
   decryptDataKey,

@@ -11,8 +11,8 @@ import {
   Resident,
   ResidentDataSchema,
   ResidentSchema,
-  EncryptedResidentSchema,
-} from '#root/types'
+} from '#root/types/schemas/administrative/resident'
+import { EncryptedResidentSchema } from '#root/types/encrypted-schemas'
 import {
   decryptResidentData,
   getResidentConverter,

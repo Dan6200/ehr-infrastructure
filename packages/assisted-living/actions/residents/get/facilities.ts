@@ -2,7 +2,10 @@
 
 import { verifySession } from '#root/auth/server/definitions'
 import { collectionWrapper, getDocsWrapper } from '#root/firebase/admin'
-import { Facility, FacilitySchema } from '#root/types'
+import {
+  Facility,
+  FacilitySchema,
+} from '#root/types/schemas/administrative/facility'
 import { getFacilityConverter } from '#root/types/converters'
 import { notFound } from 'next/navigation'
 

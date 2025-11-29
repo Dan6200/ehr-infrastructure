@@ -1,9 +1,7 @@
 'use server'
 import { getAdminDb } from '#root/firebase/admin'
-import {
-  DiagnosticHistory,
-  EncryptedDiagnosticHistorySchema,
-} from '#root/types'
+import { DiagnosticHistory } from '#root/types/schemas/clinical/diagnostic-history'
+import { EncryptedDiagnosticHistorySchema } from '#root/types/encrypted-schemas'
 import { verifySession } from '#root/auth/server/definitions'
 import {
   decryptDataKey,

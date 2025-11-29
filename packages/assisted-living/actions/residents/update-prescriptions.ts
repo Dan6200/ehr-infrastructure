@@ -1,6 +1,7 @@
 'use server'
 import { getAdminDb } from '#root/firebase/admin'
-import { Prescription, EncryptedPrescriptionSchema } from '#root/types'
+import { Prescription } from '#root/types/schemas/clinical/prescription'
+import { EncryptedPrescriptionSchema } from '#root/types/encrypted-schemas'
 import { verifySession } from '#root/auth/server/definitions'
 import {
   decryptDataKey,

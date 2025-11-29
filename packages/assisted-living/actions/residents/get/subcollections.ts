@@ -6,7 +6,7 @@ import {
   SubCollectionKey,
   subCollectionMap,
   SubCollectionMapType,
-} from '#root/types'
+} from '#root/types/subcollection-map'
 import { FirestoreDataConverter } from 'firebase-admin/firestore'
 import z from 'zod'
 

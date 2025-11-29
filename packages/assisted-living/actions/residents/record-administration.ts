@@ -1,6 +1,7 @@
 'use server'
 import { verifySession } from '#root/auth/server/definitions'
-import { EmarRecord, EncryptedEmarRecordSchema } from '#root/types'
+import { EmarRecord } from '#root/types/schemas/clinical/emar'
+import { EncryptedEmarRecordSchema } from '#root/types/encrypted-schemas'
 import {
   decryptDataKey,
   encryptData,

@@ -10,7 +10,8 @@ export {}
 //   decryptData,
 // } from '#root/lib/encryption'
 // import { logger } from '#root/lib/logger'
-// import { EncryptedResident, ResidentDataSchema } from '#root/types'
+// import { EncryptedResident } from '#root/types/encrypted-schemas'
+// import { ResidentDataSchema } from '#root/types/schemas/administrative/resident'
 // import { getResidentConverter } from '#root/types/converters'
 //
 // /**

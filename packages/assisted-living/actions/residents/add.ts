@@ -1,9 +1,10 @@
 'use server'
 import { addDocWrapper, collectionWrapper } from '#root/firebase/admin'
-import { Resident, EncryptedResidentSchema } from '#root/types'
+import { EncryptedResidentSchema } from '#root/types/encrypted-schemas'
 import { verifySession } from '#root/auth/server/definitions'
 import { encryptResident, getResidentConverter } from '#root/types/converters'
 import { z } from 'zod'
+import { Resident } from '#root/types'
 
 export async function addNewResident(
   residentData: Omit<Resident, 'resident_id'>,

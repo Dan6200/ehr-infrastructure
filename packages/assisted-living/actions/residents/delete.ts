@@ -5,7 +5,7 @@ import {
   docWrapper,
 } from '#root/firebase/admin'
 import { verifySession } from '#root/auth/server/definitions'
-import { EncryptedResidentSchema } from '#root/types'
+import { EncryptedResidentSchema } from '#root/types/encrypted-schemas'
 import { getResidentConverter } from '#root/types/converters'
 import { z } from 'zod'
 

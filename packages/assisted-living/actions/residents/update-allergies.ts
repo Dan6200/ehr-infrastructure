@@ -1,6 +1,7 @@
 'use server'
 import { getAdminDb } from '#root/firebase/admin'
-import { Allergy, EncryptedAllergySchema } from '#root/types'
+import { Allergy } from '#root/types/schemas/clinical/allergy'
+import { EncryptedAllergySchema } from '#root/types/encrypted-schemas'
 import { verifySession } from '#root/auth/server/definitions'
 import {
   decryptDataKey,
