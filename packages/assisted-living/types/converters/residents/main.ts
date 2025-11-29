@@ -16,10 +16,8 @@ import {
 } from 'firebase-admin/firestore'
 import { z } from 'zod'
 import { EncryptedResidentSchema } from '#root/types/encrypted-schemas'
-import {
-  Resident,
-  ResidentSchema,
-} from '#root/types/schemas/administrative/resident'
+import { ResidentSchema } from '#root/types/schemas/administrative/resident'
+import { Resident } from '#root/types'
 
 export async function encryptResident(
   resident: Resident | Partial<Resident>,
