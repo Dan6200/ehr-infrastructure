@@ -25,6 +25,7 @@ export default async function BillingPage({ params }: BillingPageProps) {
   return (
     <div className="space-y-4">
       <BillingClient
+        residentId={residentId}
         accounts={accounts || []}
         charges={charges || []}
         claims={claims || []}
