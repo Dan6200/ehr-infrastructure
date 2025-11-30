@@ -214,7 +214,7 @@ export async function getAllResidents({
     }
   } catch (error: any) {
     if (error.toString().match(/(cookies|session|authenticate)/i)) {
-      const url = process.env.HOST + ':' + process.env.PORT + '/api/auth/logout'
+      const url = `${process.env.HOST}${process.env.PORT ? ':' + process.env.PORT : ''}/api/auth/logout`
       await fetch(url, {
         method: 'post',
       }).finally(async () => {
