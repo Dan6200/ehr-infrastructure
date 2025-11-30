@@ -46,11 +46,13 @@ jobs:
           echo "KEK_CLINICAL_PATH=$(gcloud kms keys list --keyring=$KEYRING_NAME --location=$KMS_LOCATION --project=${{ env.PROJECT_ID }} --filter='name:kek-clinical' --format='value(name)')" >> $GITHUB_ENV
           echo "KEK_FINANCIAL_PATH=$(gcloud kms keys list --keyring=$KEYRING_NAME --location=$KMS_LOCATION --project=${{ env.PROJECT_ID }} --filter='name:kek-financial' --format='value(name)')" >> $GITHUB_ENV
 
-      - name: Build and Push Docker Image
-        id: build
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      - name: Build Docker Image
         working-directory: ./packages/assisted-living
         run: |
-          gcloud builds submit \
+          docker build \
             --tag "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" \
             --build-arg NEXT_PUBLIC_FB_API_KEY="${{ secrets.FB_API_KEY }}" \
             --build-arg NEXT_PUBLIC_FB_AUTH_DOMAIN="${{ secrets.FB_AUTH_DOMAIN }}" \
@@ -59,6 +61,10 @@ jobs:
             --build-arg NEXT_PUBLIC_FB_APP_ID="${{ secrets.FB_APP_ID }}" \
             --build-arg NEXT_PUBLIC_FB_MESSAGING_SENDER_ID="${{ secrets.FB_MESSAGING_SENDER_ID }}" \
             -f Dockerfile.prod .
+
+      - name: Push Docker Image
+        run: |
+          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
 
       - name: Deploy to Cloud Run Service
         run: |
