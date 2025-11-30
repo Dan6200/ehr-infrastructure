@@ -213,14 +213,15 @@ export async function getAllResidents({
       hasPrevPage,
     }
   } catch (error: any) {
-    if (error.toString().match(/(cookies|session|authenticate)/i)) {
-      const url = `${process.env.HOST}${process.env.PORT ? ':' + process.env.PORT : ''}/api/auth/logout`
-      await fetch(url, {
-        method: 'post',
-      }).finally(async () => {
-        redirect('/sign-in')
-      })
-    }
+    // TODO: Move to components to avoid complex url building
+    // if (error.toString().match(/(cookies|session|authenticate)/i)) {
+    //   const url = `${process.env.HOST}${process.env.PORT ? ':' + process.env.PORT : ''}/api/auth/logout`
+    //   await fetch(url, {
+    //     method: 'post',
+    //   }).finally(async () => {
+    //     redirect('/sign-in')
+    //   })
+    // }
     throw new Error(`Failed to fetch all residents data: ${error.message}`)
   }
 }
