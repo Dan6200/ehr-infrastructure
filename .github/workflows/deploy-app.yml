@@ -50,7 +50,15 @@ jobs:
         id: build
         working-directory: ./packages/assisted-living
         run: |
-          gcloud builds submit --tag "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" -f Dockerfile.prod .
+          gcloud builds submit \
+            --tag "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" \
+            --build-arg NEXT_PUBLIC_FB_API_KEY="${{ secrets.FB_API_KEY }}" \
+            --build-arg NEXT_PUBLIC_FB_AUTH_DOMAIN="${{ secrets.FB_AUTH_DOMAIN }}" \
+            --build-arg NEXT_PUBLIC_FB_PROJECT_ID="${{ env.PROJECT_ID }}" \
+            --build-arg NEXT_PUBLIC_FB_STORAGE_BUCKET="${{ secrets.FB_STORAGE_BUCKET }}" \
+            --build-arg NEXT_PUBLIC_FB_APP_ID="${{ secrets.FB_APP_ID }}" \
+            --build-arg NEXT_PUBLIC_FB_MESSAGING_SENDER_ID="${{ secrets.FB_MESSAGING_SENDER_ID }}" \
+            -f Dockerfile.prod .
 
       - name: Deploy to Cloud Run Service
         run: |
@@ -63,4 +71,4 @@ jobs:
             --min-instances 0 \
             --max-instances 5 \
             --allow-unauthenticated \
-            --set-env-vars="GCP_PROJECT_ID=${{ env.PROJECT_ID }},KMS_LOCATION=${{ env.REGION }},KMS_KEY_RING=${{ env.KMS_KEY_RING }},KEK_GENERAL_PATH=${{ env.KEK_GENERAL_PATH }},KEK_CONTACT_PATH=${{ env.KEK_CONTACT_PATH }},KEK_CLINICAL_PATH=${{ env.KEK_CLINICAL_PATH }},KEK_FINANCIAL_PATH=${{ env.KEK_FINANCIAL_PATH }},NEXT_PUBLIC_BQ_DATASET_ID=firestore_export"
+            --set-env-vars="GCP_PROJECT_ID=${{ env.PROJECT_ID }},KMS_LOCATION=${{ env.REGION }},KMS_KEY_RING=${{ env.KMS_KEY_RING }},KEK_GENERAL_PATH=${{ env.KEK_GENERAL_PATH }},KEK_CONTACT_PATH=${{ env.KEK_CONTACT_PATH }},KEK_CLINICAL_PATH=${{ env.KEK_CLINICAL_PATH }},KEK_FINANCIAL_PATH=${{ env.KEK_FINANCIAL_PATH }},NEXT_PUBLIC_BQ_DATASET_ID=firestore_export_staging,REDIS_HOST=${{ secrets.REDIS_HOST }},REDIS_PORT=${{ secrets.REDIS_PORT }},REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}"
