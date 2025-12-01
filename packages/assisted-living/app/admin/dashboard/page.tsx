@@ -1,4 +1,3 @@
-'use server'
 import { redirect } from 'next/navigation'
 import { DashboardClient } from '#root/components/dashboard/dashboard-client'
 import { bigqueryClient } from '#root/lib/bigquery'
@@ -10,10 +9,13 @@ import { Resident } from '#root/types/schemas/administrative/resident'
 
 import { FormattedChartData } from '#root/types/dashboard'
 
+export const dynamic = 'force-dynamic'
+
 async function getChartData(): Promise<{
   chartData: FormattedChartData
   residents: Pick<Resident, 'created_at' | 'deactivated_at'>[]
 } | null> {
+  'use server'
   try {
     const financialQueryOptions = {
       query: getFinancialSummaryQuery,
