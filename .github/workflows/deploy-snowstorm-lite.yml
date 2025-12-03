@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'snowstorm-lite/**' # Trigger if Snowstorm-Lite related files change (if you manage its config)
   workflow_dispatch:
 
 jobs:
