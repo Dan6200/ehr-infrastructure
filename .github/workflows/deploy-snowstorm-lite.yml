@@ -1,0 +1,61 @@
+name: Deploy Snowstorm-Lite to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'snowstorm-lite/**' # Trigger if Snowstorm-Lite related files change (if you manage its config)
+  workflow_dispatch:
+
+jobs:
+  deploy-snowstorm:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      PROJECT_ID: 'lean-ehr'
+      REGION: 'europe-west1'
+      SERVICE_NAME: 'snowstorm-lite-service'
+      ARTIFACT_REPO: 'lean-ehr-repo'
+      SNOWSTORM_IMAGE_SOURCE: 'snomedinternational/snowstorm-lite:latest'
+      SNOWSTORM_PORT: '8080' # Default port for Snowstorm-Lite
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'projects/31765765651/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'assisted-living-app@lean-ehr.iam.gserviceaccount.com'
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      - name: Pull and Re-tag Snowstorm-Lite Image
+        run: |
+          docker pull ${{ env.SNOWSTORM_IMAGE_SOURCE }}
+          docker tag ${{ env.SNOWSTORM_IMAGE_SOURCE }} ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+
+      - name: Push Snowstorm-Lite Image to Artifact Registry
+        run: |
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+
+      - name: Deploy Snowstorm-Lite to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" \
+            --region "${{ env.REGION }}" \
+            --project "${{ env.PROJECT_ID }}" \
+            --allow-unauthenticated \
+            --port ${{ env.SNOWSTORM_PORT }} \
+            --set-env-vars="ADMIN_PASSWORD=${{ secrets.SNOWSTORM_ADMIN_PASSWORD }}" \
+            --service-account="assisted-living-app@lean-ehr.iam.gserviceaccount.com" # Ensure this SA has 'roles/run.invoker' for other services to call it
