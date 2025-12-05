@@ -56,7 +56,7 @@ jobs:
             --port ${{ env.SNOWSTORM_PORT }} \
             --min-instances=1 \
             --timeout=3600 \
-            --add-volume name=snomed-index-volume,type=cloud-storage,bucket=lean-ehr-loinc-data-7776,readonly=true, \
+            --add-volume name=snomed-index-volume,type=cloud-storage,bucket=lean-ehr-loinc-data-7776 \
             --add-volume-mount volume=snomed-index-volume,mount-path=/app/lucene-index \
             --set-env-vars="ADMIN_PASSWORD=${{ secrets.SNOWSTORM_ADMIN_PASSWORD }}" \
             --service-account="assisted-living-app@lean-ehr.iam.gserviceaccount.com" # Ensure this SA has 'roles/run.invoker' for other services to call it
