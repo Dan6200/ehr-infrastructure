@@ -8,7 +8,7 @@ shadcn-download.sh
 todo.md
 
 # dependencies
-/node_modules
+node_modules
 /.pnp
 .pnp.js
 
