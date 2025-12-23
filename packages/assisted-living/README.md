@@ -12,7 +12,7 @@ This is the Assisted Living module of the Lean EHR project, a modern, secure, an
 - **eMAR (Electronic Medication Administration Record):** Streamlined medication administration tracking for residents.
 - **Terminology Lookups:** Integration with LOINC and RxNorm for standardized medical terminology.
 - **Containerized Data Pipeline:** Automated data generation, encryption, and streaming to BigQuery using Python, Node.js, Docker, and Cloud Functions.
-- **Modern Frontend:** Built with Next.js 14 (App Router), React, and Shadcn UI for a responsive and intuitive user experience.
+- **Modern Frontend:** Built with Next.js 15 (App Router), React, and Shadcn UI for a responsive and intuitive user experience.
 - **Secure Authentication:** Firebase Authentication with Redis-backed session management and custom user roles.
 - **CI/CD:** Automated deployment to Google Cloud Run via GitHub Actions.
 
@@ -31,25 +31,36 @@ This is the Assisted Living module of the Lean EHR project, a modern, secure, an
 
 ### Prerequisites
 
+To get started with local development, ensure you have the following installed:
+
 - Node.js (v20+)
 - Python (v3.9+)
 - Docker
 - Google Cloud SDK (`gcloud` CLI)
 - Firebase CLI (`firebase-tools`)
 - `pnpm` (recommended package manager)
-- Google Cloud Project configured with:
-  - Firebase Project (Firestore, Authentication)
-  - Cloud KMS Key Ring and KEKs (General, Contact, Clinical, Financial)
-  - BigQuery APIs enabled
-  - Redis Instance (Memorystore)
-  - Service Account with necessary IAM roles (Firestore, KMS, BigQuery, Cloud Run, Artifact Registry, Firebase Auth)
+- **Firestore CLI:** Install the custom `firestore-cli` tool globally for seamless Firestore operations:
+  ```bash
+  npm install -g firestore-cli@Dan6200/firestore-cli
+  # or using pnpm
+  pnpm add -g firestore-cli@Dan6200/firestore-cli
+  ```
+  (For more details, visit: [https://github.com/Dan6200/firestore-cli](https://github.com/Dan6200/firestore-cli))
+
+Your Google Cloud Project should be configured with:
+
+- Firebase Project (Firestore, Authentication)
+- Cloud KMS Key Ring and KEKs (General, Contact, Clinical, Financial)
+- BigQuery APIs enabled
+- Redis Instance (Memorystore)
+- Service Account with necessary IAM roles (Firestore, KMS, BigQuery, Cloud Run, Artifact Registry, Firebase Auth)
 - Local `GOOGLE_APPLICATION_CREDENTIALS` environment variable pointing to your service account key JSON file.
 
 ### Installation
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/Dan6200/lean-ehr.git
+    git clone https://github.com/your-org/lean-ehr.git
     cd lean-ehr/packages/assisted-living
     ```
 2.  **Install dependencies:**
@@ -59,7 +70,7 @@ This is the Assisted Living module of the Lean EHR project, a modern, secure, an
     ```
 3.  **Environment Variables:**
     - Create a `.env.local` file in `packages/assisted-living/` and `packages/assisted-living/functions/` (for local Firebase Functions emulation).
-    - Populate with your Firebase project configuration and KMS paths. (Refer to `packages/assisted-living/functions/.env.lean-ehr` for a template of necessary KMS and BQ variables).
+    - Populate these with your Firebase project configuration and KMS paths. Refer to `packages/assisted-living/functions/.env.lean-ehr` for a template of necessary KMS and BQ variables.
 
 ### Running Locally
 
@@ -72,6 +83,13 @@ This is the Assisted Living module of the Lean EHR project, a modern, secure, an
     ```bash
     pnpm dev
     ```
+
+### Test Credentials (Admin User)
+
+You can log in with the following credentials for testing:
+
+- **Email:** `dev@mail.com`
+- **Password:** `Developer`
 
 ## Data Seeding & Backfill
 
@@ -105,7 +123,7 @@ Deployment is automated via GitHub Actions workflows.
 
 ### 1. Application Deployment (Next.js to Cloud Run)
 
-- **Workflow File:** `.github/workflows/deploy-app.yml` (ensure you've moved `packages/assisted-living/deploy-app.yml` to this location).
+- **Workflow File:** `.github/workflows/deploy-app.yml` (ensure this file is moved to your repository root).
 - **Trigger:** Pushing changes to the `main` branch within the `packages/assisted-living/` directory, or manually via `workflow_dispatch`.
 - **Process:**
   1.  Authenticates to GCP using Workload Identity Federation.
@@ -120,7 +138,7 @@ Deployment is automated via GitHub Actions workflows.
 
 ### 2. Manual Data Seeding & Functions/Indexes Deployment
 
-- **Workflow File:** `.github/workflows/manual-seed-deploy.yml` (ensure you've moved `packages/assisted-living/manual-seed-deploy.yml` to this location).
+- **Workflow File:** `.github/workflows/manual-seed-deploy.yml` (ensure this file is moved to your repository root).
 - **Trigger:** Manual dispatch only.
 - **Process:**
   1.  Authenticates to GCP using Workload Identity Federation.
@@ -142,6 +160,14 @@ Before deploying, ensure these Google Cloud resources are provisioned:
 3.  **Cloud KMS Keys:** Create your `assisted-living` keyring and KEKs (general, contact, clinical, financial) as detailed in `notes/gcloud_setup.md`.
 4.  **Service Accounts & IAM:** Create `assisted-living-app` service account and grant necessary IAM roles (KMS Encrypter/Decrypter, Firestore User, BigQuery User, Cloud Run Invoker, Artifact Registry Writer, Firebase Auth Admin).
     - **Crucial:** Grant `roles/artifactregistry.writer` to `assisted-living-app@lean-ehr.iam.gserviceaccount.com` for your `lean-ehr-repo` Artifact Registry.
+    - Also grant `roles/iam.serviceAccountUser` to the `assisted-living-app` service account itself:
+      ```bash
+      gcloud iam service-accounts add-iam-policy-binding \
+        "assisted-living-app@lean-ehr.iam.gserviceaccount.com" \
+        --member="serviceAccount:assisted-living-app@lean-ehr.iam.gserviceaccount.com" \
+        --role="roles/iam.serviceAccountUser" \
+        --project=lean-ehr
+      ```
 5.  **Memorystore Redis:**
     ```bash
     gcloud redis instances create lean-ehr-redis --size=1 --region=europe-west1 --zone=europe-west1-b --tier=BASIC --project=lean-ehr
