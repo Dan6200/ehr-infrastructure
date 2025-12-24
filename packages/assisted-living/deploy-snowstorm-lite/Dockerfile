@@ -15,7 +15,8 @@ ENV SNOWSTORM_VERSION=2.3.1
 ENV JAR_FILE=snowstorm-lite-${SNOWSTORM_VERSION}.jar
 
 # 1. Download the Snowstorm-Lite JAR from GitHub Releases
-RUN curl -L -o /app/${JAR_FILE} \
+RUN mkdir -p /app \
+&& curl -L -o /app/${JAR_FILE} \
     "https://github.com/IHTSDO/snowstorm-lite/releases/download/${SNOWSTORM_VERSION}/${JAR_FILE}"
 
 # 2. Download your LARGE RF2 file using gsutil/gcloud
