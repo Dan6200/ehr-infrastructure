@@ -18,11 +18,11 @@ ENV JAR_FILE=snowstorm-lite-${SNOWSTORM_VERSION}.jar
 RUN curl -L -o /app/${JAR_FILE} \
     "https://github.com/IHTSDO/snowstorm-lite/releases/download/${SNOWSTORM_VERSION}/${JAR_FILE}"
 
-# 2. **CRITICAL:** Download your LARGE RF2 file using gsutil/gcloud
+# 2. Download your LARGE RF2 file using gsutil/gcloud
 # Note: You MUST ensure your build service account has 'Storage Object Viewer' role
 # on the 'lean-ehr-loinc-data-7776' bucket.
 ENV BUCKET_NAME=lean-ehr-loinc-data-7776
-ENV RF2_PREFIX=snomed-packages/  # New dedicated prefix for packages
+ENV RF2_PREFIX=snomed-packages/
 ENV RF2_FILENAME=uk_sct2cl_41.0.0_20250924000001Z.zip 
 
 # Install gcloud/gsutil in the builder stage to fetch the file
