@@ -24,12 +24,13 @@ RUN curl -L -o ${JAR_FILE} \
 ARG BUCKET_NAME=lean-ehr-loinc-data-7776
 ARG RF2_PREFIX=snomed-packages/
 ARG RF2_FILENAME=uk_sct2cl_41.0.0_20250924000001Z.zip
-ARG GOOGLE_ACCESS_TOKEN # Passed from GitHub Actions
+ARG GHA_CREDENTIALS_FILE_PATH
 
 # Authenticate gcloud inside the Docker build using the provided access token
 # Then fetch the large RF2 file directly from GCS
 RUN set -x; \
-    export CLOUDSDK_AUTH_ACCESS_TOKEN="${GOOGLE_ACCESS_TOKEN}"; \
+    export CLOUDSDK_AUTH_ACCESS_TOKEN="${GHA_CREDENTIALS_FILE_PATH}"; \
+		gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS && \
     mkdir -p input-rf2; \
     gsutil cp gs://${BUCKET_NAME}/${RF2_PREFIX}${RF2_FILENAME} input-rf2/; \
     chmod -R 777 input-rf2/ # Ensure permissions for the snowstorm user later

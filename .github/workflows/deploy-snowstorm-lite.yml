@@ -45,7 +45,7 @@ jobs:
           docker build \
             --secret id=gcp_creds,src=${{ steps.auth.outputs.credentials_file_path }} \
             --tag "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" \
-            --build-arg GOOGLE_ACCESS_TOKEN="${{ steps.auth.outputs.access_token }}" \
+            --build-arg GHA_CREDENTIALS_FILE_PATH=/run/secrets/gcp_creds \
             --build-arg BUCKET_NAME="${{ env.BUCKET_NAME }}" \
             --build-arg RF2_PREFIX="${{ env.RF2_PREFIX }}" \
             --build-arg RF2_FILENAME="${{ env.RF2_FILENAME }}" \
@@ -58,7 +58,7 @@ jobs:
             --image "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" \
             --region "${{ env.REGION }}" \
             --project "${{ env.PROJECT_ID }}" \
-            --cpu=2 \
+            --cpu=1 \
             --memory=2Gi \
             --allow-unauthenticated \
             --port ${{ env.SNOWSTORM_PORT }} \
