@@ -43,7 +43,7 @@ jobs:
         working-directory: ./packages/deploy-snowstorm-lite/ # Assuming Dockerfile is in this subdirectory
         run: |
           docker build \
-            --secret id=gcp_creds,src=${{ steps.auth.outputs.credentials_file_path }} \
+            --secret id=gcp_creds,src=$GOOGLE_GHA_CREDS_PATH \
             --tag "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" \
             --build-arg GHA_CREDENTIALS_FILE_PATH=/run/secrets/gcp_creds \
             --build-arg BUCKET_NAME="${{ env.BUCKET_NAME }}" \
