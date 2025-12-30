@@ -16,20 +16,22 @@ jobs:
       REGION: 'europe-west1'
       SERVICE_NAME: 'snowstorm-lite-service'
       ARTIFACT_REPO: 'lean-ehr-repo'
-      SNOWSTORM_IMAGE_SOURCE: 'snomedinternational/snowstorm-lite:latest'
       SNOWSTORM_PORT: '8080' # Default port for Snowstorm-Lite
+      BUCKET_NAME: 'lean-ehr-loinc-data-7776' # For downloading RF2 from GCS
+      RF2_PREFIX: 'snomed-packages/' # For downloading RF2 from GCS
+      RF2_FILENAME: 'uk_sct2cl_41.0.0_20250924000001Z.zip' # For downloading RF2 from GCS
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Authenticate to Google Cloud
-        id: auth
+        id: auth # Added id to retrieve credentials_file_path and access_token
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: 'projects/31765765651/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
           service_account: 'assisted-living-app@lean-ehr.iam.gserviceaccount.com'
-          create_credentials_file: true
+          create_credentials_file: true # Added to create a temp file for docker build --secret
 
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
@@ -38,11 +40,12 @@ jobs:
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
       - name: Build and Push Custom Snowstorm-Lite Image
-        working-directory: ./packages/deploy-snowstorm-lite/
+        working-directory: packages/deploy-snowstorm-lite/ # Assuming Dockerfile is in this subdirectory
         run: |
           docker build \
             --secret id=gcp_creds,src=${{ steps.auth.outputs.credentials_file_path }} \
             --tag "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" \
+            --build-arg GOOGLE_ACCESS_TOKEN="${{ steps.auth.outputs.access_token }}" \
             --build-arg BUCKET_NAME="${{ env.BUCKET_NAME }}" \
             --build-arg RF2_PREFIX="${{ env.RF2_PREFIX }}" \
             --build-arg RF2_FILENAME="${{ env.RF2_FILENAME }}" \
