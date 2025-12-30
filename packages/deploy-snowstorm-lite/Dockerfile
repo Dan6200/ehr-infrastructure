@@ -29,7 +29,7 @@ ARG GHA_CREDENTIALS_FILE_PATH
 # Authenticate gcloud inside the Docker build using the provided access token
 # Then fetch the large RF2 file directly from GCS
 RUN set -x; \
-    export CLOUDSDK_AUTH_ACCESS_TOKEN="${GHA_CREDENTIALS_FILE_PATH}"; \
+    export GOOGLE_APPLICATION_CREDENTIALS="${GHA_CREDENTIALS_FILE_PATH}"; \
 		gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS && \
     mkdir -p input-rf2; \
     gsutil cp gs://${BUCKET_NAME}/${RF2_PREFIX}${RF2_FILENAME} input-rf2/; \
