@@ -29,7 +29,7 @@ ARG GOOGLE_ACCESS_TOKEN # Passed from GitHub Actions
 # Authenticate gcloud inside the Docker build using the provided access token
 # Then fetch the large RF2 file directly from GCS
 RUN set -x; \
-    gcloud auth application-default set-access-token "${GOOGLE_ACCESS_TOKEN}"; \
+    export CLOUDSDK_AUTH_ACCESS_TOKEN="${GOOGLE_ACCESS_TOKEN}"; \
     mkdir -p input-rf2; \
     gsutil cp gs://${BUCKET_NAME}/${RF2_PREFIX}${RF2_FILENAME} input-rf2/; \
     chmod -R 777 input-rf2/ # Ensure permissions for the snowstorm user later
