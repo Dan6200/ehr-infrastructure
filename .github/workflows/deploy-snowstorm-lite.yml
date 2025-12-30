@@ -45,7 +45,6 @@ jobs:
           docker build \
             --secret id=gcp_creds,src=$GOOGLE_GHA_CREDS_PATH \
             --tag "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" \
-            --build-arg GHA_CREDENTIALS_FILE_PATH=/run/secrets/gcp_creds \
             --build-arg BUCKET_NAME="${{ env.BUCKET_NAME }}" \
             --build-arg RF2_PREFIX="${{ env.RF2_PREFIX }}" \
             --build-arg RF2_FILENAME="${{ env.RF2_FILENAME }}" \
