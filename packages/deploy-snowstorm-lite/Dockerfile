@@ -54,9 +54,12 @@ COPY --from=downloader /app/input-rf2 ./input-rf2
 ENV SNOWSTORM_PORT=8080
 ENV RF2_FILE=/app/input-rf2/${RF2_FILENAME}
 ENV VERSION_URI=http://snomed.info/sct/900000000000207008/version/20250924
-ENV ADMIN_PASSWORD=build_password # Use a temporary password for the build
-ENV SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=1000MB # Needed for loading RF2 via HTTP
-ENV SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=1000MB # Needed for loading RF2 via HTTP
+ # Use a temporary password for the build
+ENV ADMIN_PASSWORD=build_password
+ # Needed for loading RF2 via HTTP
+ENV SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=1000MB
+ # Needed for loading RF2 via HTTP
+ENV SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=1000MB
 
 # Ensure the 'data' directory for Lucene index is writable
 # USER is still root at this point, but for later stage USER snowstorm, this is important
@@ -119,11 +122,11 @@ USER snowstorm
 
 # Define runtime variables
 ENV SNOWSTORM_PORT=8080
-ENV VERSION_URI=http://snomed.info/sct/900000000000207008/version/20250924 # If needed at runtime
-ENV ADMIN_PASSWORD=${ADMIN_PASSWORD} # Passed from Cloud Run env vars
+ENV VERSION_URI=http://snomed.info/sct/900000000000207008/version/20250924
+ENV ADMIN_PASSWORD=${SNOWSTORM_ADMIN_PASSWORD}
 
 EXPOSE ${SNOWSTORM_PORT}
 
 # Final CMD: Just start the server using the pre-built index
 # Snowstorm-Lite defaults to ./data for index, so no --index.path is usually needed
-CMD ["java", "-Xmx1G", "-jar", "${JAR_FILE}"]
+CMD ["java", "-Xmx1G", "-jar", "${JAR_FILE}", "--admin.password=${ADMIN_PASSWORD}"]
