@@ -21,18 +21,16 @@ RUN curl -L -o ${JAR_FILE} \
     "https://github.com/IHTSDO/snowstorm-lite/releases/download/${SNOWSTORM_VERSION}/${JAR_FILE}"
 
 # Build arguments for GCS access
-ARG BUCKET_NAME=lean-ehr-loinc-data-7776
-ARG RF2_PREFIX=snomed-packages/
-ARG RF2_FILENAME=uk_sct2cl_41.0.0_20250924000001Z.zip
+ARG BUCKET_NAME
+ARG RF2_PREFIX
+ARG RF2_FILENAME
 
 # Authenticate gcloud inside the Docker build using the provided access token
 # Then fetch the large RF2 file directly from GCS
-RUN --mount=type=secret,id=gcp_creds \
-		set -x; \
-		gcloud auth activate-service-account --key-file=/run/secrets/gcp_creds && \
-    mkdir -p input-rf2; \
-    gsutil cp gs://${BUCKET_NAME}/${RF2_PREFIX}${RF2_FILENAME} input-rf2/; \
-    chmod -R 777 input-rf2/ # Ensure permissions for the snowstorm user later
+# NOTE: In Cloud Build, we download the file in a previous step to avoid managing secrets here.
+ARG RF2_FILENAME
+COPY ${RF2_FILENAME} input-rf2/${RF2_FILENAME}
+RUN chmod -R 777 input-rf2/
 
 
 # ----------------------------------------------------

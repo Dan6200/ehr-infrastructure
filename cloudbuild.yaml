@@ -1,2 +1,66 @@
+steps:
+  # 1. Download RF2 file from GCS (Authentication provided by Cloud Build Service Account)
+  - name: 'gcr.io/cloud-builders/gsutil'
+    dir: 'packages/deploy-snowstorm-lite'
+    args: ['cp', 'gs://${_BUCKET_NAME}/${_RF2_PREFIX}${_RF2_FILENAME}', '.']
+
+  # 2. Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: 'packages/deploy-snowstorm-lite'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/${_SERVICE_NAME}:$COMMIT_SHA'
+      - '--build-arg'
+      - 'RF2_FILENAME=${_RF2_FILENAME}'
+      - '.'
+
+  # 3. Push the image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/${_SERVICE_NAME}:$COMMIT_SHA']
+
+  # 4. Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/${_SERVICE_NAME}:$COMMIT_SHA'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '8080'
+      - '--memory'
+      - '2Gi'
+      - '--cpu'
+      - '1'
+      - '--timeout'
+      - '3600'
+      - '--min-instances'
+      - '0'
+      - '--set-env-vars'
+      - 'ADMIN_PASSWORD=$$ADMIN_PASSWORD'
+      - '--service-account'
+      - 'assisted-living-app@lean-ehr.iam.gserviceaccount.com'
+    secretEnv: ['ADMIN_PASSWORD']
+
+substitutions:
+  _REGION: 'europe-west1'
+  _ARTIFACT_REPO: 'lean-ehr-repo'
+  _SERVICE_NAME: 'snowstorm-lite-service'
+  _BUCKET_NAME: 'lean-ehr-loinc-data-7776'
+  _RF2_PREFIX: 'snomed-packages/'
+  _RF2_FILENAME: 'uk_sct2cl_41.0.0_20250924000001Z.zip'
+
+availableSecrets:
+  secretManager:
+  - versionName: projects/${PROJECT_ID}/secrets/SNOWSTORM_ADMIN_PASSWORD/versions/latest
+    env: 'ADMIN_PASSWORD'
+
 options:
   logging: CLOUD_LOGGING_ONLY

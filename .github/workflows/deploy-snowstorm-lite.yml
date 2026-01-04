@@ -36,32 +36,9 @@ jobs:
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
-
-      - name: Build and Push Custom Snowstorm-Lite Image
-        working-directory: ./packages/deploy-snowstorm-lite/ # Assuming Dockerfile is in this subdirectory
+      - name: Submit Build to Cloud Build
         run: |
-          docker build \
-            --secret id=gcp_creds,src=$GOOGLE_GHA_CREDS_PATH \
-            --tag "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" \
-            --build-arg BUCKET_NAME="${{ env.BUCKET_NAME }}" \
-            --build-arg RF2_PREFIX="${{ env.RF2_PREFIX }}" \
-            --build-arg RF2_FILENAME="${{ env.RF2_FILENAME }}" \
-            -f Dockerfile .
-          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
-
-      - name: Deploy Snowstorm-Lite to Cloud Run
-        run: |
-          gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" \
-            --region "${{ env.REGION }}" \
-            --project "${{ env.PROJECT_ID }}" \
-            --cpu=1 \
-            --memory=2Gi \
-            --allow-unauthenticated \
-            --port ${{ env.SNOWSTORM_PORT }} \
-            --min-instances=1 \
-            --timeout=3600 \
-            --set-env-vars="ADMIN_PASSWORD=${{ secrets.SNOWSTORM_ADMIN_PASSWORD }}" \
-            --service-account="assisted-living-app@lean-ehr.iam.gserviceaccount.com" # Ensure this SA has 'roles/run.invoker' for other services to call it
+          gcloud builds submit \
+            --config cloudbuild.yaml \
+            --substitutions=_REGION="${{ env.REGION }}",_ARTIFACT_REPO="${{ env.ARTIFACT_REPO }}",_SERVICE_NAME="${{ env.SERVICE_NAME }}",_BUCKET_NAME="${{ env.BUCKET_NAME }}",_RF2_PREFIX="${{ env.RF2_PREFIX }}",_RF2_FILENAME="${{ env.RF2_FILENAME }}",COMMIT_SHA="${{ github.sha }}" \
+            .
