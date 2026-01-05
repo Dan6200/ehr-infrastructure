@@ -78,7 +78,7 @@ RUN set -x; \
     pid=$!; \
     echo "Snowstorm-Lite PID: $pid. Waiting for startup..."; \
     # Increased timeout for health check, indexing can start later
-    timeout 1800 sh -c 'while ! curl -s --fail http://localhost:${SNOWSTORM_PORT}/health; do sleep 10; done'; \
+    timeout 1800 sh -c 'while ! curl -s --fail http://localhost:${SNOWSTORM_PORT}/fhir; do sleep 10; done'; \
     if [ $? -ne 0 ]; then echo "Snowstorm-Lite did not become ready in time. Exiting build."; kill $pid; exit 1; fi; \
     echo "Snowstorm-Lite is ready. Loading terminology package..."; \
     \
