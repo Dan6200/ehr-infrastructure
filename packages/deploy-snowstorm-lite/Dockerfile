@@ -29,7 +29,7 @@ ARG RF2_FILENAME
 # Then fetch the large RF2 file directly from GCS
 # NOTE: In Cloud Build, we download the file in a previous step to avoid managing secrets here.
 ARG RF2_FILENAME
-COPY ${RF2_FILENAME} input-rf2/${RF2_FILENAME}
+COPY ${RF2_FILENAME} input-rf2/snomed.zip
 RUN chmod -R 777 input-rf2/
 
 
@@ -41,6 +41,10 @@ FROM eclipse-temurin:17-jre-jammy AS indexer
 
 WORKDIR /app
 
+# Re-define environment variables as they don't persist across stages
+ENV SNOWSTORM_VERSION=2.3.1
+ENV JAR_FILE=snowstorm-lite-${SNOWSTORM_VERSION}.jar
+
 # Install curl for health checks during indexing
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
@@ -50,7 +54,7 @@ COPY --from=downloader /app/input-rf2 ./input-rf2
 
 # Define runtime variables for this stage
 ENV SNOWSTORM_PORT=8080
-ENV RF2_FILE=/app/input-rf2/${RF2_FILENAME}
+ENV RF2_FILE=/app/input-rf2/snomed.zip
 ENV VERSION_URI=http://snomed.info/sct/900000000000207008/version/20250924
  # Use a temporary password for the build
 ENV ADMIN_PASSWORD=build_password
