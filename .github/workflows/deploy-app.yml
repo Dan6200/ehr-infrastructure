@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - 'packages/assisted-living/**'
+      - 'package.json'
+      - 'package-lock.json' # Include root lockfile
   workflow_dispatch:
 
 jobs:
@@ -50,10 +52,11 @@ jobs:
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
+      # Run Docker build from repository root so it can access root lockfiles & shared packages
       - name: Build Docker Image
-        working-directory: ./packages/assisted-living
         run: |
           docker build \
+            --file packages/assisted-living/Dockerfile.prod \
             --tag "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" \
             --build-arg NEXT_PUBLIC_FB_API_KEY="${{ secrets.FB_API_KEY }}" \
             --build-arg NEXT_PUBLIC_FB_AUTH_DOMAIN="${{ secrets.FB_AUTH_DOMAIN }}" \
@@ -64,12 +67,13 @@ jobs:
             --build-arg NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="${{ env.CLOUDINARY_CLOUD_NAME }}" \
             --build-arg NEXT_PUBLIC_DATABASE_ID="staging-beta" \
             --build-arg NEXT_PUBLIC_BQ_DATASET_ID="firestore_export_staging" \
-            -f Dockerfile.prod .
+            .
 
       - name: Push Docker Image
         run: |
           docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
 
+      # Removed VPC flags and updated Redis env vars to Upstash
       - name: Deploy to Cloud Run Service
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \
@@ -81,8 +85,5 @@ jobs:
             --min-instances 0 \
             --max-instances 5 \
             --allow-unauthenticated \
-            --network=default \
-            --subnet=default \
-            --vpc-egress=private-ranges-only \
             --service-account="assisted-living-app@lean-ehr.iam.gserviceaccount.com" \
-            --set-env-vars="GCP_PROJECT_ID=${{ env.PROJECT_ID }},KMS_LOCATION=${{ env.REGION }},KMS_KEY_RING=${{ env.KMS_KEY_RING }},KEK_GENERAL_PATH=${{ env.KEK_GENERAL_PATH }},KEK_CONTACT_PATH=${{ env.KEK_CONTACT_PATH }},KEK_CLINICAL_PATH=${{ env.KEK_CLINICAL_PATH }},KEK_FINANCIAL_PATH=${{ env.KEK_FINANCIAL_PATH }},REDIS_HOST=${{ secrets.REDIS_HOST }},REDIS_PORT=${{ secrets.REDIS_PORT }},REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }},NEXT_PUBLIC_SNOMED_API_URL=https://snowstorm-lite-service-31765765651.europe-west1.run.app"
+            --set-env-vars="GCP_PROJECT_ID=${{ env.PROJECT_ID }},KMS_LOCATION=${{ env.REGION }},KMS_KEY_RING=${{ env.KMS_KEY_RING }},KEK_GENERAL_PATH=${{ env.KEK_GENERAL_PATH }},KEK_CONTACT_PATH=${{ env.KEK_CONTACT_PATH }},KEK_CLINICAL_PATH=${{ env.KEK_CLINICAL_PATH }},KEK_FINANCIAL_PATH=${{ env.KEK_FINANCIAL_PATH }},UPSTASH_REDIS_REST_URL=${{ secrets.UPSTASH_REDIS_REST_URL }},UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_REDIS_REST_TOKEN }},NEXT_PUBLIC_SNOMED_API_URL=https://snowstorm-lite-service-31765765651.europe-west1.run.app"
