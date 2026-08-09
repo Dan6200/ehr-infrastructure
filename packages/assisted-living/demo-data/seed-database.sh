@@ -39,6 +39,10 @@ fi
 echo "--- Step 0: Creating Admin User... ---"
 cd dev-utils/create-user.ts 
 npm start dev@mail.com Developer ADMIN,CLINICIAN,CAREGIVER,VIEWER
+npm start admin@mail.com Admin ADMIN,CLINICIAN,CAREGIVER,VIEWER
+npm start clinician@mail.com Clinician ADMIN,CLINICIAN,CAREGIVER,VIEWER
+npm start caregiver@mail.com Caregiver ADMIN,CLINICIAN,CAREGIVER,VIEWER
+npm start viewer@mail.com Viewer ADMIN,CLINICIAN,CAREGIVER,VIEWER
 
 # --- Step 1: Generate Plaintext Demo Data ---
 echo "--- Step 1: Generating all plaintext demo data... ---"
