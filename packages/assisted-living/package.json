@@ -15,8 +15,7 @@
     "lint-staged": "lint-staged",
     "prepare": "husky",
     "test": "FIRESTORE_EMULATOR_HOST=\"localhost:1027\" jest",
-    "build-service-worker": "node build-sw.cjs",
-    "build-web-worker": "pnpx esbuild workers/pdfWorker.ts --bundle --outfile=public/pdfWorker.js"
+    "build-service-worker": "node build-sw.cjs"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,md}": [
