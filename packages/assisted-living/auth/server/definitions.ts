@@ -1,7 +1,8 @@
 'use server'
+
 import { cookies } from 'next/headers'
 import { getAdminAuth } from '#root/firebase/admin'
-import getRedisClient from '#root/lib/redis'
+import redis from '#root/lib/redis'
 
 const STALE_COOKIE_TTL = 60 * 5 // 5 minutes
 
@@ -12,13 +13,15 @@ const STALE_COOKIE_TTL = 60 * 5 // 5 minutes
  * @returns The decoded ID token claims for the authenticated user.
  */
 export async function verifySession() {
-  const sessionCookie = (await cookies()).get('__session')?.value
+  const cookieStore = await cookies()
+  const sessionCookie = cookieStore.get('__session')?.value
+
   if (!sessionCookie) {
     throw new Error('Session cookie not found. User is not authenticated.')
   }
 
   try {
-    const isStale = await getRedisClient().get(sessionCookie)
+    const isStale = await redis.get(sessionCookie)
     if (isStale) {
       throw new Error('Stale session cookie found in cache.')
     }
@@ -36,7 +39,7 @@ export async function verifySession() {
     return decodedClaims
   } catch (error) {
     if (!(error instanceof Error && error.message.includes('Stale'))) {
-      await getRedisClient().set(sessionCookie, 'stale', 'EX', STALE_COOKIE_TTL)
+      await redis.set(sessionCookie, 'stale', { ex: STALE_COOKIE_TTL })
     }
     throw new Error('Invalid session cookie. Authentication failed.')
   }
@@ -47,11 +50,13 @@ export async function verifySession() {
  * Redis stale-cookie cache to invalidate it immediately.
  */
 export async function deleteSessionCookie(): Promise<void> {
-  const sessionCookie = (await cookies()).get('__session')?.value
+  const cookieStore = await cookies()
+  const sessionCookie = cookieStore.get('__session')?.value
+
   if (sessionCookie) {
-    await getRedisClient().set(sessionCookie, 'stale', 'EX', STALE_COOKIE_TTL)
+    await redis.set(sessionCookie, 'stale', { ex: STALE_COOKIE_TTL })
   }
-  ;(await cookies()).delete('__session')
+  cookieStore.delete('__session')
 }
 
 /**
@@ -72,9 +77,10 @@ export async function setCustomUserRole(uid: string, role: string) {
     await adminAuth.setCustomUserClaims(uid, { roles: [upperCaseRole] })
     console.log(`Custom role '${upperCaseRole}' set for user ${uid}.`)
     return { success: true }
-  } catch (error: any) {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
     console.error('Error setting custom user claims:', error)
-    throw new Error(`Error setting custom role: ${error.message}`)
+    throw new Error(`Error setting custom role: ${message}`)
   }
 }
 
@@ -86,7 +92,6 @@ export async function setCustomUserRole(uid: string, role: string) {
 export async function setCustomUserProviderId(uid: string, providerId: string) {
   try {
     const adminAuth = await getAdminAuth()
-    // Important: Merge with existing claims to avoid overwriting roles, etc.
     const { customClaims } = await adminAuth.getUser(uid)
     await adminAuth.setCustomUserClaims(uid, {
       ...customClaims,
@@ -94,9 +99,10 @@ export async function setCustomUserProviderId(uid: string, providerId: string) {
     })
     console.log(`Custom provider ID '${providerId}' set for user ${uid}.`)
     return { success: true }
-  } catch (error: any) {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
     console.error('Error setting custom provider ID:', error)
-    throw new Error(`Error setting custom provider ID: ${error.message}`)
+    throw new Error(`Error setting custom provider ID: ${message}`)
   }
 }
 
@@ -110,8 +116,9 @@ export async function revokeAllSessions(uid: string) {
     await adminAuth.revokeRefreshTokens(uid)
     console.log(`Sessions revoked for user: ${uid}`)
     return { success: true }
-  } catch (error: any) {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
     console.error('Error revoking sessions:', error)
-    throw new Error(`Error revoking sessions: ${error.message}`)
+    throw new Error(`Error revoking sessions: ${message}`)
   }
 }
