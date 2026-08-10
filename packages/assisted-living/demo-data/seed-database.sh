@@ -37,7 +37,7 @@ fi
 
 # # --- Step 0: Create Admin User ---
 echo "--- Step 0: Creating Admin User... ---"
-cd dev-utils/create-user/main.ts
+cd dev-utils/create-user/
 npm start dev@mail.com Developer GYRHOME ADMIN,CLINICIAN,CAREGIVER,VIEWER
 npm start admin@mail.com Admin GYRHOME ADMIN
 npm start clinician@mail.com Clinician GYRHOME CLINICIAN
