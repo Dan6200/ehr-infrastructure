@@ -37,12 +37,12 @@ fi
 
 # # --- Step 0: Create Admin User ---
 echo "--- Step 0: Creating Admin User... ---"
-cd dev-utils/create-user.ts 
-npm start dev@mail.com Developer ADMIN,CLINICIAN,CAREGIVER,VIEWER
-npm start admin@mail.com Admin ADMIN,CLINICIAN,CAREGIVER,VIEWER
-npm start clinician@mail.com Clinician ADMIN,CLINICIAN,CAREGIVER,VIEWER
-npm start caregiver@mail.com Caregiver ADMIN,CLINICIAN,CAREGIVER,VIEWER
-npm start viewer@mail.com Viewer ADMIN,CLINICIAN,CAREGIVER,VIEWER
+cd dev-utils/create-user/main.ts
+npm start dev@mail.com Developer GYRHOME ADMIN,CLINICIAN,CAREGIVER,VIEWER
+npm start admin@mail.com Admin GYRHOME ADMIN
+npm start clinician@mail.com Clinician GYRHOME CLINICIAN
+npm start caregiver@mail.com Caregiver GYRHOME CAREGIVER
+npm start viewer@mail.com Viewer GYRHOME VIEWER
 
 # --- Step 1: Generate Plaintext Demo Data ---
 echo "--- Step 1: Generating all plaintext demo data... ---"
