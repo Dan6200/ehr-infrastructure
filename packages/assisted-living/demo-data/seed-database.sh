@@ -10,6 +10,8 @@ ENCRYPTED_PAYLOAD_FILE="demo-data/firestore-encrypted-payload.jsonl"
 PROVIDER_ID="GYRHOME" # Define the target provider ID
 DATABASE_ID="staging-beta"
 
+echo $DATABASE_ID
+
 ENVIRONMENT="dev"
 if [ "$1" == "--prod" ]; then
   ENVIRONMENT="prod"
@@ -38,11 +40,11 @@ fi
 # # --- Step 0: Create Admin User ---
 echo "--- Step 0: Creating Admin User... ---"
 cd dev-utils/create-user/
-npm start dev@mail.com Developer GYRHOME ADMIN,CLINICIAN,CAREGIVER,VIEWER
-npm start admin@mail.com Admin GYRHOME ADMIN
-npm start clinician@mail.com Clinician GYRHOME CLINICIAN
-npm start caregiver@mail.com Caregiver GYRHOME CAREGIVER
-npm start viewer@mail.com Viewer GYRHOME VIEWER
+npm start dev@mail.com Developer $PROVIDER_ID ADMIN,CLINICIAN,CAREGIVER,VIEWER
+npm start admin@mail.com Admin $PROVIDER_ID ADMIN
+npm start clinician@mail.com Clinician $PROVIDER_ID CLINICIAN
+npm start caregiver@mail.com Caregiver $PROVIDER_ID CAREGIVER
+npm start viewer@mail.com Viewer $PROVIDER_ID VIEWER
 
 # --- Step 1: Generate Plaintext Demo Data ---
 echo "--- Step 1: Generating all plaintext demo data... ---"
