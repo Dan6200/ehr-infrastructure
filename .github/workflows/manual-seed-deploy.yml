@@ -52,7 +52,10 @@ jobs:
         id: build
         working-directory: ./packages/assisted-living
         run: |
-          gcloud builds submit --tag "${{ github.event.inputs.region }}-docker.pkg.dev/${{ github.event.inputs.project_id }}/lean-ehr-repo/lean-ehr-uploader:latest" .
+          gcloud builds submit \
+            --tag "${{ github.event.inputs.region }}-docker.pkg.dev/${{ github.event.inputs.project_id }}/lean-ehr-repo/lean-ehr-uploader:latest" \
+            --bind-mount src=.,arg=Dockerfile.prod \
+            .
 
       - name: Deploy to Cloud Run Job
         run: |
