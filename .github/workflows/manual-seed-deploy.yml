@@ -54,7 +54,7 @@ jobs:
         run: |
           gcloud builds submit \
             --tag "${{ github.event.inputs.region }}-docker.pkg.dev/${{ github.event.inputs.project_id }}/lean-ehr-repo/lean-ehr-uploader:latest" \
-            --bind-mount src=.,arg=Dockerfile.prod \
+            --bind-mount src=.,arg=Dockerfile.script \
             .
 
       - name: Deploy to Cloud Run Job
