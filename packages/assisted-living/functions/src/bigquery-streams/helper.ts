@@ -3,14 +3,11 @@ import {
   Change,
   QueryDocumentSnapshot,
 } from 'firebase-functions/v2/firestore'
-import bigqueryClient from '#root/lib/bigquery'
-import {
-  decryptResidentData,
-  decryptPayment,
-  decryptAdjustment,
-  decryptCharge,
-  decryptClaim,
-} from '#root/types/converters'
+import { bigqueryClient } from '#root/lib/bigquery'
+import { decryptPayment } from '#root/types/converters/residents/payments'
+import { decryptAdjustment } from '#root/types/converters/residents/adjustments'
+import { decryptCharge } from '#root/types/converters/residents/charges'
+import { decryptClaim } from '#root/types/converters/residents/claims'
 import { KEK_FINANCIAL_PATH } from '#root/lib/encryption'
 
 const DATASET_ID = process.env.BQ_DATASET_ID || 'firestore_export_staging'

@@ -11,12 +11,10 @@
 import admin from 'firebase-admin'
 import { getFirestore } from 'firebase-admin/firestore'
 import { bigqueryClient } from '#root/lib/bigquery' // Re-use the client from functions
-import {
-  decryptPayment,
-  decryptAdjustment,
-  decryptCharge,
-  decryptClaim,
-} from '#root/types/converters'
+import { decryptPayment } from '#root/types/converters/residents/payments'
+import { decryptAdjustment } from '#root/types/converters/residents/adjustments'
+import { decryptCharge } from '#root/types/converters/residents/charges'
+import { decryptClaim } from '#root/types/converters/residents/claims'
 import { KEK_FINANCIAL_PATH } from '#root/lib/encryption'
 
 // --- Configuration ---
