@@ -1,10 +1,10 @@
 packages:
   - packages/*
   - packages/**/*
-ignoredBuiltDependencies:
-  - puppeteer
-onlyBuiltDependencies:
-  - core-js
-  - protobufjs
-  - sharp
-  - unrs-resolver
+allowBuilds:
+  '@firebase/util': true
+  core-js: true
+  esbuild: true
+  protobufjs: true
+  sharp: true
+  unrs-resolver: true

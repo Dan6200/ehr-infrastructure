@@ -10,13 +10,11 @@ RUN corepack enable && corepack prepare pnpm@11.21.0 --activate
 FROM base AS deps
 WORKDIR /app
 
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+COPY package.json pnpm-workspace.yaml* pnpm-lock.yaml* ./
 COPY packages/assisted-living/package.json ./packages/assisted-living/
 
 RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
+  if [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
@@ -49,9 +47,7 @@ ENV NEXT_PUBLIC_BQ_DATASET_ID=$NEXT_PUBLIC_BQ_DATASET_ID
 
 # Target the specific workspace package for build
 RUN \
-  if [ -f yarn.lock ]; then yarn workspace assisted-living build; \
-  elif [ -f package-lock.json ]; then npm run build --workspace=packages/assisted-living; \
-  elif [ -f pnpm-lock.yaml ]; then pnpm --filter assisted-living build; \
+  if [ -f pnpm-lock.yaml ]; then pnpm --filter assisted-living build; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
