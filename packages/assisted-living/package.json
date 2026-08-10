@@ -127,14 +127,14 @@
     "typescript": "^5.4.5"
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "@firebase/util",
-      "core-js",
-      "esbuild",
-      "protobufjs",
-      "sharp",
-      "unrs-resolver"
-    ]
+    "allowBuilds": {
+      "@firebase/util": true,
+      "core-js": true,
+      "esbuild": true,
+      "protobufjs": true,
+      "sharp": true,
+      "unrs-resolver": true
+    }
   },
   "devEngines": {
     "packageManager": {
