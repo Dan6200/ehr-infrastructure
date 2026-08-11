@@ -38,14 +38,13 @@ fi
 # # --- Step 0: Create Admin User ---
 echo "--- Step 0: Creating Admin User... ---"
 cd dev-utils/create-user/
-ls node_modules
 npm start dev@mail.com Developer $PROVIDER_ID ADMIN,CLINICIAN,CAREGIVER,VIEWER
 npm start admin@mail.com Admin $PROVIDER_ID ADMIN
 npm start clinician@mail.com Clinician $PROVIDER_ID CLINICIAN
 npm start caregiver@mail.com Caregiver $PROVIDER_ID CAREGIVER
 npm start viewer@mail.com Viewer $PROVIDER_ID VIEWER
 
-cd ../..
+cd /app
 
 # --- Step 1: Generate Plaintext Demo Data ---
 echo "--- Step 1: Generating all plaintext demo data... ---"
