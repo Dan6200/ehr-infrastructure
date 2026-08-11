@@ -10,8 +10,6 @@ ENCRYPTED_PAYLOAD_FILE="demo-data/firestore-encrypted-payload.jsonl"
 PROVIDER_ID="GYRHOME" # Define the target provider ID
 DATABASE_ID="staging-beta"
 
-echo $DATABASE_ID
-
 ENVIRONMENT="dev"
 if [ "$1" == "--prod" ]; then
   ENVIRONMENT="prod"
@@ -21,7 +19,7 @@ fi
 # In the 'prod' (Cloud Run) environment, authentication is handled automatically
 # by the service account attached to the job (Application Default Credentials).
 # In the 'dev' environment, we use the local service account key.
-if [ ! -f "$DATABASE_ID" ]; then
+if [ ! -z "$DATABASE_ID" ]; then
 	echo "Error: Must explicitly set DATABASE_ID before running script"
 fi
 ARGS="--rate-limit 500 --database-id $DATABASE_ID"
@@ -40,11 +38,14 @@ fi
 # # --- Step 0: Create Admin User ---
 echo "--- Step 0: Creating Admin User... ---"
 cd dev-utils/create-user/
+ls node_modules
 npm start dev@mail.com Developer $PROVIDER_ID ADMIN,CLINICIAN,CAREGIVER,VIEWER
 npm start admin@mail.com Admin $PROVIDER_ID ADMIN
 npm start clinician@mail.com Clinician $PROVIDER_ID CLINICIAN
 npm start caregiver@mail.com Caregiver $PROVIDER_ID CAREGIVER
 npm start viewer@mail.com Viewer $PROVIDER_ID VIEWER
+
+cd ../..
 
 # --- Step 1: Generate Plaintext Demo Data ---
 echo "--- Step 1: Generating all plaintext demo data... ---"
