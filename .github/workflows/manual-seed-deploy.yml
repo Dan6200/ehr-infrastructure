@@ -37,6 +37,10 @@ jobs:
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Configure Docker Auth for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ github.event.inputs.region }}-docker.pkg.dev --quiet
+
       - name: Fetch KMS Configuration
         id: kms_config
         run: |
@@ -52,10 +56,14 @@ jobs:
         id: build
         working-directory: ./packages/assisted-living
         run: |
-          gcloud builds submit \
-            --tag "${{ github.event.inputs.region }}-docker.pkg.dev/${{ github.event.inputs.project_id }}/lean-ehr-repo/lean-ehr-uploader:latest" \
-            --dockerfile Dockerfile.script \
+          IMAGE_TAG="${{ github.event.inputs.region }}-docker.pkg.dev/${{ github.event.inputs.project_id }}/lean-ehr-repo/lean-ehr-uploader:latest"
+
+          docker build \
+            --file Dockerfile.script \
+            --tag "$IMAGE_TAG" \
             .
+            
+          docker push "$IMAGE_TAG"
 
       - name: Deploy to Cloud Run Job
         run: |
