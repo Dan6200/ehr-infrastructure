@@ -19,7 +19,7 @@ fi
 # In the 'prod' (Cloud Run) environment, authentication is handled automatically
 # by the service account attached to the job (Application Default Credentials).
 # In the 'dev' environment, we use the local service account key.
-if [ ! -z "$DATABASE_ID" ]; then
+if [ -z "$DATABASE_ID" ]; then
 	echo "Error: Must explicitly set DATABASE_ID before running script"
 fi
 ARGS="--rate-limit 500 --database-id $DATABASE_ID"
