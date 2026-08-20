@@ -1,19 +1,23 @@
 import random
 from datetime import datetime, timedelta
+import pytz
 from .utils import generate_uuid, get_random_datetime
 from .config import EPISODE_STATUSES
+
 
 def generate_episodes_of_care_for_resident(resident_id: str) -> list:
     episodes_of_care = []
     num_historical_episodes = random.randint(0, 1)
-    for i in range(num_historical_episodes):
+
+    for _ in range(num_historical_episodes):
         start_year = random.randint(2018, 2022)
         end_year = random.randint(start_year + 1, 2023)
-        episode_start = datetime(
-            start_year, random.randint(1, 12), random.randint(1, 28)
+
+        episode_start = pytz.utc.localize(
+            datetime(start_year, random.randint(1, 12), random.randint(1, 28))
         )
-        episode_end = datetime(
-            end_year, random.randint(1, 12), random.randint(1, 28)
+        episode_end = pytz.utc.localize(
+            datetime(end_year, random.randint(1, 12), random.randint(1, 28))
         )
 
         if episode_end <= episode_start:
@@ -62,7 +66,9 @@ def generate_episodes_of_care_for_resident(resident_id: str) -> list:
             }
         )
 
-    current_start_date = datetime(2023, random.randint(1, 6), random.randint(1, 28))
+    current_start_date = pytz.utc.localize(
+        datetime(2023, random.randint(1, 6), random.randint(1, 28))
+    )
     episodes_of_care.append(
         {
             "id": generate_uuid(),
@@ -75,7 +81,7 @@ def generate_episodes_of_care_for_resident(resident_id: str) -> list:
                         current_start_date, current_start_date + timedelta(days=30)
                     ),
                     "end": None,
-                },  # No end date for active episode
+                },
                 "managing_organization": "Golden Years Retreat Homes",
             },
         }

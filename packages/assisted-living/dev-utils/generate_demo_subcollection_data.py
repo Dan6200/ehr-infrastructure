@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime, timedelta
 from random import choice, random
-import pytz  # Added for timezone handling
+import pytz
 from generators.utils import (
     convert_times,
     load_snomed_file,

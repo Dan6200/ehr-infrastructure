@@ -1,3 +1,4 @@
+import pytz
 import random
 from datetime import datetime
 from .utils import generate_uuid, get_random_datetime
@@ -13,6 +14,11 @@ def generate_diagnostic_history_for_resident(
 ) -> list:
     num_disorders = random.randint(1, 3)
     diagnostic_history = []
+
+    min_recorded_date = pytz.utc.localize(datetime(year=2020, month=1, day=1))
+    min_onset_date = pytz.utc.localize(datetime(year=2000, month=1, day=1))
+    max_onset_date = pytz.utc.localize(datetime(year=2023, month=1, day=1))
+
     for _ in range(num_disorders):
         if snomed_disorders:
             disorder_example = random.choice(snomed_disorders)
@@ -30,10 +36,10 @@ def generate_diagnostic_history_for_resident(
                         "recorder_id": random.choice(staff_ids),
                         "clinical_status": clinical_status,
                         "recorded_date": get_random_datetime(
-                            datetime(2020, 1, 1), end_date
+                            min_recorded_date, end_date
                         ),
                         "onset_datetime": get_random_datetime(
-                            datetime(2000, 1, 1), datetime(2023, 1, 1)
+                            min_onset_date, max_onset_date
                         ),
                         "abatement_datetime": abatement_date,
                         "code": {
