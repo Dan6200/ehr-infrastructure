@@ -33,6 +33,7 @@ def generate_diagnostic_history_for_resident(
                     "id": generate_uuid(),
                     "data": {
                         "resident_id": resident_id,
+                        "title": disorder_example[0]["display"],
                         "recorder_id": random.choice(staff_ids),
                         "clinical_status": clinical_status,
                         "recorded_date": get_random_datetime(
