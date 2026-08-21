@@ -1,39 +1,39 @@
 #!/bin/bash
-
-# This script orchestrates the entire process of seeding the Firestore database.
-# It generates plaintext data, encrypts it, and then uploads the final payload.
-
-set -e # Exit immediately if a command exits with a non-zero status.
-
-# --- Configuration ---
-ENCRYPTED_PAYLOAD_FILE="demo-data/firestore-encrypted-payload.jsonl"
-PROVIDER_ID="GYRHOME" # Define the target provider ID
-DATABASE_ID="staging-beta"
-
-ENVIRONMENT="dev"
-if [ "$1" == "--prod" ]; then
-  ENVIRONMENT="prod"
-fi
-
-# --- Arguments Setup for firestore-cli ---
-# In the 'prod' (Cloud Run) environment, authentication is handled automatically
-# by the service account attached to the job (Application Default Credentials).
-# In the 'dev' environment, we use the local service account key.
-if [ -z "$DATABASE_ID" ]; then
-	echo "Error: Must explicitly set DATABASE_ID before running script"
-fi
-ARGS="--rate-limit 500 --database-id $DATABASE_ID"
-if [ "$ENVIRONMENT" == "prod" ]; then
-  echo "Running in production mode. Using Application Default Credentials."
-else
-  echo "Running in development mode. Using local service account key."
-  KEY_PATH="secret-key/assisted-living-app-key.json"
-  if [ ! -f "$KEY_PATH" ]; then
-    echo "Error: Development key file not found at $KEY_PATH" >&2
-    exit 1
-  fi
-  ARGS="-k $KEY_PATH $ARGS"
-fi
+#
+# # This script orchestrates the entire process of seeding the Firestore database.
+# # It generates plaintext data, encrypts it, and then uploads the final payload.
+#
+# set -e # Exit immediately if a command exits with a non-zero status.
+#
+# # --- Configuration ---
+# ENCRYPTED_PAYLOAD_FILE="demo-data/firestore-encrypted-payload.jsonl"
+# PROVIDER_ID="GYRHOME" # Define the target provider ID
+# DATABASE_ID="staging-beta"
+#
+# ENVIRONMENT="dev"
+# if [ "$1" == "--prod" ]; then
+#   ENVIRONMENT="prod"
+# fi
+#
+# # --- Arguments Setup for firestore-cli ---
+# # In the 'prod' (Cloud Run) environment, authentication is handled automatically
+# # by the service account attached to the job (Application Default Credentials).
+# # In the 'dev' environment, we use the local service account key.
+# if [ -z "$DATABASE_ID" ]; then
+# 	echo "Error: Must explicitly set DATABASE_ID before running script"
+# fi
+# ARGS="--rate-limit 500 --database-id $DATABASE_ID"
+# if [ "$ENVIRONMENT" == "prod" ]; then
+#   echo "Running in production mode. Using Application Default Credentials."
+# else
+#   echo "Running in development mode. Using local service account key."
+#   KEY_PATH="secret-key/assisted-living-app-key.json"
+#   if [ ! -f "$KEY_PATH" ]; then
+#     echo "Error: Development key file not found at $KEY_PATH" >&2
+#     exit 1
+#   fi
+#   ARGS="-k $KEY_PATH $ARGS"
+# fi
 #
 # # # --- Step 0: Create Admin User ---
 # echo "--- Step 0: Creating Admin User... ---"
@@ -70,14 +70,14 @@ fi
 # # Bulk upload all data from the encrypted payload file
 # echo "Uploading residents and all subcollections..."
 # firestore-cli set "providers/$PROVIDER_ID" -b -f $ENCRYPTED_PAYLOAD_FILE --jsonl $ARGS
-
-# echo "\n--- Upload Complete! ---"
-
-# --- Step 4: Backfill Existing Data to BigQuery ---
-echo "--- Step 4: Backfilling existing Firestore data to BigQuery... ---"
-cd functions/
-npm run backfill-bq
-
+#
+# # echo "\n--- Upload Complete! ---"
+#
+# # --- Step 4: Backfill Existing Data to BigQuery ---
+# echo "--- Step 4: Backfilling existing Firestore data to BigQuery... ---"
+# cd functions/
+# npm run backfill-bq
+#
 # --- Step 5: Deploy Firestore Rules, Indexes, and Functions ---
 echo "--- Step 5: Setting Up Rules, Indexes, and Functions ---"
 
