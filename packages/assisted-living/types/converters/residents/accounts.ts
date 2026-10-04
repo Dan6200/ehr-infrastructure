@@ -50,6 +50,9 @@ export async function decryptAccount(
   if (decryptedData.service_period) {
     decryptedData.service_period = JSON.parse(decryptedData.service_period)
   }
+  if (!decryptedData.resident_id) {
+    decryptedData.resident_id = data.subject?.id
+  }
 
   return AccountSchema.parse(decryptedData)
 }

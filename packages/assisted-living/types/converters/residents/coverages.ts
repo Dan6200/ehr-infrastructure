@@ -50,6 +50,9 @@ export async function decryptCoverage(
       decryptedData.cost_to_beneficiary,
     )
   }
+  if (!decryptedData.resident_id) {
+    decryptedData.resident_id = decryptedData.beneficiary_id
+  }
 
   return CoverageSchema.parse(decryptedData)
 }

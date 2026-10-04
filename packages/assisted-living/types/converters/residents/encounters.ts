@@ -47,6 +47,9 @@ export async function decryptEncounter(
   if (decryptedData.reason) {
     decryptedData.reason = JSON.parse(decryptedData.reason)
   }
+  if (!decryptedData.resident_id) {
+    decryptedData.resident_id = data.subject?.id
+  }
 
   return EncounterSchema.parse(decryptedData)
 }

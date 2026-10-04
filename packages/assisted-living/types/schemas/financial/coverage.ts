@@ -4,6 +4,7 @@ import { PeriodSchema } from '../clinical/period'
 
 export const CoverageSchema = z.object({
   id: z.string(),
+  resident_id: z.string(), // Denormalized storage linkage (see notes/resident_linkage_standardization.md)
   status: CoverageStatusEnum,
   type: z.string().optional(), // e.g. "NHIS", "Private Insurance", "Self-pay"
   beneficiary_id: z.string(), // resident_id

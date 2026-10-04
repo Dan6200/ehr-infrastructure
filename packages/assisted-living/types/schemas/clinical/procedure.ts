@@ -6,6 +6,7 @@ import { OccurrenceSchema } from './occurrence'
 
 export const ProcedureSchema = z.object({
   id: z.string(),
+  resident_id: z.string(), // Denormalized storage linkage (see notes/resident_linkage_standardization.md)
   subject: z.object({
     id: z.string(), // resident_id
     name: z.string(),

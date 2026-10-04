@@ -53,6 +53,9 @@ export async function decryptProcedure(
   if (decryptedData.body_site) {
     decryptedData.body_site = JSON.parse(decryptedData.body_site)
   }
+  if (!decryptedData.resident_id) {
+    decryptedData.resident_id = data.subject?.id
+  }
 
   return ProcedureSchema.parse(decryptedData)
 }

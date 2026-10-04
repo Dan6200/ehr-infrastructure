@@ -156,6 +156,7 @@ export const EncryptedResidentSchema = z.object({
 })
 
 export const EncryptedAccountSchema = z.object({
+  resident_id: z.string().optional(), // Plaintext for querying / BigQuery
   encrypted_dek: z.string(),
   subject: z.object({
     id: z.string(), // Plaintext for querying
@@ -171,6 +172,7 @@ export const EncryptedAccountSchema = z.object({
 
 export const EncryptedCoverageSchema = z.object({
   beneficiary_id: z.string(), // resident_id, plaintext for querying
+  resident_id: z.string().optional(), // Plaintext for querying / BigQuery
   encrypted_dek: z.string(),
   encrypted_status: EncryptedFieldSchema,
   encrypted_type: EncryptedFieldSchema.optional(),
@@ -280,6 +282,7 @@ export const EncryptedTaskSchema = z.object({
 })
 
 export const EncryptedProcedureSchema = z.object({
+  resident_id: z.string().optional(), // Plaintext for querying / BigQuery
   subject: z.object({
     id: z.string(), // Plaintext for querying
     encrypted_name: EncryptedFieldSchema,
@@ -304,6 +307,7 @@ export const EncryptedProcedureSchema = z.object({
 })
 
 export const EncryptedEncounterSchema = z.object({
+  resident_id: z.string().optional(), // Plaintext for querying / BigQuery
   subject: z.object({
     id: z.string(), // Plaintext for querying
     encrypted_name: EncryptedFieldSchema,

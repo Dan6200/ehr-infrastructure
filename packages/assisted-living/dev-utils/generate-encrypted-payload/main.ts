@@ -317,6 +317,11 @@ async function main() {
 
       items.forEach((item, index) => {
         const encryptedData: any = { encrypted_dek }
+        // Normalize resident linkage: every subcollection doc stores a plaintext
+        // resident_id for querying and BigQuery offload.
+        if (residentId) {
+          encryptedData.resident_id = residentId
+        }
         for (const field in item.data) {
           if (
             field === 'payor' &&
