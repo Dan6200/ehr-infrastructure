@@ -75,6 +75,13 @@ offload:
 - [#4 — Extend BigQuery streaming + backfill to all resident subcollections](https://github.com/Dan6200/ehr-infrastructure/issues/4)
 - [#5 — Scheduled Firestore truncation Cloud Function for data retention](https://github.com/Dan6200/ehr-infrastructure/issues/5)
 
+### Dependencies
+
+- [#6 — Refactor: standardize resident linkage to FHIR Reference + denormalized resident_id](https://github.com/Dan6200/ehr-infrastructure/issues/6)
+  (standalone refactor; see
+  [`resident_linkage_standardization.md`](resident_linkage_standardization.md)).
+  The BigQuery `resident_id` normalization in #4 depends on this.
+
 ## Components
 
 1. **BigQuery streaming (extend).** Add `onDocumentWritten` triggers for every

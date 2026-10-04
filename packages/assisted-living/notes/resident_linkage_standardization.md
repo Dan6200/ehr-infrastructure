@@ -1,0 +1,123 @@
+# Resident Linkage Standardization (FHIR `Reference` + `resident_id`)
+
+## Problem
+
+Resident linkage across subcollections is inconsistent:
+
+| Subcollection                          | Linkage field today |
+| -------------------------------------- | ------------------- |
+| most collections                       | `resident_id`       |
+| `accounts`, `procedures`, `encounters` | `subject.id`        |
+| `coverages`                            | `beneficiary_id`    |
+| `care_plan_activities`                 | `careplan_id` only  |
+
+This blocks the data-retention / BigQuery offload (see
+[#3](https://github.com/Dan6200/ehr-infrastructure/issues/3),
+[#4](https://github.com/Dan6200/ehr-infrastructure/issues/4),
+[#5](https://github.com/Dan6200/ehr-infrastructure/issues/5)), because every
+`*_raw` table needs a single normalized `resident_id` column. It also conflicts
+with the direction of following HL7 FHIR, which has a well-defined patient
+reference model.
+
+## Goal
+
+Standardize resident linkage as a **standalone refactor** with two clearly
+separated layers:
+
+1. **Domain/API (FHIR).** A canonical `Reference` type used as the FHIR-named
+   patient link per resource.
+2. **Storage/query (Firestore + BigQuery).** A plaintext, indexed `resident_id`
+   on every subcollection document for `.where()` filtering and BigQuery
+   partitioning.
+
+Converters bridge the two, so the domain object is FHIR-faithful while the
+storage layer stays cheap to query.
+
+## Design
+
+### 1. Canonical FHIR `Reference` schema
+
+Add `types/schemas/fhir/reference.ts`:
+
+```ts
+export const ReferenceSchema = z.object({
+  reference: z.string(), // e.g. "Patient/abc123"
+  type: z.string().optional(), // e.g. "Patient"
+  display: z.string().optional(), // resident_name, for convenience
+})
+```
+
+The id is derived from `reference` (`reference.split('/').pop()`) rather than a
+separate `id` string — one source of truth.
+
+### 2. FHIR-named patient link per resource
+
+| Subcollection (resource)            | FHIR patient link        | Today            |
+| ----------------------------------- | ------------------------ | ---------------- |
+| `observations` (Observation)        | `subject`                | `resident_id`    |
+| `allergies` (AllergyIntolerance)    | `patient`                | `resident_id`    |
+| `diagnostic_history` (Condition)    | `subject`                | `resident_id`    |
+| `prescriptions` (MedicationRequest) | `subject`                | `resident_id`    |
+| `emar` (MedicationAdministration)   | `subject`                | `resident_id`    |
+| `procedures` (Procedure)            | `subject`                | `subject.id`     |
+| `encounters` (Encounter)            | `subject`                | `subject.id`     |
+| `episodes_of_care` (EpisodeOfCare)  | `patient`                | `resident_id`    |
+| `care_plans` (CarePlan)             | `subject`                | `resident_id`    |
+| `goals` (Goal)                      | `subject`                | `resident_id`    |
+| `tasks` (Task)                      | `for`                    | `resident_id`    |
+| `accounts` (Account)                | `subject`                | `subject.id`     |
+| `charges` (ChargeItem)              | `subject`                | `resident_id`    |
+| `claims` (Claim)                    | `patient`                | `resident_id`    |
+| `coverages` (Coverage)              | `beneficiary`            | `beneficiary_id` |
+| `care_plan_activities`              | none in FHIR — see below | `careplan_id`    |
+
+### 3. Denormalized storage linkage
+
+Every subcollection document also persists a **plaintext, indexed `resident_id`**
+(not the FHIR reference). This is a storage concern, not a domain concern:
+
+- Firestore `.where('resident_id', '==', …)` and retention filtering need a raw
+  field; ciphertext cannot be filtered.
+- BigQuery `*_raw` tables partition on a single `resident_id` column.
+- The existing decryptors already pass through any key ending in `_id`
+  (`key.endsWith('_id')` in `types/converters/residents/*`), so keeping
+  `resident_id` plaintext costs nothing and stays queryable without decrypting.
+
+Mapping between layers:
+
+```
+FHIR (domain):        subject.reference === `Patient/${resident_id}`
+Storage (Firestore):  resident_id (plaintext)
+BigQuery:             resident_id (normalized column)
+```
+
+### 4. `care_plan_activities` (no direct resident link)
+
+FHIR models `CarePlan.activity` as nested inside `CarePlan`, so it has no
+patient link of its own. Because it is a subcollection here, **denormalize
+`resident_id` onto it at write time** (copy from the parent `care_plans`
+document) and keep `careplan_id` for the back-reference. This makes every
+subcollection carry the same linkage field.
+
+## Migration path
+
+1. Add `Reference` schema.
+2. Add plaintext `resident_id` to every subcollection `schemas` +
+   `encrypted-schemas` definition.
+3. Update converters/decryptors to return the FHIR `Reference` shape while
+   preserving the plaintext `resident_id`.
+4. Backfill existing documents: set `resident_id` from `subject.id` /
+   `beneficiary_id` / a `careplan_id → care_plans` join where missing.
+5. Normalize all BigQuery `*_raw` inserts to a single `resident_id` column.
+
+## Acceptance criteria
+
+- Every resident subcollection document carries a plaintext `resident_id`.
+- Domain objects reference the resident via FHIR `Reference`
+  (`subject` / `patient` / `beneficiary` / `for`) with no ad-hoc id fields.
+- `care_plan_activities` resolves its resident without joining `care_plans`.
+- BigQuery `*_raw` tables all expose a consistent `resident_id` column.
+
+## Tracking
+
+- [#6 — Refactor: standardize resident linkage to FHIR Reference + denormalized resident_id](https://github.com/Dan6200/ehr-infrastructure/issues/6)
