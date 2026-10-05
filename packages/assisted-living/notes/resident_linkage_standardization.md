@@ -11,11 +11,11 @@ Resident linkage across subcollections is inconsistent:
 | `coverages`                            | `beneficiary_id`    |
 | `care_plan_activities`                 | `careplan_id` only  |
 
-This blocks the data-retention / BigQuery offload (see
+This blocks the data-retention / encrypted GCS archive offload (see
 [#3](https://github.com/Dan6200/ehr-infrastructure/issues/3),
 [#4](https://github.com/Dan6200/ehr-infrastructure/issues/4),
-[#5](https://github.com/Dan6200/ehr-infrastructure/issues/5)), because every
-`*_raw` table needs a single normalized `resident_id` column. It also conflicts
+[#5](https://github.com/Dan6200/ehr-infrastructure/issues/5)), because the GCS
+object path needs a single normalized `resident_id` segment. It also conflicts
 with the direction of following HL7 FHIR, which has a well-defined patient
 reference model.
 
@@ -26,9 +26,9 @@ separated layers:
 
 1. **Domain/API (FHIR).** A canonical `Reference` type used as the FHIR-named
    patient link per resource.
-2. **Storage/query (Firestore + BigQuery).** A plaintext, indexed `resident_id`
-   on every subcollection document for `.where()` filtering and BigQuery
-   partitioning.
+2. **Storage/query (Firestore + GCS archive).** A plaintext, indexed `resident_id`
+   on every subcollection document for `.where()` filtering and as the GCS
+   archive object-path segment.
 
 Converters bridge the two, so the domain object is FHIR-faithful while the
 storage layer stays cheap to query.
@@ -78,7 +78,7 @@ Every subcollection document also persists a **plaintext, indexed `resident_id`*
 
 - Firestore `.where('resident_id', '==', …)` and retention filtering need a raw
   field; ciphertext cannot be filtered.
-- BigQuery `*_raw` tables partition on a single `resident_id` column.
+- The GCS archive object path partitions on a single `resident_id` segment.
 - The existing decryptors already pass through any key ending in `_id`
   (`key.endsWith('_id')` in `types/converters/residents/*`), so keeping
   `resident_id` plaintext costs nothing and stays queryable without decrypting.
@@ -88,7 +88,7 @@ Mapping between layers:
 ```
 FHIR (domain):        subject.reference === `Patient/${resident_id}`
 Storage (Firestore):  resident_id (plaintext)
-BigQuery:             resident_id (normalized column)
+Archive (GCS):        providers/{providerId}/residents/{resident_id}/…/{docId}.json
 ```
 
 ### 4. `care_plan_activities` (no direct resident link)
@@ -108,7 +108,8 @@ subcollection carry the same linkage field.
    preserving the plaintext `resident_id`.
 4. Backfill existing documents: set `resident_id` from `subject.id` /
    `beneficiary_id` / a `careplan_id → care_plans` join where missing.
-5. Normalize all BigQuery `*_raw` inserts to a single `resident_id` column.
+5. Use `resident_id` (+ `retention_ts`) as the GCS archive object-path / blind
+   index segments.
 
 ## Acceptance criteria
 
@@ -116,7 +117,7 @@ subcollection carry the same linkage field.
 - Domain objects reference the resident via FHIR `Reference`
   (`subject` / `patient` / `beneficiary` / `for`) with no ad-hoc id fields.
 - `care_plan_activities` resolves its resident without joining `care_plans`.
-- BigQuery `*_raw` tables all expose a consistent `resident_id` column.
+- GCS archive objects are keyed by a consistent `resident_id` (+ `retention_ts`).
 
 ## Tracking
 
