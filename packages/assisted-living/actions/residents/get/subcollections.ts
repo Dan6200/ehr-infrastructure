@@ -11,10 +11,25 @@ import { FirestoreDataConverter } from 'firebase-admin/firestore'
 import { z } from 'zod'
 
 import {
+  KEK_GENERAL_PATH,
   KEK_FINANCIAL_PATH,
   KEK_CLINICAL_PATH,
   KEK_CONTACT_PATH,
 } from '#root/lib/encryption'
+import { canAccessKekType, KekType } from '#root/lib/access-control'
+
+function kekTypeToPath(kekType: KekType): string {
+  switch (kekType) {
+    case 'general':
+      return KEK_GENERAL_PATH
+    case 'financial':
+      return KEK_FINANCIAL_PATH
+    case 'clinical':
+      return KEK_CLINICAL_PATH
+    case 'contact':
+      return KEK_CONTACT_PATH
+  }
+}
 
 async function getSubcollection<T, U>(
   providerId: string,
@@ -24,8 +39,6 @@ async function getSubcollection<T, U>(
   decryptor: (data: T, kekPath: string) => Promise<U>,
   kekPath: string,
 ): Promise<U[]> {
-  await verifySession() // Authenticate and get user claims
-
   const path = `providers/${providerId}/residents/${residentId}/${collectionName}`
 
   const subcollectionRef = (await collectionWrapper(path)).withConverter(
@@ -50,21 +63,20 @@ export async function getNestedResidentData<K extends SubCollectionKey>(
   residentId: string,
   subCollectionName: K,
 ) {
-  const { converter, decryptor, kekType } = subCollectionMap[subCollectionName]
-  let kekPath = ''
-  switch (kekType) {
-    case 'financial':
-      kekPath = KEK_FINANCIAL_PATH
-      break
-    case 'clinical':
-      kekPath = KEK_CLINICAL_PATH
-      break
-    case 'contact':
-      kekPath = KEK_CONTACT_PATH
-      break
-    default:
-      throw new Error(`Invalid KEK type for ${subCollectionName}`)
+  const { provider_id, roles = [] } = await verifySession()
+
+  if (provider_id !== providerId) {
+    throw new Error('Provider mismatch. Access denied.')
   }
+
+  const { converter, decryptor, kekType } = subCollectionMap[subCollectionName]
+  const dataClass = kekType as KekType
+
+  if (!canAccessKekType(roles, dataClass)) {
+    throw new Error(`Insufficient permissions to access ${subCollectionName}.`)
+  }
+
+  const kekPath = kekTypeToPath(dataClass)
 
   return getSubcollection<
     z.infer<SubCollectionMapType[K]['encrypted_schema']>,
