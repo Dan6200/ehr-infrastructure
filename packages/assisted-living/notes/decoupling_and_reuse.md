@@ -53,6 +53,38 @@ Invariants:
 These may be _named_ after FHIR, but that naming is not load-bearing for the
 security story.
 
+## Pluggable crypto provider (two modes)
+
+To grow into more verticals (dental, physical therapy, cosmetics, general
+practice), envelope encryption must be **optional** rather than baked into every
+storage path. The plan is a `CryptoProvider` interface with two implementations,
+so the mode is a single wiring point:
+
+- `KmsEnvelopeProvider` — **high-privacy mode**: the existing DEK/KEK,
+  role-gated KMS envelope encryption.
+- `PlaintextProvider` — **regular EHR mode**: identity/no-op crypto that keeps
+  the **same** storage shape.
+
+Design decisions:
+
+1. **One storage shape.** Both modes produce the identical `encrypted_*` +
+   wrapped-DEK document format, so converters, the GCS archive, and BigQuery
+   paths are unchanged. Only the provider flips.
+2. **Explicit, non-silent mode.** The mode is per-deployment/tenant config,
+   logged at startup, and never falls back silently — a high-privacy tenant must
+   never accidentally store plaintext.
+3. **Shared role policy.** `lib/access-control.ts` (`canAccessKekType`) remains
+   the single policy. High-privacy mode enforces it cryptographically (a role
+   can't unwrap without permission); regular mode enforces it as an ordinary
+   authorization check.
+4. **Package, not subrepo.** Ship as a workspace package (`packages/ehr-crypto`)
+   in this monorepo, not a separate git repo. Split into its own repo only when a
+   separate service needs independent versioning.
+
+This makes "zero-knowledge" a premium tier and "plain EHR" the standard tier,
+from one codebase. Tracked in
+[#7](https://github.com/Dan6200/ehr-infrastructure/issues/7).
+
 ## Decoupling plan
 
 1. **Extract the crypto RBAC matrix (done).** `lib/access-control.ts` now owns
@@ -98,3 +130,7 @@ security story.
   (the blind-index key).
 - `roles.md` — role definitions (aspirational; the crypto boundary above is the
   implemented source of truth).
+
+## Tracking
+
+- [#7 — Pluggable crypto provider: two-mode encryption (high-privacy vs. regular EHR)](https://github.com/Dan6200/ehr-infrastructure/issues/7)
