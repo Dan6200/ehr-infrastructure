@@ -53,33 +53,54 @@ Invariants:
 These may be _named_ after FHIR, but that naming is not load-bearing for the
 security story.
 
-## Pluggable crypto provider (two modes)
+## Pluggable crypto provider (two distinct modes)
 
 To grow into more verticals (dental, physical therapy, cosmetics, general
-practice), envelope encryption must be **optional** rather than baked into every
-storage path. The plan is a `CryptoProvider` interface with two implementations,
-so the mode is a single wiring point:
+practice), envelope encryption must be **optional**. But the two modes must be
+**structurally distinct at the storage layer** — _not_ the same shape with the
+crypto swapped. A single storage shape creates a **silent-downgrade /
+mode-confusion** failure: a misconfigured regular-mode tenant would store
+plaintext in a document that _looks_ encrypted, so a "zero-knowledge" tenant is
+no longer zero-knowledge (an attacker wouldn't even need to decrypt).
+
+Two implementations behind a `CryptoProvider`:
 
 - `KmsEnvelopeProvider` — **high-privacy mode**: the existing DEK/KEK,
   role-gated KMS envelope encryption.
-- `PlaintextProvider` — **regular EHR mode**: identity/no-op crypto that keeps
-  the **same** storage shape.
+- `PlaintextProvider` — **regular EHR mode**: plain storage, no crypto fields.
 
-Design decisions:
+Requirements:
 
-1. **One storage shape.** Both modes produce the identical `encrypted_*` +
-   wrapped-DEK document format, so converters, the GCS archive, and BigQuery
-   paths are unchanged. Only the provider flips.
-2. **Explicit, non-silent mode.** The mode is per-deployment/tenant config,
-   logged at startup, and never falls back silently — a high-privacy tenant must
-   never accidentally store plaintext.
-3. **Shared role policy.** `lib/access-control.ts` (`canAccessKekType`) remains
+1. **Distinct, self-describing formats.** Each stored document carries an
+   explicit, non-secret scheme discriminator (`kms-envelope:v1` vs `none:v1`),
+   and the two formats are structurally incompatible. A plaintext document can
+   never be parsed as an envelope.
+2. **Fail closed with cryptographic proof.** A high-privacy read must
+   successfully unwrap a DEK via KMS and authenticate before returning data. A
+   document without a genuine wrapped DEK cannot satisfy this, so even a
+   mislabeled plaintext document fails closed rather than silently returning
+   plaintext.
+3. **Mode bound to the tenant, verified on read.** The mode is a tenant
+   property (config/record) _and_ the document's own scheme tag; the read path
+   rejects any document whose scheme does not match the tenant's mode.
+4. **Optional physical separation.** High-privacy and regular tenants may live
+   in distinct storage namespaces (separate Firestore database / GCS bucket), so
+   the wrong mode cannot even address the other's data.
+5. **Shared domain model, split persistence.** Pages and domain logic consume
+   the same domain object; only the persistence codec branches on the mode. This
+   keeps the "distinct paths" where they matter (storage) without forking the
+   app.
+6. **Shared role policy.** `lib/access-control.ts` (`canAccessKekType`) remains
    the single policy. High-privacy mode enforces it cryptographically (a role
    can't unwrap without permission); regular mode enforces it as an ordinary
    authorization check.
-4. **Package, not subrepo.** Ship as a workspace package (`packages/ehr-crypto`)
+7. **Package, not subrepo.** Ship as a workspace package (`packages/ehr-crypto`)
    in this monorepo, not a separate git repo. Split into its own repo only when a
    separate service needs independent versioning.
+
+Why this matters: for a security-branded product, the ability to _prove_ a
+tenant is in high-privacy mode is itself a requirement (audit/compliance). One
+ambiguous shape makes that impossible and creates a silent downgrade path.
 
 This makes "zero-knowledge" a premium tier and "plain EHR" the standard tier,
 from one codebase. Tracked in
