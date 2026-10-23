@@ -92,7 +92,7 @@ export const EncryptedCarePlanActivitySchema = z.object({
   encrypted_status: EncryptedFieldSchema,
   encrypted_status_reason: EncryptedFieldSchema.optional(),
   encrypted_do_not_perform: EncryptedFieldSchema.optional(),
-  encrypted_scheduled: EncryptedFieldSchema.optional(),
+  encrypted_scheduled_timing: EncryptedFieldSchema.optional(),
   encrypted_performer: EncryptedFieldSchema.optional(),
   encrypted_description: EncryptedFieldSchema.optional(),
 })

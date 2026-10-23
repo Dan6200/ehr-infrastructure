@@ -98,7 +98,7 @@ patient link of its own. Because it is a subcollection here, `resident_id` is no
 **denormalized onto it at write time** (copied from the parent `care_plans`
 document), with `careplan_id` kept as the back-reference. The activity schema was
 also normalized to FHIR `CarePlan.activity.detail` (`kind`, `code`, `status`,
-`do_not_perform`, `scheduled`, `performer[]`, `description`).
+`do_not_perform`, `scheduled_timing`, `performer[]`, `description`).
 
 ## Migration path
 

@@ -72,7 +72,7 @@ def generate_care_plans_for_resident(
                 },
                 "status": "scheduled",
                 "do_not_perform": False,
-                "scheduled": act_template["timing"],
+                "scheduled_timing": act_template["timing"],
                 "performer": performer,
                 "description": f"Ensure resident comfort during {coding['display'].split('(')[0].strip().lower()}.",
             },

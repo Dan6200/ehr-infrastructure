@@ -57,6 +57,18 @@ export const CarePlanActivityStatusEnum = z.enum([
   'entered-in-error',
 ])
 
+// http://hl7.org/fhir/care-plan-activity-kind
+export const CarePlanActivityKindEnum = z.enum([
+  'Appointment',
+  'CommunicationRequest',
+  'DeviceRequest',
+  'MedicationRequest',
+  'NutritionOrder',
+  'Task',
+  'ServiceRequest',
+  'VisionPrescription',
+])
+
 export const PrescriptionStatusEnum = z.enum([
   'active',
   'on-hold',

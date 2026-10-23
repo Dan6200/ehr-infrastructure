@@ -163,7 +163,7 @@ onto each activity at write time, and the activity schema is FHIR-normalized
 
 `decryptCarePlanActivity` now follows the generic `id` contract (it no longer
 reads `document_id`) and decrypts the FHIR `CarePlan.activity.detail` fields
-(`kind`, `code`, `status`, `do_not_perform`, `scheduled`, `performer[]`,
+(`kind`, `code`, `status`, `do_not_perform`, `scheduled_timing`, `performer[]`,
 `description`).
 
 ### 5. GCS object layout and listing (no SQL)

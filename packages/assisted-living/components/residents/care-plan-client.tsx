@@ -113,28 +113,38 @@ export function CarePlanClient({
                                   {activity.description}
                                 </p>
                               )}
-                              {activity.scheduled && (
+                              {activity.scheduled_timing && (
                                 <div className="mt-2 border-l-2 pl-2 border-muted">
                                   <p>
                                     <strong>Schedule:</strong>{' '}
-                                    {activity.scheduled.code?.text ||
+                                    {activity.scheduled_timing.code?.text ||
                                       'Specific Time'}
                                   </p>
-                                  {activity.scheduled.repeat && (
+                                  {activity.scheduled_timing.repeat && (
                                     <div className="text-xs text-muted-foreground ml-2 mt-1">
                                       <p>
                                         Every{' '}
-                                        {activity.scheduled.repeat.frequency}{' '}
+                                        {
+                                          activity.scheduled_timing.repeat
+                                            .frequency
+                                        }{' '}
                                         time(s) per{' '}
-                                        {activity.scheduled.repeat.period}{' '}
-                                        {activity.scheduled.repeat.period_unit}
+                                        {
+                                          activity.scheduled_timing.repeat
+                                            .period
+                                        }{' '}
+                                        {
+                                          activity.scheduled_timing.repeat
+                                            .period_unit
+                                        }
                                       </p>
-                                      {activity.scheduled.repeat.time_of_day &&
-                                        activity.scheduled.repeat.time_of_day
-                                          .length > 0 && (
+                                      {activity.scheduled_timing.repeat
+                                        .time_of_day &&
+                                        activity.scheduled_timing.repeat
+                                          .time_of_day.length > 0 && (
                                           <p>
                                             At:{' '}
-                                            {activity.scheduled.repeat.time_of_day.join(
+                                            {activity.scheduled_timing.repeat.time_of_day.join(
                                               ', ',
                                             )}
                                           </p>

@@ -37,9 +37,9 @@ export async function decryptCarePlanActivity(
   if (data.encrypted_do_not_perform)
     decryptedData.do_not_perform =
       decryptData(data.encrypted_do_not_perform, dek) === 'true'
-  if (data.encrypted_scheduled)
-    decryptedData.scheduled = JSON.parse(
-      decryptData(data.encrypted_scheduled, dek),
+  if (data.encrypted_scheduled_timing)
+    decryptedData.scheduled_timing = JSON.parse(
+      decryptData(data.encrypted_scheduled_timing, dek),
     )
   if (data.encrypted_performer)
     decryptedData.performer = JSON.parse(
