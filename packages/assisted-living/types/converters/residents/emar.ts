@@ -8,6 +8,7 @@ import {
 import { EncryptedEmarRecordSchema } from '#root/types/encrypted-schemas'
 import { EmarRecordSchema } from '#root/types/schemas/clinical/emar'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptEmarRecord(
   data: z.infer<typeof EncryptedEmarRecordSchema>,
@@ -39,6 +40,7 @@ export async function decryptEmarRecord(
     decryptedData.dosage = JSON.parse(decryptedData.dosage)
   }
 
+  decryptedData.subject = toPatientReference(decryptedData.resident_id)
   return EmarRecordSchema.parse(decryptedData)
 }
 

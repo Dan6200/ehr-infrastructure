@@ -10,7 +10,7 @@ import {
 } from '#root/lib/encryption'
 
 export async function updateObservations(
-  observations: (Omit<Observation, 'resident_id' | 'recorder_id'> & {
+  observations: (Omit<Observation, 'subject' | 'recorder_id'> & {
     id?: string
   })[],
   residentId: string,

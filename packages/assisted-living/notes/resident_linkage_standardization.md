@@ -102,16 +102,37 @@ also normalized to FHIR `CarePlan.activity.detail` (`kind`, `code`, `status`,
 
 ## Migration path
 
-1. Add `Reference` schema.
+1. Add `Reference` schema. — **done**
 2. Add plaintext `resident_id` to every subcollection `schemas` +
-   `encrypted-schemas` definition.
+   `encrypted-schemas` definition. — **done** (storage keeps `resident_id`;
+   domain schemas no longer expose it)
 3. Update converters/decryptors to return the FHIR `Reference` shape while
-   preserving the plaintext `resident_id`.
+   preserving the plaintext `resident_id`. — **done**
 4. Backfill existing documents: set `resident_id` from `subject.id` /
    `beneficiary_id` / a `careplan_id → care_plans` join where missing.
-   (`care_plan_activities` denormalization is done.)
+   (`care_plan_activities` denormalization is done.) — **open** (the decryptors
+   fall back at read time)
 5. Use `resident_id` (+ `retention_ts`) as the GCS archive object-path / blind
-   index segments.
+   index segments. — **open** (part of the archive work)
+
+## Status
+
+- **Done:** the `Reference` schema and the domain rename for 17 subcollections
+  (`subject` / `patient` / `beneficiary` / `for`). Storage keeps plaintext
+  `resident_id`; converters build the Reference.
+  - `subject`: observations, diagnostic_history, prescriptions, emar,
+    procedures, encounters, care_plans, goals, accounts, charges, payments,
+    adjustments
+  - `patient`: allergies, claims, episodes_of_care
+  - `beneficiary`: coverages
+  - `for`: tasks
+- **Exception:** `care_plan_activities` keeps a top-level `resident_id` (FHIR
+  nests `activity` inside `CarePlan`, so there is no patient link).
+- **Not in the FHIR mapping (unchanged):** `emergency_contacts` (RelatedPerson
+  style; still `resident_id`), `identifiers`, `addresses` (no domain
+  `resident_id`).
+- **Open:** pre-existing writes need a one-time backfill/verification of
+  `resident_id` (`recorder_id`, `encrypted_dek`) on clinical update actions.
 
 ## Acceptance criteria
 

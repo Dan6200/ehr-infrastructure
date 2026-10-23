@@ -8,6 +8,7 @@ import {
 import { EncryptedClaimSchema } from '#root/types/encrypted-schemas'
 import { ClaimSchema } from '#root/types/schemas/financial/claim'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptClaim(
   data: z.infer<typeof EncryptedClaimSchema>,
@@ -40,6 +41,7 @@ export async function decryptClaim(
     decryptedData.total = parsed
   }
 
+  decryptedData.patient = toPatientReference(decryptedData.resident_id)
   return ClaimSchema.parse(decryptedData)
 }
 

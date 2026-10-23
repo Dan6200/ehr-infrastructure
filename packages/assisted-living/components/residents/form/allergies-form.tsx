@@ -41,7 +41,7 @@ const FormSchema = z.object({
     .array(
       AllergySchema.omit({
         id: true,
-        resident_id: true,
+        patient: true,
         recorder_id: true,
       }),
     )

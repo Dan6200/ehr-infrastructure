@@ -8,6 +8,7 @@ import {
 import { EncryptedEncounterSchema } from '#root/types/encrypted-schemas'
 import { EncounterSchema } from '#root/types/schemas/clinical/encounter'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptEncounter(
   data: z.infer<typeof EncryptedEncounterSchema>,
@@ -47,9 +48,12 @@ export async function decryptEncounter(
   if (decryptedData.reason) {
     decryptedData.reason = JSON.parse(decryptedData.reason)
   }
-  if (!decryptedData.resident_id) {
-    decryptedData.resident_id = data.subject?.id
-  }
+  decryptedData.subject = toPatientReference(
+    decryptedData.resident_id ?? data.subject?.id,
+    data.subject?.encrypted_name
+      ? decryptData(data.subject.encrypted_name, dek)
+      : undefined,
+  )
 
   return EncounterSchema.parse(decryptedData)
 }

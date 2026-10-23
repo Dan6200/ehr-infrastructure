@@ -10,7 +10,7 @@ import {
 } from '#root/lib/encryption'
 
 export async function updateCharges(
-  charges: (Omit<Charge, 'resident_id'> & { id?: string })[],
+  charges: (Omit<Charge, 'subject'> & { id?: string })[],
   residentId: string,
   deletedChargeIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {

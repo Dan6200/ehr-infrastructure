@@ -63,7 +63,7 @@ export function EmarClient({
       return
     }
 
-    const newEmarRecord: Omit<EmarRecord, 'id' | 'resident_id'> = {
+    const newEmarRecord: Omit<EmarRecord, 'id' | 'subject'> = {
       prescription_id: prescription.id,
       medication: prescription.medication,
       recorder_id: user.uid,

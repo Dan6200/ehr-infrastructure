@@ -1,10 +1,11 @@
 import { z } from 'zod'
+import { ReferenceSchema } from '../fhir/reference'
 import { ClaimStatusEnum } from '#root/types/enums'
 
 export const ClaimSchema = z.object({
   id: z.string(),
   authored_on: z.string(),
-  resident_id: z.string(),
+  patient: ReferenceSchema,
   status: ClaimStatusEnum,
   coverage_id: z.string().nullable().optional(),
   charge_ids: z.array(z.string()).default([]),

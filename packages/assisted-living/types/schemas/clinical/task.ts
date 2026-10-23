@@ -1,10 +1,11 @@
 import { IntentEnum, PriorityEnum, TaskStatusEnum } from '#root/types/enums'
 import { z } from 'zod'
+import { ReferenceSchema } from '../fhir/reference'
 import { PeriodSchema } from './period'
 
 export const TaskSchema = z.object({
   id: z.string(), // UUID
-  resident_id: z.string(),
+  for: ReferenceSchema,
   careplan_id: z.string().optional(),
 
   activity_code: z.string().optional(), // SNOMED, internal, etc.

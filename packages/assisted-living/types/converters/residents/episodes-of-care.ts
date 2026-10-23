@@ -8,6 +8,7 @@ import {
 import { EncryptedEpisodesOfCareSchema } from '#root/types/encrypted-schemas'
 import { EpisodesOfCareSchema } from '#root/types/schemas/clinical/episodes-of-care'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptEpisodesOfCare(
   data: z.infer<typeof EncryptedEpisodesOfCareSchema>,
@@ -48,6 +49,7 @@ export async function decryptEpisodesOfCare(
     decryptedData.team_ids = JSON.parse(decryptedData.team_ids)
   }
 
+  decryptedData.patient = toPatientReference(decryptedData.resident_id)
   return EpisodesOfCareSchema.parse(decryptedData)
 }
 

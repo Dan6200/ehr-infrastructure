@@ -10,7 +10,7 @@ import {
 } from '#root/lib/encryption'
 
 export async function updateAllergies(
-  allergies: (Omit<Allergy, 'resident_id' | 'recorder_id'> & { id?: string })[],
+  allergies: (Omit<Allergy, 'patient' | 'recorder_id'> & { id?: string })[],
   residentId: string,
   deletedAllergyIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {

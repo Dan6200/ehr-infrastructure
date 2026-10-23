@@ -8,6 +8,7 @@ import {
 import { EncryptedProcedureSchema } from '#root/types/encrypted-schemas'
 import { ProcedureSchema } from '#root/types/schemas/clinical/procedure'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptProcedure(
   data: z.infer<typeof EncryptedProcedureSchema>,
@@ -53,9 +54,12 @@ export async function decryptProcedure(
   if (decryptedData.body_site) {
     decryptedData.body_site = JSON.parse(decryptedData.body_site)
   }
-  if (!decryptedData.resident_id) {
-    decryptedData.resident_id = data.subject?.id
-  }
+  decryptedData.subject = toPatientReference(
+    decryptedData.resident_id ?? data.subject?.id,
+    data.subject?.encrypted_name
+      ? decryptData(data.subject.encrypted_name, dek)
+      : undefined,
+  )
 
   return ProcedureSchema.parse(decryptedData)
 }

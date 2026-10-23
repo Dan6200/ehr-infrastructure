@@ -8,6 +8,7 @@ import {
 import { EncryptedCoverageSchema } from '#root/types/encrypted-schemas'
 import { CoverageSchema } from '#root/types/schemas/financial/coverage'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptCoverage(
   data: z.infer<typeof EncryptedCoverageSchema>,
@@ -50,9 +51,9 @@ export async function decryptCoverage(
       decryptedData.cost_to_beneficiary,
     )
   }
-  if (!decryptedData.resident_id) {
-    decryptedData.resident_id = decryptedData.beneficiary_id
-  }
+  decryptedData.beneficiary = toPatientReference(
+    decryptedData.resident_id ?? decryptedData.beneficiary_id,
+  )
 
   return CoverageSchema.parse(decryptedData)
 }

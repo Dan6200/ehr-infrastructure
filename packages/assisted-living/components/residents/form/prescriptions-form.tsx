@@ -43,7 +43,7 @@ const FormSchema = z.object({
     .array(
       PrescriptionSchema.omit({
         id: true,
-        resident_id: true,
+        subject: true,
         recorder_id: true,
       }),
     )

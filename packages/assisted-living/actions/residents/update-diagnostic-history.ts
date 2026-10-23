@@ -10,7 +10,7 @@ import {
 } from '#root/lib/encryption'
 
 export async function updateDiagnosticHistory(
-  records: (Omit<DiagnosticHistory, 'resident_id' | 'recorder_id'> & {
+  records: (Omit<DiagnosticHistory, 'subject' | 'recorder_id'> & {
     id?: string
   })[],
   residentId: string,

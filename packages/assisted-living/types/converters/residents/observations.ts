@@ -8,6 +8,7 @@ import {
 import { EncryptedObservationSchema } from '#root/types/encrypted-schemas'
 import { ObservationSchema } from '#root/types/schemas/clinical/observation'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptObservation(
   data: z.infer<typeof EncryptedObservationSchema>,
@@ -45,6 +46,7 @@ export async function decryptObservation(
     decryptedData.value = parseFloat(decryptedData.value)
   }
 
+  decryptedData.subject = toPatientReference(decryptedData.resident_id)
   return ObservationSchema.parse(decryptedData)
 }
 

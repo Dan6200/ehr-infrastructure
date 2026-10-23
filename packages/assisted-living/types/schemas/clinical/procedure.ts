@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ReferenceSchema } from '../fhir/reference'
 import { SnomedConceptSchema } from '../codeable-concept'
 import { ProcedureStatusEnum } from '#root/types/enums'
 import { PeriodSchema } from './period'
@@ -6,11 +7,7 @@ import { OccurrenceSchema } from './occurrence'
 
 export const ProcedureSchema = z.object({
   id: z.string(),
-  resident_id: z.string(), // Denormalized storage linkage (see notes/resident_linkage_standardization.md)
-  subject: z.object({
-    id: z.string(), // resident_id
-    name: z.string(),
-  }),
+  subject: ReferenceSchema,
   focus: z.string(),
   careplan_id: z.string().optional(),
   encounter_id: z.string().optional(),

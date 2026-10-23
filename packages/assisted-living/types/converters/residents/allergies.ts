@@ -8,6 +8,7 @@ import {
 import { EncryptedAllergySchema } from '#root/types/encrypted-schemas'
 import { AllergySchema } from '#root/types/schemas/clinical/allergy'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptAllergy(
   data: z.infer<typeof EncryptedAllergySchema>,
@@ -42,6 +43,7 @@ export async function decryptAllergy(
     decryptedData.reaction = JSON.parse(decryptedData.reaction)
   }
 
+  decryptedData.patient = toPatientReference(decryptedData.resident_id)
   return AllergySchema.parse(decryptedData)
 }
 

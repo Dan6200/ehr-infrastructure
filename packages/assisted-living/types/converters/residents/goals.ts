@@ -8,6 +8,7 @@ import {
 import { EncryptedGoalSchema } from '#root/types/encrypted-schemas'
 import { GoalSchema } from '#root/types/schemas/clinical/goal'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptGoal(
   data: z.infer<typeof EncryptedGoalSchema>,
@@ -36,6 +37,7 @@ export async function decryptGoal(
     decryptedData.description = JSON.parse(decryptedData.description)
   }
 
+  decryptedData.subject = toPatientReference(decryptedData.resident_id)
   return GoalSchema.parse(decryptedData)
 }
 

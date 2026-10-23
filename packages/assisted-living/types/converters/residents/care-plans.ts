@@ -8,6 +8,7 @@ import {
 import { EncryptedCarePlanSchema } from '#root/types/encrypted-schemas'
 import { CarePlanSchema } from '#root/types/schemas/clinical/care-plan'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptCarePlan(
   data: z.infer<typeof EncryptedCarePlanSchema>,
@@ -36,6 +37,7 @@ export async function decryptCarePlan(
     decryptedData.activities = JSON.parse(decryptedData.activities)
   }
 
+  decryptedData.subject = toPatientReference(decryptedData.resident_id)
   return CarePlanSchema.parse(decryptedData)
 }
 

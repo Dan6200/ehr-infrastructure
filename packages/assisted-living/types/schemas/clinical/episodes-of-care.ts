@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ReferenceSchema } from '../fhir/reference'
 import { EpisodeStatusTypeEnum } from '#root/types/enums'
 import {
   EncounterDiagnosisUseCode,
@@ -10,7 +11,7 @@ import { PeriodSchema } from './period'
 
 export const EpisodesOfCareSchema = z.object({
   id: z.string(),
-  resident_id: z.string(),
+  patient: ReferenceSchema,
   status: EpisodeStatusTypeEnum,
   type: EpisodesOfCareTypeCode,
   period: PeriodSchema,

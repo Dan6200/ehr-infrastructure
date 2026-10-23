@@ -8,6 +8,7 @@ import {
 import { EncryptedChargeSchema } from '#root/types/encrypted-schemas'
 import { ChargeSchema } from '#root/types/schemas/financial/charge'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptCharge(
   data: z.infer<typeof EncryptedChargeSchema>,
@@ -43,6 +44,7 @@ export async function decryptCharge(
     decryptedData.quantity = parseInt(decryptedData.quantity, 10)
   }
 
+  decryptedData.subject = toPatientReference(decryptedData.resident_id)
   return ChargeSchema.parse(decryptedData)
 }
 

@@ -8,6 +8,7 @@ import {
 import { EncryptedAccountSchema } from '#root/types/encrypted-schemas'
 import { AccountSchema } from '#root/types/schemas/financial/account'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptAccount(
   data: z.infer<typeof EncryptedAccountSchema>,
@@ -23,11 +24,11 @@ export async function decryptAccount(
     if (key === 'id' || key.endsWith('_id')) {
       decryptedData[key] = (data as any)[key]
     } else if (key === 'subject') {
-      // Handle partially encrypted subject object
-      decryptedData.subject = {
-        id: data.subject.id,
-        name: decryptData(data.subject.encrypted_name, dek),
-      }
+      // Build the FHIR Reference from the partially encrypted subject.
+      decryptedData.subject = toPatientReference(
+        data.subject.id,
+        decryptData(data.subject.encrypted_name, dek),
+      )
     } else if (
       key.startsWith('encrypted_') &&
       key !== 'encrypted_dek' &&
@@ -49,9 +50,6 @@ export async function decryptAccount(
   }
   if (decryptedData.service_period) {
     decryptedData.service_period = JSON.parse(decryptedData.service_period)
-  }
-  if (!decryptedData.resident_id) {
-    decryptedData.resident_id = data.subject?.id
   }
 
   return AccountSchema.parse(decryptedData)

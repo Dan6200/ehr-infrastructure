@@ -1,13 +1,13 @@
 import { z } from 'zod'
+import { ReferenceSchema } from '../fhir/reference'
 import { CoverageStatusEnum } from '#root/types/enums'
 import { PeriodSchema } from '../clinical/period'
 
 export const CoverageSchema = z.object({
   id: z.string(),
-  resident_id: z.string(), // Denormalized storage linkage (see notes/resident_linkage_standardization.md)
   status: CoverageStatusEnum,
   type: z.string().optional(), // e.g. "NHIS", "Private Insurance", "Self-pay"
-  beneficiary_id: z.string(), // resident_id
+  beneficiary: ReferenceSchema,
   // The organization or individual responsible for paying
   payor: z.object({
     id: z.string(),

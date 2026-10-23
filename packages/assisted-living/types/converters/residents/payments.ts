@@ -8,6 +8,7 @@ import {
 import { EncryptedPaymentSchema } from '#root/types/encrypted-schemas'
 import { PaymentSchema } from '#root/types/schemas/financial/payment'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptPayment(
   data: z.infer<typeof EncryptedPaymentSchema>,
@@ -40,6 +41,7 @@ export async function decryptPayment(
     decryptedData.amount = parsed
   }
 
+  decryptedData.subject = toPatientReference(decryptedData.resident_id)
   return PaymentSchema.parse(decryptedData)
 }
 

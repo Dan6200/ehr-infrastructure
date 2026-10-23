@@ -10,7 +10,7 @@ import {
 } from '#root/lib/encryption'
 
 export async function updatePrescriptions(
-  prescriptions: (Omit<Prescription, 'resident_id' | 'recorder_id'> & {
+  prescriptions: (Omit<Prescription, 'subject' | 'recorder_id'> & {
     id?: string
   })[],
   residentId: string,

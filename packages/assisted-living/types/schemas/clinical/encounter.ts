@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ReferenceSchema } from '../fhir/reference'
 import { PeriodSchema } from './period'
 import {
   EncounterDiagnosisUseCode,
@@ -8,11 +9,7 @@ import { EncounterStatusEnum } from '#root/types/enums'
 
 export const EncounterSchema = z.object({
   id: z.string(),
-  resident_id: z.string(), // Denormalized storage linkage (see notes/resident_linkage_standardization.md)
-  subject: z.object({
-    id: z.string(), // resident_id
-    name: z.string(),
-  }),
+  subject: ReferenceSchema,
   type: z.string().optional(),
   status: EncounterStatusEnum,
   period: PeriodSchema.optional(),

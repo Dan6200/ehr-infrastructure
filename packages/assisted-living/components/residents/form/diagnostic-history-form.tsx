@@ -39,7 +39,7 @@ const FormSchema = z.object({
     .array(
       DiagnosticHistorySchema.omit({
         id: true,
-        resident_id: true,
+        subject: true,
         recorder_id: true,
       }),
     )

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ReferenceSchema } from '../fhir/reference'
 import {
   PrescriptionStatusEnum,
   PrescriptionAdherenceStatusEnum,
@@ -9,7 +10,7 @@ import { DosageInstructionSchema } from './dosage'
 
 export const PrescriptionSchema = z.object({
   id: z.string(),
-  resident_id: z.string(),
+  subject: ReferenceSchema,
   recorder_id: z.string(),
   period: PeriodSchema,
   status: PrescriptionStatusEnum,

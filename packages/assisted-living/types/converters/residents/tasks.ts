@@ -8,6 +8,7 @@ import {
 import { EncryptedTaskSchema } from '#root/types/encrypted-schemas'
 import { TaskSchema } from '#root/types/schemas/clinical/task'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptTask(
   data: z.infer<typeof EncryptedTaskSchema>,
@@ -39,6 +40,7 @@ export async function decryptTask(
     decryptedData.execution_period = JSON.parse(decryptedData.execution_period)
   }
 
+  decryptedData.for = toPatientReference(decryptedData.resident_id)
   return TaskSchema.parse(decryptedData)
 }
 

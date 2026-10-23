@@ -1,11 +1,12 @@
 import { z } from 'zod'
+import { ReferenceSchema } from '../fhir/reference'
 import { ObservationStatusEnum } from '#root/types/enums'
 import { CodeableConceptSchema } from '../codeable-concept'
 import { ValueQuantitySchema } from './value-quantity'
 
 export const ObservationSchema = z.object({
   id: z.string(),
-  resident_id: z.string(),
+  subject: ReferenceSchema,
   recorder_id: z.string(),
   status: ObservationStatusEnum,
   category: z.array(CodeableConceptSchema),

@@ -26,7 +26,7 @@ import * as React from 'react'
 
 const FormSchema = z.object({
   adjustments: z
-    .array(AdjustmentSchema.omit({ id: true, resident_id: true }))
+    .array(AdjustmentSchema.omit({ id: true, subject: true }))
     .nullable()
     .optional(),
 })

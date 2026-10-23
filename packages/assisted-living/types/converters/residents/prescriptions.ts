@@ -8,6 +8,7 @@ import {
 import { EncryptedPrescriptionSchema } from '#root/types/encrypted-schemas'
 import { PrescriptionSchema } from '#root/types/schemas/clinical/prescription'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptPrescription(
   data: z.infer<typeof EncryptedPrescriptionSchema>,
@@ -41,6 +42,7 @@ export async function decryptPrescription(
     )
   }
 
+  decryptedData.subject = toPatientReference(decryptedData.resident_id)
   return PrescriptionSchema.parse(decryptedData)
 }
 

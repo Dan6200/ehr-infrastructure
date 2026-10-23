@@ -1,4 +1,5 @@
-'use server'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
+;('use server')
 import { decryptDataKey, decryptData } from '#root/lib/encryption'
 import {
   DocumentData,
@@ -35,6 +36,7 @@ export async function decryptDiagnosticHistory(
     decryptedData.code = JSON.parse(decryptedData.code)
   }
 
+  decryptedData.subject = toPatientReference(decryptedData.resident_id)
   return DiagnosticHistorySchema.parse(decryptedData)
 }
 

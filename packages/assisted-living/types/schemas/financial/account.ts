@@ -1,16 +1,13 @@
 import { z } from 'zod'
+import { ReferenceSchema } from '../fhir/reference'
 import { AccountBillingStatusConceptSchema } from '../codeable-concept'
 import { PeriodSchema } from '../clinical/period'
 
 export const AccountSchema = z.object({
   id: z.string(),
-  resident_id: z.string(), // Denormalized storage linkage (see notes/resident_linkage_standardization.md)
   billing_status: AccountBillingStatusConceptSchema,
   // The party responsible for this account (usually the resident)
-  subject: z.object({
-    id: z.string(), // resident_id
-    name: z.string(),
-  }),
+  subject: ReferenceSchema,
   // The party who can be contacted for billing purposes
   guarantor: z
     .object({

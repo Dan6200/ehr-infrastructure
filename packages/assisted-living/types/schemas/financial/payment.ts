@@ -1,8 +1,9 @@
 import { z } from 'zod'
+import { ReferenceSchema } from '../fhir/reference'
 
 export const PaymentSchema = z.object({
   id: z.string(),
-  resident_id: z.string(),
+  subject: ReferenceSchema,
   claim_id: z.string().nullable().optional(),
   coverage_id: z.string().nullable().optional(),
   amount: z.object({ value: z.number(), currency: z.string().default('NGN') }),

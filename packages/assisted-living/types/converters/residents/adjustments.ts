@@ -8,6 +8,7 @@ import {
 import { EncryptedAdjustmentSchema } from '#root/types/encrypted-schemas'
 import { AdjustmentSchema } from '#root/types/schemas/financial/adjustment'
 import z from 'zod'
+import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptAdjustment(
   data: z.infer<typeof EncryptedAdjustmentSchema>,
@@ -40,6 +41,7 @@ export async function decryptAdjustment(
     decryptedData.approved_amount = parsed
   }
 
+  decryptedData.subject = toPatientReference(decryptedData.resident_id)
   return AdjustmentSchema.parse(decryptedData)
 }
 
