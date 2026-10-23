@@ -19,6 +19,7 @@ const config: Config = {
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'], // Optional: for setup files
   testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/'],
+  modulePathIgnorePatterns: ['<rootDir>/.next/'],
   transform: {
     // Use ts-jest to transform TypeScript files
     '^.+\\.(ts|tsx)$': [
