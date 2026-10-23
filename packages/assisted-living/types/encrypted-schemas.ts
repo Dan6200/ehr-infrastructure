@@ -80,21 +80,8 @@ export const EncryptedCarePlanSchema = z.object({
   encrypted_title: EncryptedFieldSchema,
   encrypted_author_id: EncryptedFieldSchema,
   encrypted_created_date: EncryptedFieldSchema,
-  encrypted_activities: EncryptedFieldSchema.optional(), // Activities are now nested and encrypted
-})
-
-export const EncryptedCarePlanActivitySchema = z.object({
-  resident_id: z.string().optional(), // Plaintext linkage (denormalized)
-  careplan_id: z.string(), // Parent CarePlan (plaintext back-reference)
-  encrypted_dek: z.string(),
-  encrypted_kind: EncryptedFieldSchema.optional(),
-  encrypted_code: EncryptedFieldSchema,
-  encrypted_status: EncryptedFieldSchema,
-  encrypted_status_reason: EncryptedFieldSchema.optional(),
-  encrypted_do_not_perform: EncryptedFieldSchema.optional(),
-  encrypted_scheduled_timing: EncryptedFieldSchema.optional(),
-  encrypted_performer: EncryptedFieldSchema.optional(),
-  encrypted_description: EncryptedFieldSchema.optional(),
+  // FHIR CarePlan.activity[] is nested in the CarePlan and encrypted as one blob.
+  encrypted_activity: EncryptedFieldSchema.optional(),
 })
 
 export const EncryptedGoalSchema = z.object({

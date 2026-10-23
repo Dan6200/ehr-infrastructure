@@ -11,9 +11,8 @@ def generate_care_plans_for_resident(
     end_date: datetime,
     all_goal_ids: list,
 ) -> dict:
-    """Generates a denormalized set of care plan data for a resident."""
+    """Generates a resident's CarePlan with a nested FHIR activity[] array."""
     care_plans = []
-    care_plan_activities = []
 
     # 1. Create the main Care Plan
     care_plan_id = generate_uuid()
@@ -23,20 +22,8 @@ def generate_care_plans_for_resident(
         all_goal_ids, k=min(len(all_goal_ids), random.randint(2, 3))
     )
 
-    care_plan = {
-        "id": care_plan_id,
-        "data": {
-            "resident_id": resident_id,
-            "status": "active",
-            "title": f"Personalized Care Plan - {start_date.now().year}",
-            "author_id": random.choice(staff_ids),
-            "created_date": get_random_datetime(start_date, end_date),
-            "goal_ids": selected_goal_ids,  # Reference top-level goals
-        },
-    }
-    care_plans.append(care_plan)
-
-    # 3. Generate Activities linked to the Care Plan (FHIR CarePlan.activity.detail)
+    # 3. Generate FHIR CarePlan.activity[] (nested, not a subcollection)
+    activities = []
     selected_activities = random.sample(CARE_PLAN_ACTIVITIES, random.randint(3, 5))
     for act_template in selected_activities:
         coding = act_template["coding"]
@@ -60,30 +47,36 @@ def generate_care_plans_for_resident(
                 }
             )
 
-        activity = {
-            "id": generate_uuid(),
-            "data": {
-                "resident_id": resident_id,
-                "careplan_id": care_plan_id,
-                "kind": "ServiceRequest",
-                "code": {
-                    "coding": code_coding,
-                    "text": coding["display"],
+        activities.append(
+            {
+                "id": generate_uuid(),
+                "detail": {
+                    "kind": "ServiceRequest",
+                    "code": {
+                        "coding": code_coding,
+                        "text": coding["display"],
+                    },
+                    "status": "scheduled",
+                    "do_not_perform": False,
+                    "scheduled_timing": act_template["timing"],
+                    "performer": performer,
+                    "description": f"Ensure resident comfort during {coding['display'].split('(')[0].strip().lower()}.",
                 },
-                "status": "scheduled",
-                "do_not_perform": False,
-                "scheduled_timing": act_template["timing"],
-                "performer": performer,
-                "description": f"Ensure resident comfort during {coding['display'].split('(')[0].strip().lower()}.",
-            },
-        }
-        care_plan_activities.append(activity)
+            }
+        )
 
-    # Activities are stored as a subcollection (not nested in the care plan) to
-    # keep documents small; the `careplan_id` back-reference is on each activity.
-
-    return {
-        "care_plans": care_plans,
-        "care_plan_activities": care_plan_activities,
+    care_plan = {
+        "id": care_plan_id,
+        "data": {
+            "resident_id": resident_id,
+            "status": "active",
+            "title": f"Personalized Care Plan - {start_date.now().year}",
+            "author_id": random.choice(staff_ids),
+            "created_date": get_random_datetime(start_date, end_date),
+            "goal_ids": selected_goal_ids,
+            "activity": activities,
+        },
     }
+    care_plans.append(care_plan)
 
+    return {"care_plans": care_plans}

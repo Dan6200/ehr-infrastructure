@@ -10,16 +10,8 @@ import { TimingSchema } from './timing'
 /**
  * FHIR `CarePlan.activity.detail`.
  * https://hl7.org/fhir/careplan.html#CarePlan.activity
- *
- * In FHIR, `activity` is a nested BackboneElement of `CarePlan`. Here it is
- * stored as a subcollection, so `careplan_id` is the explicit parent link and
- * `resident_id` is the denormalized storage/query linkage (see
- * `notes/resident_linkage_standardization.md`).
  */
-export const CarePlanActivitySchema = z.object({
-  id: z.string(),
-  resident_id: z.string(),
-  careplan_id: z.string(),
+export const CarePlanActivityDetailSchema = z.object({
   kind: CarePlanActivityKindEnum.default('ServiceRequest'), // detail.kind
   code: CodeableConceptSchema, // detail.code
   status: CarePlanActivityStatusEnum, // detail.status
@@ -29,4 +21,18 @@ export const CarePlanActivitySchema = z.object({
   performer: z.array(ReferenceSchema).default([]), // detail.performer[]
   description: z.string().optional(), // detail.description
 })
+
+/**
+ * FHIR `CarePlan.activity` (a BackboneElement nested inside the CarePlan).
+ * `id` is the element id used by the UI; the resident and care-plan links are
+ * implied by the parent resource.
+ */
+export const CarePlanActivitySchema = z.object({
+  id: z.string().optional(), // BackboneElement.id
+  detail: CarePlanActivityDetailSchema,
+})
+
 export type CarePlanActivity = z.infer<typeof CarePlanActivitySchema>
+export type CarePlanActivityDetail = z.infer<
+  typeof CarePlanActivityDetailSchema
+>

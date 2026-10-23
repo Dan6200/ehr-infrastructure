@@ -14,7 +14,6 @@ import { AdjustmentSchema } from './schemas/financial/adjustment'
 import { ObservationSchema } from './schemas/clinical/observation'
 import { PrescriptionSchema } from './schemas/clinical/prescription'
 import { CarePlanSchema } from './schemas/clinical/care-plan'
-import { CarePlanActivitySchema } from './schemas/clinical/care-plan-activity'
 import { GoalSchema } from './schemas/clinical/goal'
 import { ProcedureSchema } from './schemas/clinical/procedure'
 import { TaskSchema } from './schemas/clinical/task'
@@ -38,7 +37,6 @@ import {
   EncryptedObservationSchema,
   EncryptedPrescriptionSchema,
   EncryptedCarePlanSchema,
-  EncryptedCarePlanActivitySchema,
   EncryptedGoalSchema,
   EncryptedProcedureSchema,
   EncryptedTaskSchema,
@@ -98,10 +96,6 @@ import {
   decryptCarePlan,
   getCarePlansConverter,
 } from './converters/residents/care-plans'
-import {
-  decryptCarePlanActivity,
-  getCarePlanActivitiesConverter,
-} from './converters/residents/care-plan-activities'
 import { decryptGoal, getGoalsConverter } from './converters/residents/goals'
 import {
   decryptProcedure,
@@ -215,13 +209,6 @@ export const subCollectionMap = {
     decryptor: decryptCarePlan,
     schema: CarePlanSchema,
     encrypted_schema: EncryptedCarePlanSchema,
-    kekType: 'clinical',
-  },
-  care_plan_activities: {
-    converter: getCarePlanActivitiesConverter,
-    decryptor: decryptCarePlanActivity,
-    schema: CarePlanActivitySchema,
-    encrypted_schema: EncryptedCarePlanActivitySchema,
     kekType: 'clinical',
   },
   goals: {

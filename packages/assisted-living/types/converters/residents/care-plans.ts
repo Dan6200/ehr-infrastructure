@@ -33,8 +33,8 @@ export async function decryptCarePlan(
     }
   }
 
-  if (decryptedData.activities) {
-    decryptedData.activities = JSON.parse(decryptedData.activities)
+  if (decryptedData.activity) {
+    decryptedData.activity = JSON.parse(decryptedData.activity)
   }
 
   decryptedData.subject = toPatientReference(decryptedData.resident_id)

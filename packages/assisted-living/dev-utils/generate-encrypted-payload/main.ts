@@ -22,7 +22,6 @@ import {
   EncryptedDiagnosticHistorySchema,
   EncryptedEmarRecordSchema,
   EncryptedCarePlanSchema,
-  EncryptedCarePlanActivitySchema,
   EncryptedGoalSchema,
   EncryptedEpisodesOfCareSchema,
   EncryptedAccountSchema,
@@ -56,7 +55,6 @@ const SUBCOLLECTIONS = [
   { name: 'adjustments', kekPath: KEK_FINANCIAL_PATH },
   { name: 'prescription_administration', kekPath: KEK_CLINICAL_PATH },
   { name: 'care_plans', kekPath: KEK_CLINICAL_PATH },
-  { name: 'care_plan_activities', kekPath: KEK_CLINICAL_PATH },
   { name: 'episodes_of_care', kekPath: KEK_CLINICAL_PATH },
   { name: 'tasks', kekPath: KEK_CLINICAL_PATH },
   { name: 'procedures', kekPath: KEK_CLINICAL_PATH },
@@ -75,7 +73,6 @@ const SCHEMA_MAP: { [key: string]: any } = {
   diagnostic_history: EncryptedDiagnosticHistorySchema,
   prescription_administration: EncryptedEmarRecordSchema,
   care_plans: EncryptedCarePlanSchema,
-  care_plan_activities: EncryptedCarePlanActivitySchema,
   goals: EncryptedGoalSchema,
   episodes_of_care: EncryptedEpisodesOfCareSchema,
   accounts: EncryptedAccountSchema,
@@ -267,15 +264,6 @@ async function main() {
   })
 
   console.log('Step 3: Encrypting and streaming subcollections...')
-
-  // `care_plan_activities` only carries `careplan_id`; resolve its resident
-  // through the parent care plan so it can be grouped and linked consistently.
-  const carePlanResidentMap = new Map<string, string>()
-  for (const plan of subcollectionData['care_plans'] || []) {
-    const residentId = plan?.data?.resident_id
-    if (plan?.id && residentId) carePlanResidentMap.set(plan.id, residentId)
-  }
-
   const groupedSubcollectionData: { [key: string]: { [key: string]: any[] } } =
     {}
   for (const sc of SUBCOLLECTIONS) {
@@ -284,10 +272,7 @@ async function main() {
       const residentId =
         item.data.resident_id ??
         item.data.beneficiary_id ??
-        item.data.subject?.id ??
-        (item.data.careplan_id
-          ? carePlanResidentMap.get(item.data.careplan_id)
-          : undefined)
+        item.data.subject?.id
       if (!groupedSubcollectionData[residentId])
         groupedSubcollectionData[residentId] = {}
       if (!groupedSubcollectionData[residentId][sc.name])

@@ -50,7 +50,6 @@ SUBCOLLECTION_FILES = {
     "prescription_administration": "prescription_administration/data-plain.json",
     "episodes_of_care": "episodes_of_care/data-plain.json",
     "care_plans": "care_plans/data-plain.json",
-    "care_plan_activities": "care_plans_activities/data-plain.json",
     "addresses": "addresses/data-plain.json",
     "identifiers": "identifiers/data-plain.json",
     "tasks": "tasks/data-plain.json",
@@ -98,7 +97,6 @@ if __name__ == "__main__":
     all_prescription_administration = []
     all_episodes_of_care = []
     all_care_plans = []
-    all_care_plan_activities = []
     all_identifiers = []
     all_tasks = []
     all_procedures = []
@@ -185,7 +183,6 @@ if __name__ == "__main__":
             resident_id, STAFF_IDS, START_DATE, effective_end_date, all_goal_ids # Use general effective_end_date for clinical
         )
         all_care_plans.extend(care_plan_data["care_plans"])
-        all_care_plan_activities.extend(care_plan_data["care_plan_activities"])
         all_addresses.extend(generate_address_for_resident(resident_id))
         all_identifiers.extend(
             generate_identifiers_for_resident(
@@ -247,7 +244,6 @@ if __name__ == "__main__":
             "prescription_administration": all_prescription_administration,
             "episodes_of_care": all_episodes_of_care,
             "care_plans": all_care_plans,
-            "care_plan_activities": all_care_plan_activities,
             "identifiers": all_identifiers,
             "accounts": all_accounts,
             "charges": all_charges,

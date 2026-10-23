@@ -48,29 +48,28 @@ archive's **blind index** (the object path) and retention filter:
 2. **Retention anchor field** — the timestamp used to compute a document's age
    (whether it is older than the retention cutoff).
 
-| Subcollection          | Resident linkage                      | Retention anchor       |
-| ---------------------- | ------------------------------------- | ---------------------- |
-| `charges`              | `resident_id`                         | `occurrence_datetime`  |
-| `claims`               | `resident_id`                         | `authored_on`          |
-| `payments`             | `resident_id`                         | `occurrence_datetime`  |
-| `adjustments`          | `resident_id`                         | `authored_on`          |
-| `accounts`             | `resident_id` (from `subject.id`)     | `authored_on`          |
-| `coverages`            | `resident_id` (from `beneficiary_id`) | `authored_on`          |
-| `allergies`            | `resident_id`                         | `recorded_date`        |
-| `prescriptions`        | `resident_id`                         | `period.start`         |
-| `observations`         | `resident_id`                         | `effective_datetime`   |
-| `diagnostic_history`   | `resident_id`                         | `recorded_date`        |
-| `emar`                 | `resident_id`                         | `effective_datetime`   |
-| `care_plans`           | `resident_id`                         | `created_date`         |
-| `care_plan_activities` | `resident_id` (denormalized)          | Firestore `createTime` |
-| `goals`                | `resident_id`                         | Firestore `createTime` |
-| `procedures`           | `resident_id` (from `subject.id`)     | `recorded_at`          |
-| `tasks`                | `resident_id`                         | `authored_on`          |
-| `encounters`           | `resident_id` (from `subject.id`)     | `recorded_at`          |
-| `episodes_of_care`     | `resident_id`                         | `period.start`         |
-| `identifiers`          | `resident_id`                         | `issued`               |
-| `addresses`            | `resident_id`                         | Firestore `createTime` |
-| `emergency_contacts`   | `resident_id`                         | Firestore `createTime` |
+| Subcollection        | Resident linkage                      | Retention anchor       |
+| -------------------- | ------------------------------------- | ---------------------- |
+| `charges`            | `resident_id`                         | `occurrence_datetime`  |
+| `claims`             | `resident_id`                         | `authored_on`          |
+| `payments`           | `resident_id`                         | `occurrence_datetime`  |
+| `adjustments`        | `resident_id`                         | `authored_on`          |
+| `accounts`           | `resident_id` (from `subject.id`)     | `authored_on`          |
+| `coverages`          | `resident_id` (from `beneficiary_id`) | `authored_on`          |
+| `allergies`          | `resident_id`                         | `recorded_date`        |
+| `prescriptions`      | `resident_id`                         | `period.start`         |
+| `observations`       | `resident_id`                         | `effective_datetime`   |
+| `diagnostic_history` | `resident_id`                         | `recorded_date`        |
+| `emar`               | `resident_id`                         | `effective_datetime`   |
+| `care_plans`         | `resident_id`                         | `created_date`         |
+| `goals`              | `resident_id`                         | Firestore `createTime` |
+| `procedures`         | `resident_id` (from `subject.id`)     | `recorded_at`          |
+| `tasks`              | `resident_id`                         | `authored_on`          |
+| `encounters`         | `resident_id` (from `subject.id`)     | `recorded_at`          |
+| `episodes_of_care`   | `resident_id`                         | `period.start`         |
+| `identifiers`        | `resident_id`                         | `issued`               |
+| `addresses`          | `resident_id`                         | Firestore `createTime` |
+| `emergency_contacts` | `resident_id`                         | Firestore `createTime` |
 
 > **Note:** every retention anchor listed above is currently encrypted at rest
 > (or, for the four `createTime` entries, not a stored field at all). Both cases
@@ -145,7 +144,7 @@ data-minimization standpoint.
 
 `doc.createTime` / `doc.updateTime` are snapshot metadata, not stored fields, so
 they **cannot** be used in a `.where()` or `.orderBy()`. The date-less
-collections (`emergency_contacts`, `goals`, `care_plan_activities`, `addresses`)
+collections (`emergency_contacts`, `goals`, `addresses`)
 default to `createTime`, but that default is unworkable for queries and TTL.
 Those collections must instead have a real plaintext `retention_ts` field
 written at insert time (or backfilled from `createTime` during the migration).
@@ -154,17 +153,15 @@ written at insert time (or backfilled from `createTime` during the migration).
 
 Most collections use `resident_id`, but some use other shapes (see the mapping
 above). The GCS object path needs a single `resident_id` segment, so these must
-be normalized. `care_plan_activities` was the worst case (its resident link went
-through `care_plans`); it is now **resolved** — `resident_id` is denormalized
-onto each activity at write time, and the activity schema is FHIR-normalized
-(`CarePlan.activity.detail`). Remaining linkage work is tracked in #6.
+be normalized. `CarePlan.activity` is now stored nested inside the care plan
+document (FHIR-exact), so it archives/truncates with its parent and has no
+separate linkage. Remaining linkage work is tracked in #6.
 
-### 4. `care_plan_activities` decryptor contract mismatch — resolved
+### 4. `care_plan_activities` — nested (resolved)
 
-`decryptCarePlanActivity` now follows the generic `id` contract (it no longer
-reads `document_id`) and decrypts the FHIR `CarePlan.activity.detail` fields
-(`kind`, `code`, `status`, `do_not_perform`, `scheduled_timing`, `performer[]`,
-`description`).
+`CarePlan.activity` is stored nested on the care plan document as
+`activity: [{ id, detail }]` (FHIR-exact), so there is no separate subcollection
+and no separate archive entry; it is retained/truncated with its parent.
 
 ### 5. GCS object layout and listing (no SQL)
 

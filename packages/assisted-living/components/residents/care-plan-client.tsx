@@ -13,22 +13,16 @@ import {
   AccordionTrigger,
 } from '#root/components/ui/accordion'
 import { Badge } from '#root/components/ui/badge'
-import { CarePlanActivitySchema } from '#root/types/schemas/clinical/care-plan-activity'
 import { CarePlanSchema } from '#root/types/schemas/clinical/care-plan'
 import { GoalSchema } from '#root/types/schemas/clinical/goal'
 import { z } from 'zod'
 
 type CarePlanClientProps = {
   carePlans: z.infer<typeof CarePlanSchema>[]
-  carePlanActivities: z.infer<typeof CarePlanActivitySchema>[]
   goals: z.infer<typeof GoalSchema>[]
 }
 
-export function CarePlanClient({
-  carePlans,
-  carePlanActivities,
-  goals,
-}: CarePlanClientProps) {
+export function CarePlanClient({ carePlans, goals }: CarePlanClientProps) {
   // Map goals by ID for easy lookup
   const goalsMap = new Map(goals.map((goal) => [goal.id, goal]))
 
@@ -89,90 +83,82 @@ export function CarePlanClient({
               </div>
             )}
 
-            {carePlanActivities &&
-              carePlanActivities.filter((a) => a.careplan_id === carePlan.id)
-                .length > 0 && (
-                <div className="mt-4">
-                  <h3 className="text-md font-semibold mb-2">Activities:</h3>
-                  <Accordion type="multiple" className="w-full">
-                    {carePlanActivities
-                      .filter((a) => a.careplan_id === carePlan.id)
-                      .map((activity, index) => (
-                        <AccordionItem value={`activity-${index}`} key={index}>
-                          <AccordionTrigger>
-                            {activity.code.text}
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <div className="pl-4 text-sm text-muted-foreground space-y-1">
+            {carePlan.activity.length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-md font-semibold mb-2">Activities:</h3>
+                <Accordion type="multiple" className="w-full">
+                  {carePlan.activity.map((activity, index) => {
+                    const detail = activity.detail
+                    const key = activity.id ?? `activity-${index}`
+                    return (
+                      <AccordionItem value={key} key={key}>
+                        <AccordionTrigger>{detail.code.text}</AccordionTrigger>
+                        <AccordionContent>
+                          <div className="pl-4 text-sm text-muted-foreground space-y-1">
+                            <p>
+                              <strong>Status:</strong> {detail.status}
+                            </p>
+                            {detail.description && (
                               <p>
-                                <strong>Status:</strong> {activity.status}
+                                <strong>Instructions:</strong>{' '}
+                                {detail.description}
                               </p>
-                              {activity.description && (
+                            )}
+                            {detail.scheduled_timing && (
+                              <div className="mt-2 border-l-2 pl-2 border-muted">
                                 <p>
-                                  <strong>Instructions:</strong>{' '}
-                                  {activity.description}
+                                  <strong>Schedule:</strong>{' '}
+                                  {detail.scheduled_timing.code?.text ||
+                                    'Specific Time'}
                                 </p>
-                              )}
-                              {activity.scheduled_timing && (
-                                <div className="mt-2 border-l-2 pl-2 border-muted">
-                                  <p>
-                                    <strong>Schedule:</strong>{' '}
-                                    {activity.scheduled_timing.code?.text ||
-                                      'Specific Time'}
-                                  </p>
-                                  {activity.scheduled_timing.repeat && (
-                                    <div className="text-xs text-muted-foreground ml-2 mt-1">
-                                      <p>
-                                        Every{' '}
-                                        {
-                                          activity.scheduled_timing.repeat
-                                            .frequency
-                                        }{' '}
-                                        time(s) per{' '}
-                                        {
-                                          activity.scheduled_timing.repeat
-                                            .period
-                                        }{' '}
-                                        {
-                                          activity.scheduled_timing.repeat
-                                            .period_unit
-                                        }
-                                      </p>
-                                      {activity.scheduled_timing.repeat
-                                        .time_of_day &&
-                                        activity.scheduled_timing.repeat
-                                          .time_of_day.length > 0 && (
-                                          <p>
-                                            At:{' '}
-                                            {activity.scheduled_timing.repeat.time_of_day.join(
-                                              ', ',
-                                            )}
-                                          </p>
-                                        )}
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                              {activity.performer.length > 0 && (
-                                <p>
-                                  <strong>Performer:</strong>{' '}
-                                  {activity.performer
-                                    .map((p) => p.display || p.reference)
-                                    .join(', ')}
-                                </p>
-                              )}
-                              {activity.do_not_perform && (
-                                <p>
-                                  <strong>Do not perform:</strong> Yes
-                                </p>
-                              )}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
-                  </Accordion>
-                </div>
-              )}
+                                {detail.scheduled_timing.repeat && (
+                                  <div className="text-xs text-muted-foreground ml-2 mt-1">
+                                    <p>
+                                      Every{' '}
+                                      {detail.scheduled_timing.repeat.frequency}{' '}
+                                      time(s) per{' '}
+                                      {detail.scheduled_timing.repeat.period}{' '}
+                                      {
+                                        detail.scheduled_timing.repeat
+                                          .period_unit
+                                      }
+                                    </p>
+                                    {detail.scheduled_timing.repeat
+                                      .time_of_day &&
+                                      detail.scheduled_timing.repeat.time_of_day
+                                        .length > 0 && (
+                                        <p>
+                                          At:{' '}
+                                          {detail.scheduled_timing.repeat.time_of_day.join(
+                                            ', ',
+                                          )}
+                                        </p>
+                                      )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            {detail.performer.length > 0 && (
+                              <p>
+                                <strong>Performer:</strong>{' '}
+                                {detail.performer
+                                  .map((p) => p.display || p.reference)
+                                  .join(', ')}
+                              </p>
+                            )}
+                            {detail.do_not_perform && (
+                              <p>
+                                <strong>Do not perform:</strong> Yes
+                              </p>
+                            )}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    )
+                  })}
+                </Accordion>
+              </div>
+            )}
           </CardContent>
         </Card>
       ))}
