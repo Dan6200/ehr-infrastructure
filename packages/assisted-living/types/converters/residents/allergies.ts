@@ -9,6 +9,13 @@ import { EncryptedAllergySchema } from '#root/types/encrypted-schemas'
 import { AllergySchema } from '#root/types/schemas/clinical/allergy'
 import z from 'zod'
 import { toPatientReference } from '#root/types/schemas/fhir/reference'
+import { getCryptoProvider } from '#root/lib/crypto'
+import {
+  StoredAllergySchema,
+  type StoredAllergy,
+  isPlaintextAllergy,
+  plaintextAllergyToDomain,
+} from './allergy-codec'
 
 export async function decryptAllergy(
   data: z.infer<typeof EncryptedAllergySchema>,
@@ -47,15 +54,40 @@ export async function decryptAllergy(
   return AllergySchema.parse(decryptedData)
 }
 
+/**
+ * Scheme-aware read: dispatch on the document's own `crypto_scheme`, verify it
+ * against the active mode, and fail closed on a mismatch.
+ */
+export async function decodeAllergy(
+  data: StoredAllergy & { id: string },
+  kekPath: string,
+): Promise<z.infer<typeof AllergySchema>> {
+  const provider = getCryptoProvider()
+
+  if (isPlaintextAllergy(data)) {
+    if (provider.scheme !== 'none:v1') {
+      throw new Error(
+        'Crypto scheme mismatch: plaintext document read in an envelope-mode tenant.',
+      )
+    }
+    return plaintextAllergyToDomain(data)
+  }
+
+  if (provider.scheme !== 'kms-envelope:v1') {
+    throw new Error(
+      'Crypto scheme mismatch: envelope document read in a plaintext-mode tenant.',
+    )
+  }
+  return decryptAllergy(data, kekPath)
+}
+
 export const getAllergiesConverter = async (): Promise<
-  FirestoreDataConverter<z.infer<typeof EncryptedAllergySchema>>
+  FirestoreDataConverter<StoredAllergy>
 > => ({
-  toFirestore(allergy: z.infer<typeof EncryptedAllergySchema>): DocumentData {
-    return EncryptedAllergySchema.parse(allergy)
+  toFirestore(allergy: StoredAllergy): DocumentData {
+    return StoredAllergySchema.parse(allergy)
   },
-  fromFirestore(
-    snapshot: QueryDocumentSnapshot,
-  ): z.infer<typeof EncryptedAllergySchema> {
-    return EncryptedAllergySchema.parse(snapshot.data())
+  fromFirestore(snapshot: QueryDocumentSnapshot): StoredAllergy {
+    return StoredAllergySchema.parse(snapshot.data())
   },
 })

@@ -10,6 +10,7 @@ export const EncryptedFieldSchema = z.object({
 // --- Encrypted Schemas (for Firestore Storage) ---
 
 export const EncryptedAllergySchema = z.object({
+  crypto_scheme: z.literal('kms-envelope:v1').optional(), // missing = legacy envelope
   resident_id: z.string(),
   recorder_id: z.string(),
   encrypted_dek: z.string(),

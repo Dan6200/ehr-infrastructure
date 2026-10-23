@@ -1,4 +1,5 @@
 import { kmsEnvelopeProvider } from './kms-envelope-provider'
+import { plaintextProvider } from './plaintext-provider'
 import type { CryptoProvider } from './types'
 
 export type {
@@ -13,10 +14,8 @@ let activeProvider: CryptoProvider | undefined
 /**
  * Resolves the active crypto provider from `CRYPTO_MODE`.
  *
- * Fails closed: an unknown or not-yet-implemented mode throws rather than
- * silently falling back to another scheme. `plaintext` mode is intentionally not
- * wired yet — it requires the distinct storage codec described in #7, so we must
- * not pretend it is supported.
+ * Fails closed: an unknown mode throws rather than silently falling back to
+ * another scheme.
  */
 export function getCryptoProvider(): CryptoProvider {
   if (activeProvider) return activeProvider
@@ -26,9 +25,12 @@ export function getCryptoProvider(): CryptoProvider {
     case 'kms-envelope':
       activeProvider = kmsEnvelopeProvider
       break
+    case 'plaintext':
+      activeProvider = plaintextProvider
+      break
     default:
       throw new Error(
-        `Unsupported CRYPTO_MODE "${mode}". Expected "kms-envelope".`,
+        `Unsupported CRYPTO_MODE "${mode}". Expected "kms-envelope" or "plaintext".`,
       )
   }
 

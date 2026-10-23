@@ -14,7 +14,8 @@
     "lint": "next lint",
     "lint-staged": "lint-staged",
     "prepare": "husky",
-    "test": "FIRESTORE_EMULATOR_HOST=\"localhost:1027\" jest",
+    "test": "jest",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "build-service-worker": "node build-sw.cjs"
   },
   "lint-staged": {

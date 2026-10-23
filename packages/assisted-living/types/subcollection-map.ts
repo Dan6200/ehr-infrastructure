@@ -24,7 +24,6 @@ import { AddressSchema } from './schemas/administrative/address'
 
 // Encrypted Schema Imports
 import {
-  EncryptedAllergySchema,
   EncryptedDiagnosticHistorySchema,
   EncryptedEmarRecordSchema,
   EncryptedEmergencyContactSchema,
@@ -48,9 +47,10 @@ import {
 
 // Converter Imports
 import {
-  decryptAllergy,
+  decodeAllergy,
   getAllergiesConverter,
 } from './converters/residents/allergies'
+import { StoredAllergySchema } from './converters/residents/allergy-codec'
 import {
   decryptDiagnosticHistory,
   getDiagnosticHistoryConverter,
@@ -171,9 +171,9 @@ export const subCollectionMap = {
   },
   allergies: {
     converter: getAllergiesConverter,
-    decryptor: decryptAllergy,
+    decryptor: decodeAllergy,
     schema: AllergySchema,
-    encrypted_schema: EncryptedAllergySchema,
+    encrypted_schema: StoredAllergySchema,
     kekType: 'clinical',
   },
   prescriptions: {

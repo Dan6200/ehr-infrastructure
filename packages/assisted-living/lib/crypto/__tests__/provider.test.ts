@@ -26,8 +26,13 @@ describe('crypto provider factory', () => {
     expect(getCryptoProvider().scheme).toBe('kms-envelope:v1')
   })
 
-  it('fails closed on an unsupported CRYPTO_MODE', () => {
+  it('supports plaintext mode', () => {
     process.env.CRYPTO_MODE = 'plaintext'
+    expect(getCryptoProvider().scheme).toBe('none:v1')
+  })
+
+  it('fails closed on an unknown CRYPTO_MODE', () => {
+    process.env.CRYPTO_MODE = 'bogus'
     expect(() => getCryptoProvider()).toThrow(/Unsupported CRYPTO_MODE/)
   })
 

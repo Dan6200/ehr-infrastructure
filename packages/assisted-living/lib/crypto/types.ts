@@ -6,7 +6,7 @@
  * See `notes/decoupling_and_reuse.md` and issue #7.
  */
 
-export type CryptoScheme = 'kms-envelope:v1'
+export type CryptoScheme = 'kms-envelope:v1' | 'none:v1'
 
 export interface DataKey {
   plaintextDek: Buffer
