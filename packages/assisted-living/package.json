@@ -5,9 +5,9 @@
   "type": "module",
   "module": "nodenext",
   "scripts": {
-    "dev": "NODE_OPTIONS=--max-old-space-size=4096 next dev --turbopack",
+    "dev": "NODE_OPTIONS=--max-old-space-size=2048 next dev --webpack",
     "dev:https": "node server.cjs",
-    "build": "next build",
+    "build": "next build --webpack",
     "build:prod": "env-cmd -f .env.production next build",
     "start": "next start",
     "start:prod": "env-cmd -f .env.production next start",
