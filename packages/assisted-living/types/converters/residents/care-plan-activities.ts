@@ -10,47 +10,45 @@ import { CarePlanActivitySchema } from '#root/types/schemas/clinical/care-plan-a
 import z from 'zod'
 
 export async function decryptCarePlanActivity(
-  data: z.infer<typeof EncryptedCarePlanActivitySchema> & {
-    document_id: string
-  },
+  data: z.infer<typeof EncryptedCarePlanActivitySchema> & { id: string },
   kekPath: string,
-): Promise<z.infer<typeof CarePlanActivitySchema> & { document_id: string }> {
-  const { document_id } = data
+): Promise<z.infer<typeof CarePlanActivitySchema>> {
   const dek = await decryptDataKey(
     Buffer.from(data.encrypted_dek, 'base64'),
     kekPath,
   )
 
-  const decryptedData: any = { id: document_id, careplan_id: data.careplan_id }
+  const decryptedData: any = {
+    id: data.id,
+    resident_id: data.resident_id,
+    careplan_id: data.careplan_id,
+  }
 
+  if (data.encrypted_kind)
+    decryptedData.kind = decryptData(data.encrypted_kind, dek)
   if (data.encrypted_code)
     decryptedData.code = JSON.parse(decryptData(data.encrypted_code, dek))
   if (data.encrypted_status)
     decryptedData.status = decryptData(data.encrypted_status, dek)
-  if (data.encrypted_timing)
-    decryptedData.timing = JSON.parse(decryptData(data.encrypted_timing, dek))
-  if (data.encrypted_staff_instructions)
-    decryptedData.staff_instructions = decryptData(
-      data.encrypted_staff_instructions,
-      dek,
+  if (data.encrypted_status_reason)
+    decryptedData.status_reason = JSON.parse(
+      decryptData(data.encrypted_status_reason, dek),
     )
+  if (data.encrypted_do_not_perform)
+    decryptedData.do_not_perform =
+      decryptData(data.encrypted_do_not_perform, dek) === 'true'
+  if (data.encrypted_scheduled)
+    decryptedData.scheduled = JSON.parse(
+      decryptData(data.encrypted_scheduled, dek),
+    )
+  if (data.encrypted_performer)
+    decryptedData.performer = JSON.parse(
+      decryptData(data.encrypted_performer, dek),
+    )
+  if (data.encrypted_description)
+    decryptedData.description = decryptData(data.encrypted_description, dek)
 
-  if (data.performer) {
-    decryptedData.performer = { id: data.performer.id }
-    if (data.performer.encrypted_name) {
-      decryptedData.performer.name = decryptData(
-        data.performer.encrypted_name,
-        dek,
-      )
-    }
-    if (data.performer.encrypted_period) {
-      decryptedData.performer.period = JSON.parse(
-        decryptData(data.performer.encrypted_period, dek),
-      )
-    }
-  }
-
-  return { document_id, ...CarePlanActivitySchema.parse(decryptedData) }
+  return CarePlanActivitySchema.parse(decryptedData)
 }
 
 export const getCarePlanActivitiesConverter = async (): Promise<

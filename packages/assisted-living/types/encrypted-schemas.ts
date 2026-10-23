@@ -84,17 +84,17 @@ export const EncryptedCarePlanSchema = z.object({
 })
 
 export const EncryptedCarePlanActivitySchema = z.object({
-  careplan_id: z.string(),
+  resident_id: z.string().optional(), // Plaintext linkage (denormalized)
+  careplan_id: z.string(), // Parent CarePlan (plaintext back-reference)
   encrypted_dek: z.string(),
+  encrypted_kind: EncryptedFieldSchema.optional(),
   encrypted_code: EncryptedFieldSchema,
   encrypted_status: EncryptedFieldSchema,
-  encrypted_timing: EncryptedFieldSchema,
-  performer: z.object({
-    id: z.string(), // Plaintext for querying
-    encrypted_name: EncryptedFieldSchema.optional(),
-    encrypted_period: EncryptedFieldSchema,
-  }),
-  encrypted_staff_instructions: EncryptedFieldSchema,
+  encrypted_status_reason: EncryptedFieldSchema.optional(),
+  encrypted_do_not_perform: EncryptedFieldSchema.optional(),
+  encrypted_scheduled: EncryptedFieldSchema.optional(),
+  encrypted_performer: EncryptedFieldSchema.optional(),
+  encrypted_description: EncryptedFieldSchema.optional(),
 })
 
 export const EncryptedGoalSchema = z.object({

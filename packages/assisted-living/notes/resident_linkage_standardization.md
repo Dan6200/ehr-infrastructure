@@ -4,12 +4,12 @@
 
 Resident linkage across subcollections is inconsistent:
 
-| Subcollection                          | Linkage field today |
-| -------------------------------------- | ------------------- |
-| most collections                       | `resident_id`       |
-| `accounts`, `procedures`, `encounters` | `subject.id`        |
-| `coverages`                            | `beneficiary_id`    |
-| `care_plan_activities`                 | `careplan_id` only  |
+| Subcollection                          | Linkage field today                                  |
+| -------------------------------------- | ---------------------------------------------------- |
+| most collections                       | `resident_id`                                        |
+| `accounts`, `procedures`, `encounters` | `subject.id`                                         |
+| `coverages`                            | `beneficiary_id`                                     |
+| `care_plan_activities`                 | `resident_id` (denormalized; was `careplan_id` only) |
 
 This blocks the data-retention / encrypted GCS archive offload (see
 [#3](https://github.com/Dan6200/ehr-infrastructure/issues/3),
@@ -52,24 +52,24 @@ separate `id` string — one source of truth.
 
 ### 2. FHIR-named patient link per resource
 
-| Subcollection (resource)            | FHIR patient link        | Today            |
-| ----------------------------------- | ------------------------ | ---------------- |
-| `observations` (Observation)        | `subject`                | `resident_id`    |
-| `allergies` (AllergyIntolerance)    | `patient`                | `resident_id`    |
-| `diagnostic_history` (Condition)    | `subject`                | `resident_id`    |
-| `prescriptions` (MedicationRequest) | `subject`                | `resident_id`    |
-| `emar` (MedicationAdministration)   | `subject`                | `resident_id`    |
-| `procedures` (Procedure)            | `subject`                | `subject.id`     |
-| `encounters` (Encounter)            | `subject`                | `subject.id`     |
-| `episodes_of_care` (EpisodeOfCare)  | `patient`                | `resident_id`    |
-| `care_plans` (CarePlan)             | `subject`                | `resident_id`    |
-| `goals` (Goal)                      | `subject`                | `resident_id`    |
-| `tasks` (Task)                      | `for`                    | `resident_id`    |
-| `accounts` (Account)                | `subject`                | `subject.id`     |
-| `charges` (ChargeItem)              | `subject`                | `resident_id`    |
-| `claims` (Claim)                    | `patient`                | `resident_id`    |
-| `coverages` (Coverage)              | `beneficiary`            | `beneficiary_id` |
-| `care_plan_activities`              | none in FHIR — see below | `careplan_id`    |
+| Subcollection (resource)            | FHIR patient link                    | Today                        |
+| ----------------------------------- | ------------------------------------ | ---------------------------- |
+| `observations` (Observation)        | `subject`                            | `resident_id`                |
+| `allergies` (AllergyIntolerance)    | `patient`                            | `resident_id`                |
+| `diagnostic_history` (Condition)    | `subject`                            | `resident_id`                |
+| `prescriptions` (MedicationRequest) | `subject`                            | `resident_id`                |
+| `emar` (MedicationAdministration)   | `subject`                            | `resident_id`                |
+| `procedures` (Procedure)            | `subject`                            | `subject.id`                 |
+| `encounters` (Encounter)            | `subject`                            | `subject.id`                 |
+| `episodes_of_care` (EpisodeOfCare)  | `patient`                            | `resident_id`                |
+| `care_plans` (CarePlan)             | `subject`                            | `resident_id`                |
+| `goals` (Goal)                      | `subject`                            | `resident_id`                |
+| `tasks` (Task)                      | `for`                                | `resident_id`                |
+| `accounts` (Account)                | `subject`                            | `subject.id`                 |
+| `charges` (ChargeItem)              | `subject`                            | `resident_id`                |
+| `claims` (Claim)                    | `patient`                            | `resident_id`                |
+| `coverages` (Coverage)              | `beneficiary`                        | `beneficiary_id`             |
+| `care_plan_activities`              | `CarePlan.activity` (nested in FHIR) | `resident_id` (denormalized) |
 
 ### 3. Denormalized storage linkage
 
@@ -91,13 +91,14 @@ Storage (Firestore):  resident_id (plaintext)
 Archive (GCS):        providers/{providerId}/residents/{resident_id}/…/{docId}.json
 ```
 
-### 4. `care_plan_activities` (no direct resident link)
+### 4. `care_plan_activities` (no direct resident link) — done
 
 FHIR models `CarePlan.activity` as nested inside `CarePlan`, so it has no
-patient link of its own. Because it is a subcollection here, **denormalize
-`resident_id` onto it at write time** (copy from the parent `care_plans`
-document) and keep `careplan_id` for the back-reference. This makes every
-subcollection carry the same linkage field.
+patient link of its own. Because it is a subcollection here, `resident_id` is now
+**denormalized onto it at write time** (copied from the parent `care_plans`
+document), with `careplan_id` kept as the back-reference. The activity schema was
+also normalized to FHIR `CarePlan.activity.detail` (`kind`, `code`, `status`,
+`do_not_perform`, `scheduled`, `performer[]`, `description`).
 
 ## Migration path
 
@@ -108,6 +109,7 @@ subcollection carry the same linkage field.
    preserving the plaintext `resident_id`.
 4. Backfill existing documents: set `resident_id` from `subject.id` /
    `beneficiary_id` / a `careplan_id → care_plans` join where missing.
+   (`care_plan_activities` denormalization is done.)
 5. Use `resident_id` (+ `retention_ts`) as the GCS archive object-path / blind
    index segments.
 

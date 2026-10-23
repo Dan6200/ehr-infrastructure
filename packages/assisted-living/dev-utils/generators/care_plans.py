@@ -36,30 +36,51 @@ def generate_care_plans_for_resident(
     }
     care_plans.append(care_plan)
 
-    # 3. Generate Activities linked to the Care Plan
+    # 3. Generate Activities linked to the Care Plan (FHIR CarePlan.activity.detail)
     selected_activities = random.sample(CARE_PLAN_ACTIVITIES, random.randint(3, 5))
     for act_template in selected_activities:
+        coding = act_template["coding"]
+
+        code_coding = []
+        if coding.get("code"):
+            code_coding.append(
+                {
+                    "system": coding["system"],
+                    "code": coding["code"],
+                    "display": coding["display"],
+                }
+            )
+
+        performer = []
+        if staff_ids:
+            performer.append(
+                {
+                    "reference": f"Practitioner/{random.choice(staff_ids)}",
+                    "type": "Practitioner",
+                }
+            )
+
         activity = {
             "id": generate_uuid(),
             "data": {
+                "resident_id": resident_id,
                 "careplan_id": care_plan_id,
+                "kind": "ServiceRequest",
                 "code": {
-                    "coding": {
-                        "system": "http://snomed.info/sct",
-                        "code": act_template["coding"]["code"],
-                        "display": act_template["coding"]["display"],
-                    },
-                    "text": act_template["coding"]["display"],
+                    "coding": code_coding,
+                    "text": coding["display"],
                 },
                 "status": "scheduled",
-                "timing": act_template["timing"],
-                "staff_instructions": f"Ensure resident comfort during {act_template['coding']['display'].split('(')[0].strip().lower()}.",
+                "do_not_perform": False,
+                "scheduled": act_template["timing"],
+                "performer": performer,
+                "description": f"Ensure resident comfort during {coding['display'].split('(')[0].strip().lower()}.",
             },
         }
         care_plan_activities.append(activity)
 
-    # Add activities to the care plan document itself
-    care_plans[0]["data"]["activities"] = care_plan_activities
+    # Activities are stored as a subcollection (not nested in the care plan) to
+    # keep documents small; the `careplan_id` back-reference is on each activity.
 
     return {
         "care_plans": care_plans,

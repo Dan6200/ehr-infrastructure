@@ -107,31 +107,34 @@ export function CarePlanClient({
                               <p>
                                 <strong>Status:</strong> {activity.status}
                               </p>
-                              <p>
-                                <strong>Description:</strong>{' '}
-                                {activity.code.text}
-                              </p>
-                              {activity.timing && (
+                              {activity.description && (
+                                <p>
+                                  <strong>Instructions:</strong>{' '}
+                                  {activity.description}
+                                </p>
+                              )}
+                              {activity.scheduled && (
                                 <div className="mt-2 border-l-2 pl-2 border-muted">
                                   <p>
                                     <strong>Schedule:</strong>{' '}
-                                    {activity.timing.code?.text ||
+                                    {activity.scheduled.code?.text ||
                                       'Specific Time'}
                                   </p>
-                                  {activity.timing.repeat && (
+                                  {activity.scheduled.repeat && (
                                     <div className="text-xs text-muted-foreground ml-2 mt-1">
                                       <p>
-                                        Every {activity.timing.repeat.frequency}{' '}
+                                        Every{' '}
+                                        {activity.scheduled.repeat.frequency}{' '}
                                         time(s) per{' '}
-                                        {activity.timing.repeat.period}{' '}
-                                        {activity.timing.repeat.period_unit}
+                                        {activity.scheduled.repeat.period}{' '}
+                                        {activity.scheduled.repeat.period_unit}
                                       </p>
-                                      {activity.timing.repeat.time_of_day &&
-                                        activity.timing.repeat.time_of_day
+                                      {activity.scheduled.repeat.time_of_day &&
+                                        activity.scheduled.repeat.time_of_day
                                           .length > 0 && (
                                           <p>
                                             At:{' '}
-                                            {activity.timing.repeat.time_of_day.join(
+                                            {activity.scheduled.repeat.time_of_day.join(
                                               ', ',
                                             )}
                                           </p>
@@ -140,10 +143,17 @@ export function CarePlanClient({
                                   )}
                                 </div>
                               )}
-                              {activity.performer && (
+                              {activity.performer.length > 0 && (
                                 <p>
                                   <strong>Performer:</strong>{' '}
-                                  {activity.performer.name}
+                                  {activity.performer
+                                    .map((p) => p.display || p.reference)
+                                    .join(', ')}
+                                </p>
+                              )}
+                              {activity.do_not_perform && (
+                                <p>
+                                  <strong>Do not perform:</strong> Yes
                                 </p>
                               )}
                             </div>
