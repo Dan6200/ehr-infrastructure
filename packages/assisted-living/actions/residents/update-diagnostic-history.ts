@@ -16,7 +16,7 @@ export async function updateDiagnosticHistory(
   residentId: string,
   deletedRecordIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
-  const { provider_id } = await verifySession()
+  const { provider_id, uid } = await verifySession()
 
   try {
     const adminDb = await getAdminDb()
@@ -45,7 +45,11 @@ export async function updateDiagnosticHistory(
       const { id, ...recordData } = record
       const docRef = id ? recordsRef.doc(id) : recordsRef.doc()
 
-      const encryptedRecord: any = {}
+      const encryptedRecord: any = {
+        resident_id: residentId,
+        recorder_id: uid,
+        encrypted_dek: encryptedDek,
+      }
 
       if (recordData.clinical_status)
         encryptedRecord.encrypted_clinical_status = encryptData(

@@ -17,7 +17,7 @@ export async function recordAdministration(
   residentId: string,
   administration: EmarRecord,
 ): Promise<{ success: boolean; message: string }> {
-  const { provider_id } = await verifySession()
+  const { provider_id, uid } = await verifySession()
 
   try {
     const adminDb = await getAdminDb()
@@ -42,6 +42,9 @@ export async function recordAdministration(
 
     // 2. Encrypt the fields of the new administration record
     const encryptedAdminRecord: any = {
+      resident_id: residentId,
+      recorder_id: uid,
+      prescription_id: administration.prescription_id,
       encrypted_dek: encryptedDek, // Use the shared DEK from the parent
     }
 

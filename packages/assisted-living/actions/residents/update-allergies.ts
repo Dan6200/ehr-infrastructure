@@ -14,7 +14,7 @@ export async function updateAllergies(
   residentId: string,
   deletedAllergyIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
-  const { provider_id } = await verifySession()
+  const { provider_id, uid } = await verifySession()
 
   try {
     const adminDb = await getAdminDb()
@@ -47,7 +47,11 @@ export async function updateAllergies(
       const { id, ...allergyData } = allergy
       const docRef = id ? allergiesRef.doc(id) : allergiesRef.doc()
 
-      const encryptedAllergy: any = {}
+      const encryptedAllergy: any = {
+        resident_id: residentId,
+        recorder_id: uid,
+        encrypted_dek: encryptedDek,
+      }
 
       if (allergyData.clinical_status)
         encryptedAllergy.encrypted_clinical_status = encryptData(

@@ -16,7 +16,7 @@ export async function updateObservations(
   residentId: string,
   deletedObservationIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
-  const { provider_id } = await verifySession()
+  const { provider_id, uid } = await verifySession()
 
   try {
     const adminDb = await getAdminDb()
@@ -45,7 +45,11 @@ export async function updateObservations(
       const { id, ...observationData } = observation
       const docRef = id ? observationsRef.doc(id) : observationsRef.doc()
 
-      const encryptedObservation: any = {}
+      const encryptedObservation: any = {
+        resident_id: residentId,
+        recorder_id: uid,
+        encrypted_dek: encryptedDek,
+      }
 
       if (observationData.status)
         encryptedObservation.encrypted_status = encryptData(

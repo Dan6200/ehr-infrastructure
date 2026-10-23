@@ -16,7 +16,7 @@ export async function updatePrescriptions(
   residentId: string,
   deletedPrescriptionIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
-  const { provider_id } = await verifySession()
+  const { provider_id, uid } = await verifySession()
 
   try {
     const adminDb = await getAdminDb()
@@ -45,7 +45,11 @@ export async function updatePrescriptions(
       const { id, ...prescriptionData } = prescription
       const docRef = id ? prescriptionsRef.doc(id) : prescriptionsRef.doc()
 
-      const encryptedPrescription: any = {}
+      const encryptedPrescription: any = {
+        resident_id: residentId,
+        recorder_id: uid,
+        encrypted_dek: encryptedDek,
+      }
 
       if (prescriptionData.period)
         encryptedPrescription.encrypted_period = encryptData(

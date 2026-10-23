@@ -40,11 +40,11 @@ export const EncryptedObservationSchema = z.object({
   encrypted_status: EncryptedFieldSchema,
   encrypted_category: EncryptedFieldSchema,
   encrypted_code: EncryptedFieldSchema,
-  encrypted_value_quantity: EncryptedFieldSchema,
+  encrypted_value_quantity: EncryptedFieldSchema.nullable().optional(),
   encrypted_effective_datetime: EncryptedFieldSchema,
-  encrypted_body_site: EncryptedFieldSchema,
-  encrypted_method: EncryptedFieldSchema,
-  encrypted_device: EncryptedFieldSchema,
+  encrypted_body_site: EncryptedFieldSchema.nullable().optional(),
+  encrypted_method: EncryptedFieldSchema.nullable().optional(),
+  encrypted_device: EncryptedFieldSchema.nullable().optional(),
 })
 
 export const EncryptedDiagnosticHistorySchema = z.object({
@@ -54,7 +54,7 @@ export const EncryptedDiagnosticHistorySchema = z.object({
   encrypted_clinical_status: EncryptedFieldSchema,
   encrypted_recorded_date: EncryptedFieldSchema,
   encrypted_onset_datetime: EncryptedFieldSchema,
-  encrypted_abatement_datetime: EncryptedFieldSchema.nullable(),
+  encrypted_abatement_datetime: EncryptedFieldSchema.nullable().optional(),
   encrypted_title: EncryptedFieldSchema,
   encrypted_code: EncryptedFieldSchema,
 })
