@@ -8,6 +8,7 @@ import {
 import { EncryptedChargeSchema } from '#root/types/encrypted-schemas'
 import { ChargeSchema } from '#root/types/schemas/financial/charge'
 import z from 'zod'
+import { chargeCodec } from './codecs'
 import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptCharge(
@@ -49,14 +50,14 @@ export async function decryptCharge(
 }
 
 export const getChargesConverter = async (): Promise<
-  FirestoreDataConverter<z.infer<typeof EncryptedChargeSchema>>
+  FirestoreDataConverter<z.infer<typeof chargeCodec.storedSchema>>
 > => ({
-  toFirestore(charge: z.infer<typeof EncryptedChargeSchema>): DocumentData {
-    return EncryptedChargeSchema.parse(charge)
+  toFirestore(charge: z.infer<typeof chargeCodec.storedSchema>): DocumentData {
+    return chargeCodec.storedSchema.parse(charge)
   },
   fromFirestore(
     snapshot: QueryDocumentSnapshot,
-  ): z.infer<typeof EncryptedChargeSchema> {
-    return EncryptedChargeSchema.parse(snapshot.data())
+  ): z.infer<typeof chargeCodec.storedSchema> {
+    return chargeCodec.storedSchema.parse(snapshot.data())
   },
 })

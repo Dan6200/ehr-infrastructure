@@ -2,6 +2,8 @@
 import { getAdminDb } from '#root/firebase/admin'
 import { DiagnosticHistory } from '#root/types/schemas/clinical/diagnostic-history'
 import { EncryptedDiagnosticHistorySchema } from '#root/types/encrypted-schemas'
+import { getCryptoProvider } from '#root/lib/crypto'
+import { diagnosticHistoryCodec } from '#root/types/converters/residents/codecs'
 import { verifySession } from '#root/auth/server/definitions'
 import {
   decryptDataKey,
@@ -17,6 +19,7 @@ export async function updateDiagnosticHistory(
   deletedRecordIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
   const { provider_id, uid } = await verifySession()
+  const isPlaintext = getCryptoProvider().scheme === 'none:v1'
 
   try {
     const adminDb = await getAdminDb()
@@ -45,7 +48,17 @@ export async function updateDiagnosticHistory(
       const { id, ...recordData } = record
       const docRef = id ? recordsRef.doc(id) : recordsRef.doc()
 
+      if (isPlaintext) {
+        batch.set(
+          docRef,
+          diagnosticHistoryCodec.domainToPlaintext(recordData, residentId, uid),
+          { merge: true },
+        )
+        return
+      }
+
       const encryptedRecord: any = {
+        crypto_scheme: 'kms-envelope:v1',
         resident_id: residentId,
         recorder_id: uid,
         encrypted_dek: encryptedDek,

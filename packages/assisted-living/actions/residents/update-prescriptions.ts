@@ -2,6 +2,8 @@
 import { getAdminDb } from '#root/firebase/admin'
 import { Prescription } from '#root/types/schemas/clinical/prescription'
 import { EncryptedPrescriptionSchema } from '#root/types/encrypted-schemas'
+import { getCryptoProvider } from '#root/lib/crypto'
+import { prescriptionCodec } from '#root/types/converters/residents/codecs'
 import { verifySession } from '#root/auth/server/definitions'
 import {
   decryptDataKey,
@@ -17,6 +19,7 @@ export async function updatePrescriptions(
   deletedPrescriptionIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
   const { provider_id, uid } = await verifySession()
+  const isPlaintext = getCryptoProvider().scheme === 'none:v1'
 
   try {
     const adminDb = await getAdminDb()
@@ -45,7 +48,21 @@ export async function updatePrescriptions(
       const { id, ...prescriptionData } = prescription
       const docRef = id ? prescriptionsRef.doc(id) : prescriptionsRef.doc()
 
+      if (isPlaintext) {
+        batch.set(
+          docRef,
+          prescriptionCodec.domainToPlaintext(
+            prescriptionData,
+            residentId,
+            uid,
+          ),
+          { merge: true },
+        )
+        return
+      }
+
       const encryptedPrescription: any = {
+        crypto_scheme: 'kms-envelope:v1',
         resident_id: residentId,
         recorder_id: uid,
         encrypted_dek: encryptedDek,

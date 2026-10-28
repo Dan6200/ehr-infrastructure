@@ -24,17 +24,11 @@ import { AddressSchema } from './schemas/administrative/address'
 
 // Encrypted Schema Imports
 import {
-  EncryptedDiagnosticHistorySchema,
   EncryptedEmarRecordSchema,
   EncryptedEmergencyContactSchema,
   EncryptedAccountSchema,
-  EncryptedChargeSchema,
   EncryptedClaimSchema,
   EncryptedCoverageSchema,
-  EncryptedPaymentSchema,
-  EncryptedAdjustmentSchema,
-  EncryptedObservationSchema,
-  EncryptedPrescriptionSchema,
   EncryptedCarePlanSchema,
   EncryptedGoalSchema,
   EncryptedProcedureSchema,
@@ -47,10 +41,21 @@ import {
 
 // Converter Imports
 import {
-  decodeAllergy,
+  decryptAllergy,
   getAllergiesConverter,
 } from './converters/residents/allergies'
-import { StoredAllergySchema } from './converters/residents/allergy-codec'
+import {
+  StoredAllergySchema,
+  plaintextAllergyToDomain,
+} from './converters/residents/allergy-codec'
+import {
+  observationCodec,
+  diagnosticHistoryCodec,
+  prescriptionCodec,
+  chargeCodec,
+  paymentCodec,
+  adjustmentCodec,
+} from './converters/residents/codecs'
 import {
   decryptDiagnosticHistory,
   getDiagnosticHistoryConverter,
@@ -138,7 +143,8 @@ export const subCollectionMap = {
     converter: getChargesConverter,
     decryptor: decryptCharge,
     schema: ChargeSchema,
-    encrypted_schema: EncryptedChargeSchema,
+    encrypted_schema: chargeCodec.storedSchema,
+    plaintext_to_domain: chargeCodec.plaintextToDomain,
     kekType: 'financial',
   },
   claims: {
@@ -159,42 +165,48 @@ export const subCollectionMap = {
     converter: getPaymentsConverter,
     decryptor: decryptPayment,
     schema: PaymentSchema,
-    encrypted_schema: EncryptedPaymentSchema,
+    encrypted_schema: paymentCodec.storedSchema,
+    plaintext_to_domain: paymentCodec.plaintextToDomain,
     kekType: 'financial',
   },
   adjustments: {
     converter: getAdjustmentsConverter,
     decryptor: decryptAdjustment,
     schema: AdjustmentSchema,
-    encrypted_schema: EncryptedAdjustmentSchema,
+    encrypted_schema: adjustmentCodec.storedSchema,
+    plaintext_to_domain: adjustmentCodec.plaintextToDomain,
     kekType: 'financial',
   },
   allergies: {
     converter: getAllergiesConverter,
-    decryptor: decodeAllergy,
+    decryptor: decryptAllergy,
     schema: AllergySchema,
     encrypted_schema: StoredAllergySchema,
+    plaintext_to_domain: plaintextAllergyToDomain,
     kekType: 'clinical',
   },
   prescriptions: {
     converter: getPrescriptionsConverter,
     decryptor: decryptPrescription,
     schema: PrescriptionSchema,
-    encrypted_schema: EncryptedPrescriptionSchema,
+    encrypted_schema: prescriptionCodec.storedSchema,
+    plaintext_to_domain: prescriptionCodec.plaintextToDomain,
     kekType: 'clinical',
   },
   observations: {
     converter: getObservationsConverter,
     decryptor: decryptObservation,
     schema: ObservationSchema,
-    encrypted_schema: EncryptedObservationSchema,
+    encrypted_schema: observationCodec.storedSchema,
+    plaintext_to_domain: observationCodec.plaintextToDomain,
     kekType: 'clinical',
   },
   diagnostic_history: {
     converter: getDiagnosticHistoryConverter,
     decryptor: decryptDiagnosticHistory,
     schema: DiagnosticHistorySchema,
-    encrypted_schema: EncryptedDiagnosticHistorySchema,
+    encrypted_schema: diagnosticHistoryCodec.storedSchema,
+    plaintext_to_domain: diagnosticHistoryCodec.plaintextToDomain,
     kekType: 'clinical',
   },
   emar: {

@@ -9,6 +9,7 @@ import {
 import { EncryptedDiagnosticHistorySchema } from '#root/types/encrypted-schemas'
 import { DiagnosticHistorySchema } from '#root/types/schemas/clinical/diagnostic-history'
 import { z } from 'zod'
+import { diagnosticHistoryCodec } from './codecs'
 
 export async function decryptDiagnosticHistory(
   data: z.infer<typeof EncryptedDiagnosticHistorySchema>,
@@ -41,16 +42,16 @@ export async function decryptDiagnosticHistory(
 }
 
 export const getDiagnosticHistoryConverter = async (): Promise<
-  FirestoreDataConverter<z.infer<typeof EncryptedDiagnosticHistorySchema>>
+  FirestoreDataConverter<z.infer<typeof diagnosticHistoryCodec.storedSchema>>
 > => ({
   toFirestore(
-    history: z.infer<typeof EncryptedDiagnosticHistorySchema>,
+    history: z.infer<typeof diagnosticHistoryCodec.storedSchema>,
   ): DocumentData {
-    return EncryptedDiagnosticHistorySchema.parse(history)
+    return diagnosticHistoryCodec.storedSchema.parse(history)
   },
   fromFirestore(
     snapshot: QueryDocumentSnapshot,
-  ): z.infer<typeof EncryptedDiagnosticHistorySchema> {
-    return EncryptedDiagnosticHistorySchema.parse(snapshot.data())
+  ): z.infer<typeof diagnosticHistoryCodec.storedSchema> {
+    return diagnosticHistoryCodec.storedSchema.parse(snapshot.data())
   },
 })

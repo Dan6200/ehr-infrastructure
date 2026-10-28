@@ -2,6 +2,8 @@
 import { getAdminDb } from '#root/firebase/admin'
 import { Charge } from '#root/types/schemas/financial/charge'
 import { EncryptedChargeSchema } from '#root/types/encrypted-schemas'
+import { getCryptoProvider } from '#root/lib/crypto'
+import { chargeCodec } from '#root/types/converters/residents/codecs'
 import { verifySession } from '#root/auth/server/definitions'
 import {
   decryptDataKey,
@@ -15,6 +17,7 @@ export async function updateCharges(
   deletedChargeIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
   const { provider_id } = await verifySession()
+  const isPlaintext = getCryptoProvider().scheme === 'none:v1'
 
   try {
     const adminDb = await getAdminDb()
@@ -43,7 +46,17 @@ export async function updateCharges(
       const { id, ...chargeData } = charge
       const docRef = id ? chargesRef.doc(id) : chargesRef.doc()
 
+      if (isPlaintext) {
+        batch.set(
+          docRef,
+          chargeCodec.domainToPlaintext(chargeData, residentId),
+          { merge: true },
+        )
+        return
+      }
+
       const encryptedCharge: any = {
+        crypto_scheme: 'kms-envelope:v1',
         resident_id: residentId,
         encrypted_dek: encryptedDek,
       }

@@ -8,6 +8,7 @@ import {
 import { EncryptedObservationSchema } from '#root/types/encrypted-schemas'
 import { ObservationSchema } from '#root/types/schemas/clinical/observation'
 import z from 'zod'
+import { observationCodec } from './codecs'
 import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptObservation(
@@ -51,16 +52,16 @@ export async function decryptObservation(
 }
 
 export const getObservationsConverter = async (): Promise<
-  FirestoreDataConverter<z.infer<typeof EncryptedObservationSchema>>
+  FirestoreDataConverter<z.infer<typeof observationCodec.storedSchema>>
 > => ({
   toFirestore(
-    observation: z.infer<typeof EncryptedObservationSchema>,
+    observation: z.infer<typeof observationCodec.storedSchema>,
   ): DocumentData {
-    return EncryptedObservationSchema.parse(observation)
+    return observationCodec.storedSchema.parse(observation)
   },
   fromFirestore(
     snapshot: QueryDocumentSnapshot,
-  ): z.infer<typeof EncryptedObservationSchema> {
-    return EncryptedObservationSchema.parse(snapshot.data())
+  ): z.infer<typeof observationCodec.storedSchema> {
+    return observationCodec.storedSchema.parse(snapshot.data())
   },
 })

@@ -17,6 +17,7 @@ import {
   KEK_CONTACT_PATH,
 } from '#root/lib/encryption'
 import { canAccessKekType, KekType } from '#root/lib/access-control'
+import { getCryptoProvider } from '#root/lib/crypto'
 
 function kekTypeToPath(kekType: KekType): string {
   switch (kekType) {
@@ -38,6 +39,7 @@ async function getSubcollection<T, U>(
   converter: () => Promise<FirestoreDataConverter<T>>,
   decryptor: (data: T, kekPath: string) => Promise<U>,
   kekPath: string,
+  plaintextToDomain?: (doc: any) => U,
 ): Promise<U[]> {
   const path = `providers/${providerId}/residents/${residentId}/${collectionName}`
 
@@ -55,7 +57,27 @@ async function getSubcollection<T, U>(
   }))
 
   // TODO: Decrypt each document in parallel with threads
-  return Promise.all(encryptedDocs.map((doc) => decryptor(doc, kekPath)))
+  return Promise.all(
+    encryptedDocs.map((doc) => {
+      if (plaintextToDomain) {
+        const provider = getCryptoProvider()
+        if ((doc as any).crypto_scheme === 'none:v1') {
+          if (provider.scheme !== 'none:v1') {
+            throw new Error(
+              'Crypto scheme mismatch: plaintext document read in an envelope-mode tenant.',
+            )
+          }
+          return plaintextToDomain(doc)
+        }
+        if (provider.scheme !== 'kms-envelope:v1') {
+          throw new Error(
+            'Crypto scheme mismatch: envelope document read in a plaintext-mode tenant.',
+          )
+        }
+      }
+      return decryptor(doc, kekPath)
+    }),
+  )
 }
 
 export async function getNestedResidentData<K extends SubCollectionKey>(
@@ -70,6 +92,10 @@ export async function getNestedResidentData<K extends SubCollectionKey>(
   }
 
   const { converter, decryptor, kekType } = subCollectionMap[subCollectionName]
+  const plaintextToDomain = (subCollectionMap[subCollectionName] as any)
+    .plaintext_to_domain as
+    | ((doc: any) => z.infer<SubCollectionMapType[K]['schema']>)
+    | undefined
   const dataClass = kekType as KekType
 
   if (!canAccessKekType(roles, dataClass)) {
@@ -88,5 +114,6 @@ export async function getNestedResidentData<K extends SubCollectionKey>(
     converter,
     decryptor as any,
     kekPath,
+    plaintextToDomain,
   )
 }

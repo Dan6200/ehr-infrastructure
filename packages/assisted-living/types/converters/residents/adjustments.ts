@@ -8,6 +8,7 @@ import {
 import { EncryptedAdjustmentSchema } from '#root/types/encrypted-schemas'
 import { AdjustmentSchema } from '#root/types/schemas/financial/adjustment'
 import z from 'zod'
+import { adjustmentCodec } from './codecs'
 import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptAdjustment(
@@ -46,16 +47,16 @@ export async function decryptAdjustment(
 }
 
 export const getAdjustmentsConverter = async (): Promise<
-  FirestoreDataConverter<z.infer<typeof EncryptedAdjustmentSchema>>
+  FirestoreDataConverter<z.infer<typeof adjustmentCodec.storedSchema>>
 > => ({
   toFirestore(
-    adjustment: z.infer<typeof EncryptedAdjustmentSchema>,
+    adjustment: z.infer<typeof adjustmentCodec.storedSchema>,
   ): DocumentData {
-    return EncryptedAdjustmentSchema.parse(adjustment)
+    return adjustmentCodec.storedSchema.parse(adjustment)
   },
   fromFirestore(
     snapshot: QueryDocumentSnapshot,
-  ): z.infer<typeof EncryptedAdjustmentSchema> {
-    return EncryptedAdjustmentSchema.parse(snapshot.data())
+  ): z.infer<typeof adjustmentCodec.storedSchema> {
+    return adjustmentCodec.storedSchema.parse(snapshot.data())
   },
 })

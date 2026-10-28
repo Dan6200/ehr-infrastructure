@@ -2,6 +2,8 @@
 import { getAdminDb } from '#root/firebase/admin'
 import { Payment } from '#root/types/schemas/financial/payment'
 import { EncryptedPaymentSchema } from '#root/types/encrypted-schemas'
+import { getCryptoProvider } from '#root/lib/crypto'
+import { paymentCodec } from '#root/types/converters/residents/codecs'
 import { verifySession } from '#root/auth/server/definitions'
 import {
   decryptDataKey,
@@ -15,6 +17,7 @@ export async function updatePayments(
   deletedPaymentIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
   const { provider_id } = await verifySession()
+  const isPlaintext = getCryptoProvider().scheme === 'none:v1'
 
   try {
     const adminDb = await getAdminDb()
@@ -43,7 +46,17 @@ export async function updatePayments(
       const { id, ...paymentData } = payment
       const docRef = id ? paymentsRef.doc(id) : paymentsRef.doc()
 
+      if (isPlaintext) {
+        batch.set(
+          docRef,
+          paymentCodec.domainToPlaintext(paymentData, residentId),
+          { merge: true },
+        )
+        return
+      }
+
       const encryptedPayment: any = {
+        crypto_scheme: 'kms-envelope:v1',
         resident_id: residentId,
         claim_id: paymentData.claim_id,
         coverage_id: paymentData.coverage_id,

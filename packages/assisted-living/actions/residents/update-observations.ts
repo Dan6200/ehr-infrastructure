@@ -2,6 +2,8 @@
 import { getAdminDb } from '#root/firebase/admin'
 import { Observation } from '#root/types/schemas/clinical/observation'
 import { EncryptedObservationSchema } from '#root/types/encrypted-schemas'
+import { getCryptoProvider } from '#root/lib/crypto'
+import { observationCodec } from '#root/types/converters/residents/codecs'
 import { verifySession } from '#root/auth/server/definitions'
 import {
   decryptDataKey,
@@ -17,6 +19,7 @@ export async function updateObservations(
   deletedObservationIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
   const { provider_id, uid } = await verifySession()
+  const isPlaintext = getCryptoProvider().scheme === 'none:v1'
 
   try {
     const adminDb = await getAdminDb()
@@ -45,7 +48,17 @@ export async function updateObservations(
       const { id, ...observationData } = observation
       const docRef = id ? observationsRef.doc(id) : observationsRef.doc()
 
+      if (isPlaintext) {
+        batch.set(
+          docRef,
+          observationCodec.domainToPlaintext(observationData, residentId, uid),
+          { merge: true },
+        )
+        return
+      }
+
       const encryptedObservation: any = {
+        crypto_scheme: 'kms-envelope:v1',
         resident_id: residentId,
         recorder_id: uid,
         encrypted_dek: encryptedDek,

@@ -24,6 +24,7 @@ export const EncryptedAllergySchema = z.object({
 })
 
 export const EncryptedPrescriptionSchema = z.object({
+  crypto_scheme: z.literal('kms-envelope:v1').optional(), // missing = legacy envelope
   resident_id: z.string(),
   recorder_id: z.string(),
   encrypted_dek: z.string(),
@@ -35,6 +36,7 @@ export const EncryptedPrescriptionSchema = z.object({
 })
 
 export const EncryptedObservationSchema = z.object({
+  crypto_scheme: z.literal('kms-envelope:v1').optional(), // missing = legacy envelope
   resident_id: z.string(),
   recorder_id: z.string(),
   encrypted_dek: z.string(),
@@ -49,6 +51,7 @@ export const EncryptedObservationSchema = z.object({
 })
 
 export const EncryptedDiagnosticHistorySchema = z.object({
+  crypto_scheme: z.literal('kms-envelope:v1').optional(), // missing = legacy envelope
   resident_id: z.string(),
   recorder_id: z.string(),
   encrypted_dek: z.string(),
@@ -180,6 +183,7 @@ export const EncryptedCoverageSchema = z.object({
 })
 
 export const EncryptedChargeSchema = z.object({
+  crypto_scheme: z.literal('kms-envelope:v1').optional(), // missing = legacy envelope
   resident_id: z.string(),
   encrypted_dek: z.string(),
   encrypted_service: EncryptedFieldSchema,
@@ -202,6 +206,7 @@ export const EncryptedClaimSchema = z.object({
 })
 
 export const EncryptedPaymentSchema = z.object({
+  crypto_scheme: z.literal('kms-envelope:v1').optional(), // missing = legacy envelope
   resident_id: z.string(),
   claim_id: z.string().nullable().optional(),
   coverage_id: z.string().nullable().optional(),
@@ -213,6 +218,7 @@ export const EncryptedPaymentSchema = z.object({
 })
 
 export const EncryptedAdjustmentSchema = z.object({
+  crypto_scheme: z.literal('kms-envelope:v1').optional(), // missing = legacy envelope
   resident_id: z.string(),
   claim_id: z.string(),
   coverage_id: z.string().nullable().optional(),

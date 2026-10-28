@@ -8,6 +8,7 @@ import {
 import { EncryptedPrescriptionSchema } from '#root/types/encrypted-schemas'
 import { PrescriptionSchema } from '#root/types/schemas/clinical/prescription'
 import z from 'zod'
+import { prescriptionCodec } from './codecs'
 import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptPrescription(
@@ -47,16 +48,16 @@ export async function decryptPrescription(
 }
 
 export const getPrescriptionsConverter = async (): Promise<
-  FirestoreDataConverter<z.infer<typeof EncryptedPrescriptionSchema>>
+  FirestoreDataConverter<z.infer<typeof prescriptionCodec.storedSchema>>
 > => ({
   toFirestore(
-    prescription: z.infer<typeof EncryptedPrescriptionSchema>,
+    prescription: z.infer<typeof prescriptionCodec.storedSchema>,
   ): DocumentData {
-    return EncryptedPrescriptionSchema.parse(prescription)
+    return prescriptionCodec.storedSchema.parse(prescription)
   },
   fromFirestore(
     snapshot: QueryDocumentSnapshot,
-  ): z.infer<typeof EncryptedPrescriptionSchema> {
-    return EncryptedPrescriptionSchema.parse(snapshot.data())
+  ): z.infer<typeof prescriptionCodec.storedSchema> {
+    return prescriptionCodec.storedSchema.parse(snapshot.data())
   },
 })

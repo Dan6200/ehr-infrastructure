@@ -2,6 +2,8 @@
 import { getAdminDb } from '#root/firebase/admin'
 import { Adjustment } from '#root/types/schemas/financial/adjustment'
 import { EncryptedAdjustmentSchema } from '#root/types/encrypted-schemas'
+import { getCryptoProvider } from '#root/lib/crypto'
+import { adjustmentCodec } from '#root/types/converters/residents/codecs'
 import { verifySession } from '#root/auth/server/definitions'
 import {
   decryptDataKey,
@@ -15,6 +17,7 @@ export async function updateAdjustments(
   deletedAdjustmentIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
   const { provider_id } = await verifySession()
+  const isPlaintext = getCryptoProvider().scheme === 'none:v1'
 
   try {
     const adminDb = await getAdminDb()
@@ -43,7 +46,17 @@ export async function updateAdjustments(
       const { id, ...adjustmentData } = adjustment
       const docRef = id ? adjustmentsRef.doc(id) : adjustmentsRef.doc()
 
+      if (isPlaintext) {
+        batch.set(
+          docRef,
+          adjustmentCodec.domainToPlaintext(adjustmentData, residentId),
+          { merge: true },
+        )
+        return
+      }
+
       const encryptedAdjustment: any = {
+        crypto_scheme: 'kms-envelope:v1',
         resident_id: residentId,
         claim_id: adjustmentData.claim_id,
         coverage_id: adjustmentData.coverage_id,

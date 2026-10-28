@@ -8,6 +8,7 @@ import {
 import { EncryptedPaymentSchema } from '#root/types/encrypted-schemas'
 import { PaymentSchema } from '#root/types/schemas/financial/payment'
 import z from 'zod'
+import { paymentCodec } from './codecs'
 import { toPatientReference } from '#root/types/schemas/fhir/reference'
 
 export async function decryptPayment(
@@ -46,14 +47,16 @@ export async function decryptPayment(
 }
 
 export const getPaymentsConverter = async (): Promise<
-  FirestoreDataConverter<z.infer<typeof EncryptedPaymentSchema>>
+  FirestoreDataConverter<z.infer<typeof paymentCodec.storedSchema>>
 > => ({
-  toFirestore(payment: z.infer<typeof EncryptedPaymentSchema>): DocumentData {
-    return EncryptedPaymentSchema.parse(payment)
+  toFirestore(
+    payment: z.infer<typeof paymentCodec.storedSchema>,
+  ): DocumentData {
+    return paymentCodec.storedSchema.parse(payment)
   },
   fromFirestore(
     snapshot: QueryDocumentSnapshot,
-  ): z.infer<typeof EncryptedPaymentSchema> {
-    return EncryptedPaymentSchema.parse(snapshot.data())
+  ): z.infer<typeof paymentCodec.storedSchema> {
+    return paymentCodec.storedSchema.parse(snapshot.data())
   },
 })
