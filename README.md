@@ -18,6 +18,10 @@ For detailed information on its features, local development setup, data seeding,
 
 ➡️ **[Assisted Living Module README](/packages/assisted-living/README.md)**
 
+### Snowstorm-Lite (SNOMED CT)
+
+The `deploy-snowstorm-lite` package builds a pre-indexed [Snowstorm-Lite](https://github.com/IHTSDO/snowstorm-lite) image (UK SNOMED CT RF2 release) and deploys it to Cloud Run via `cloudbuild.yaml`. It backs the Assisted Living module's SNOMED terminology lookups.
+
 ## Getting Started (General)
 
 To get started with any specific module, navigate to its respective directory within `packages/` and consult its `README.md` file for detailed setup and development instructions.

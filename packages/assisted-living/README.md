@@ -10,7 +10,7 @@ This is the Assisted Living module of the Lean EHR project, a modern, secure, an
 - **Envelope Encryption (default):** Sensitive resident data (clinical, contact, financial) is encrypted at rest in Firestore using Google Cloud KMS and a DEK/KEK envelope strategy with role-gated (cryptographic) access. A regular-EHR plaintext mode is in progress for verticals that don't need field-level encryption; only the envelope mode is production-ready today. See [Architecture](./architecture.md).
 - **Real-time Analytics Dashboard:** A scalable dashboard providing financial overviews (charges, claims, payments, adjustments) and net resident growth, powered by BigQuery for efficient aggregation.
 - **eMAR (Electronic Medication Administration Record):** Streamlined medication administration tracking for residents.
-- **Terminology Lookups:** Integration with LOINC and RxNorm for standardized medical terminology.
+- **Terminology Lookups:** SNOMED CT via a self-hosted Snowstorm-Lite service (UK RF2 release, pre-indexed at build time), plus LOINC (private BigQuery table) and RxNorm (BigQuery public dataset).
 - **Containerized Data Pipeline:** Automated data generation, encryption, and streaming to BigQuery using Python, Node.js, Docker, and Cloud Functions.
 - **Modern Frontend:** Built with Next.js 15 (App Router), React, and Shadcn UI for a responsive and intuitive user experience.
 - **Secure Authentication:** Firebase Authentication with Redis-backed session management and custom user roles.

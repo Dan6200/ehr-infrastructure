@@ -5,16 +5,17 @@ complements `README.md` (setup/deployment) and the issue tracker.
 
 ## System context
 
-| Layer                  | Choice                                      |
-| ---------------------- | ------------------------------------------- |
-| Frontend               | Next.js 15 (App Router), React, Shadcn UI   |
-| Backend                | Next.js Server Actions, Firebase Admin SDK  |
-| Primary store          | Firestore (multi-database per environment)  |
-| Key management         | Google Cloud KMS (four KEKs)                |
-| Session/cache          | Google Cloud Memorystore (Redis)            |
-| Analytics              | BigQuery (financial aggregation)            |
-| Cold archive (planned) | Google Cloud Storage (ciphertext)           |
-| Deploy                 | Cloud Run + Cloud Functions, GitHub Actions |
+| Layer                  | Choice                                                             |
+| ---------------------- | ------------------------------------------------------------------ |
+| Frontend               | Next.js 15 (App Router), React, Shadcn UI                          |
+| Backend                | Next.js Server Actions, Firebase Admin SDK                         |
+| Primary store          | Firestore (multi-database per environment)                         |
+| Key management         | Google Cloud KMS (four KEKs)                                       |
+| Session/cache          | Google Cloud Memorystore (Redis)                                   |
+| Analytics              | BigQuery (financial aggregation)                                   |
+| Terminology            | Snowstorm-Lite (SNOMED CT) on Cloud Run; LOINC/RxNorm via BigQuery |
+| Cold archive (planned) | Google Cloud Storage (ciphertext)                                  |
+| Deploy                 | Cloud Run + Cloud Functions, GitHub Actions                        |
 
 Firestore layout: `providers/{providerId}/residents/{residentId}/{subcollection}/{docId}`.
 
@@ -97,6 +98,19 @@ Firestore layout: `providers/{providerId}/residents/{residentId}/{subcollection}
 Firestore triggers stream **financial** collections (`charges`, `claims`,
 `payments`, `adjustments`) into BigQuery `*_raw` tables; the dashboard aggregates
 there. Clinical/contact data is deliberately not streamed.
+
+## Terminology services
+
+Hybrid lookups through `actions/lookups/*`:
+
+| Terminology | Source                                                                                                                                                                                                                                                                                            | Used by                       |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| SNOMED CT   | Self-hosted **Snowstorm-Lite** (Snowstorm 2.3.1) with the UK RF2 release (20250924) pre-indexed at image build. `packages/deploy-snowstorm-lite` + `cloudbuild.yaml` build and deploy it to Cloud Run (`snowstorm-lite-service`); the app calls it via `SNOWSTORM_API_BASE_URL` (`searchSnomed`). | allergies, diagnostic history |
+| LOINC       | Private BigQuery dataset (`loinc.loinc_core`), loaded from the official CSV (`searchLoinc`).                                                                                                                                                                                                      | observations                  |
+| RxNorm      | BigQuery public dataset (`bigquery-public-data.nlm_rxnorm`) (`searchRxNorm`).                                                                                                                                                                                                                     | prescriptions                 |
+
+The forms use the shared `Autocomplete` component against these actions. See
+`notes/terminology_lookup_plan.md`.
 
 ## Multi-tenancy
 
