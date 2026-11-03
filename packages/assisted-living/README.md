@@ -7,7 +7,7 @@ This is the Assisted Living module of the Lean EHR project, a modern, secure, an
 ## Key Features
 
 - **Multi-Tenancy:** Secure data isolation for multiple facilities/providers using Firebase Auth Custom Claims and Firestore pathing.
-- **End-to-End Encryption:** Sensitive resident data (clinical, contact, financial) is encrypted at rest in Firestore using Google Cloud KMS and a Key-in-Key (DEK/KEK) envelope encryption strategy with role-based access.
+- **Envelope Encryption (default):** Sensitive resident data (clinical, contact, financial) is encrypted at rest in Firestore using Google Cloud KMS and a DEK/KEK envelope strategy with role-gated (cryptographic) access. A regular-EHR plaintext mode is in progress for verticals that don't need field-level encryption; only the envelope mode is production-ready today. See [Architecture](./architecture.md).
 - **Real-time Analytics Dashboard:** A scalable dashboard providing financial overviews (charges, claims, payments, adjustments) and net resident growth, powered by BigQuery for efficient aggregation.
 - **eMAR (Electronic Medication Administration Record):** Streamlined medication administration tracking for residents.
 - **Terminology Lookups:** Integration with LOINC and RxNorm for standardized medical terminology.
@@ -21,11 +21,15 @@ This is the Assisted Living module of the Lean EHR project, a modern, secure, an
 - **Frontend:** Next.js 15 (App Router) with React, Shadcn UI.
 - **Backend:** Next.js Server Actions, Firebase Admin SDK.
 - **Database:** Google Cloud Firestore (multi-database for environments).
-- **Encryption:** Google Cloud KMS (Key Management Service) for KEK management, Node.js Crypto module for AES-256-GCM DEK encryption.
+- **Encryption:** Google Cloud KMS for KEK management and the Node.js Crypto module for AES-256-GCM DEK encryption, behind a `CryptoProvider` interface (`lib/crypto`) with distinct envelope and plaintext storage formats. See [Architecture](./architecture.md).
 - **Analytics Data Warehouse:** Google Cloud BigQuery, populated via Firebase Cloud Functions (Firestore triggers) for real-time, decrypted data streaming.
 - **Caching/Session Management:** Google Cloud Memorystore (Redis).
 - **Deployment:** Google Cloud Run (for Next.js application and data seeding jobs) via GitHub Actions.
 - **Networking:** Cloud Run with Direct VPC Egress for private Redis connectivity, Cloud NAT for internet access to Google APIs.
+
+## Architecture & Design
+
+See [architecture.md](./architecture.md) for the data model (FHIR-inspired linkage, nested `CarePlan.activity[]`), the encryption/access-control design (envelope vs. plaintext modes), the planned encrypted GCS archive, decisions and trade-offs, and future directions.
 
 ## Local Development Setup
 
@@ -84,6 +88,17 @@ Your Google Cloud Project should be configured with:
     pnpm dev
     ```
 
+## Testing & Type Checking
+
+Unit tests are pure and do not require the Firestore emulator:
+
+```bash
+pnpm test        # Jest unit suites
+pnpm typecheck   # tsc --noEmit
+```
+
+They cover the role → KEK-class access matrix, FHIR `Reference`/codec shapes, nested care-plan activities, and the encrypted write documents. Integration tests (Firestore emulator + KMS) are not yet in place.
+
 ### Test Credentials (Admin User)
 
 You can log in with the following credentials for testing:
@@ -99,7 +114,7 @@ This project includes a powerful data generation and encryption pipeline.
     ```bash
     python3 dev-utils/generate_demo_subcollection_data.py
     ```
-    This script generates plaintext JSON files for residents and their subcollections (financials, clinical data, etc.) into `demo-data/`.
+    This script generates plaintext JSON files for residents and their subcollections (financials, clinical data, etc.) into `demo-data/`. Care-plan activities are generated nested inside each care plan (`CarePlan.activity[]`), not as a separate subcollection.
 2.  **Generate Encrypted Payload:**
     ```bash
     cd dev-utils/generate-encrypted-payload/ && pnpm start && cd ../..
