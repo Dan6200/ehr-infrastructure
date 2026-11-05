@@ -39,6 +39,7 @@ To get started with local development, ensure you have the following installed:
 
 - Node.js (v20+)
 - Python (v3.9+)
+- Java (for the Firestore emulator used by integration tests)
 - Docker
 - Google Cloud SDK (`gcloud` CLI)
 - Firebase CLI (`firebase-tools`)
@@ -97,7 +98,15 @@ pnpm test        # Jest unit suites
 pnpm typecheck   # tsc --noEmit
 ```
 
-They cover the role → KEK-class access matrix, FHIR `Reference`/codec shapes, nested care-plan activities, and the encrypted write documents. Integration tests (Firestore emulator + KMS) are not yet in place.
+They cover the role → KEK-class access matrix, FHIR `Reference`/codec shapes, nested care-plan activities, and the encrypted write documents.
+
+Integration tests run against the Firestore emulator (requires Java) with a test-only crypto provider, so no KMS credentials are needed:
+
+```bash
+pnpm test:integration   # firebase emulators:exec + Jest integration config
+```
+
+They cover resident create/read/list/delete, the envelope write/read path, and role/provider gating. The emulator listens on port 8181 (`firebase.emulator.json`) to avoid clashing with the dev emulator on 8080.
 
 ### Test Credentials (Admin User)
 

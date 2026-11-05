@@ -123,8 +123,12 @@ pathing. Native Firebase Auth multi-tenancy is proposed in #1/#2.
   `CarePlan.activity[]`, encrypted write shapes, storage codecs, provider
   factory.
 - `pnpm test` (no emulator required) and `pnpm typecheck`.
-- **Gap:** no integration/e2e tests (Firestore emulator + KMS) and no CI gate;
-  write paths are only schema-tested.
+- Integration suite: `pnpm test:integration` runs against the Firestore emulator
+  (`firebase.emulator.json`, port 8181) with a test-only crypto provider (no KMS
+  credentials). Covers resident CRUD, envelope write/read, and role/provider
+  gating.
+- **Gaps:** no CI gate yet; no real-KMS integration test; no emulator tests for
+  the remaining write actions.
 
 ## Key decisions & trade-offs
 

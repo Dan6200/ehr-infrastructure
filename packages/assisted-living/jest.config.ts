@@ -16,9 +16,14 @@ const config: Config = {
   moduleNameMapper: {
     // Handle module aliases (this will be automatically configured for you soon)
     '^#root/(.*)$': '<rootDir>/$1',
+    '^server-only$': '<rootDir>/test-data/empty.ts',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'], // Optional: for setup files
-  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/'],
+  testPathIgnorePatterns: [
+    '<rootDir>/node_modules/',
+    '<rootDir>/.next/',
+    '<rootDir>/.*\\.integration\\.test\\.ts$',
+  ],
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
   transform: {
     // Use ts-jest to transform TypeScript files

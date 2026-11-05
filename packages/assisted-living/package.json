@@ -15,6 +15,7 @@
     "lint-staged": "lint-staged",
     "prepare": "husky",
     "test": "jest",
+    "test:integration": "firebase emulators:exec --config firebase.emulator.json --only firestore --project demo-test \"jest --config jest.integration.config.ts --runInBand\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "build-service-worker": "node build-sw.cjs"
   },
