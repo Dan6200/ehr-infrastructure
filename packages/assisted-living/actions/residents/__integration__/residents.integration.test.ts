@@ -12,6 +12,7 @@ import { updateDiagnosticHistory } from '#root/actions/residents/update-diagnost
 import { updateObservations } from '#root/actions/residents/update-observations'
 import { updatePayments } from '#root/actions/residents/update-payments'
 import { updatePrescriptions } from '#root/actions/residents/update-prescriptions'
+import { updateResident } from '#root/actions/residents/update'
 import { verifySession } from '#root/auth/server/definitions'
 import { setCryptoProviderForTesting } from '#root/lib/crypto'
 import { plaintextProvider } from '#root/lib/crypto/plaintext-provider'
@@ -441,5 +442,80 @@ describe('subcollection write actions against the Firestore emulator', () => {
     expect(charges).toHaveLength(1)
     expect(charges[0].service).toBe('Physiotherapy')
     expect(charges[0].unit_price.value).toBe(12.5)
+  })
+})
+
+describe('write authorization', () => {
+  function asRole(roles: string[]) {
+    mockVerifySession.mockResolvedValue({
+      provider_id: 'GYRHOME',
+      uid: 'actor',
+      roles,
+    })
+  }
+
+  it('denies a VIEWER writing a clinical subcollection and persists nothing', async () => {
+    const id = await createResident()
+    asRole(['VIEWER'])
+
+    const result = await updateAllergies([allergyInput], id)
+    expect(result.success).toBe(false)
+    expect(await getStoredSubcollection(id, 'allergies')).toHaveLength(0)
+  })
+
+  it('denies a CAREGIVER writing a clinical subcollection', async () => {
+    const id = await createResident()
+    asRole(['CAREGIVER'])
+
+    expect((await updateAllergies([allergyInput], id)).success).toBe(false)
+    expect(await getStoredSubcollection(id, 'allergies')).toHaveLength(0)
+  })
+
+  it('allows a CLINICIAN writing a clinical subcollection', async () => {
+    const id = await createResident()
+    asRole(['CLINICIAN'])
+
+    expect((await updateAllergies([allergyInput], id)).success).toBe(true)
+    expect(await getStoredSubcollection(id, 'allergies')).toHaveLength(1)
+  })
+
+  it('denies a VIEWER writing a financial subcollection and persists nothing', async () => {
+    const id = await createResident()
+    asRole(['VIEWER'])
+
+    expect((await updateCharges([chargeInput], id)).success).toBe(false)
+    expect(await getStoredSubcollection(id, 'charges')).toHaveLength(0)
+  })
+
+  it('denies a CLINICIAN writing a financial subcollection', async () => {
+    const id = await createResident()
+    asRole(['CLINICIAN'])
+
+    expect((await updateCharges([chargeInput], id)).success).toBe(false)
+    expect(await getStoredSubcollection(id, 'charges')).toHaveLength(0)
+  })
+
+  it('denies a VIEWER updating clinical resident fields', async () => {
+    const id = await createResident()
+    asRole(['VIEWER'])
+
+    const result = await updateResident(
+      { facility_id: 'FAC-1', room_no: '102', pcp: 'Dr. X' },
+      id,
+    )
+    expect(result.success).toBe(false)
+    expect(result.message).toMatch(/clinical/i)
+  })
+
+  it('denies a VIEWER updating contact resident fields', async () => {
+    const id = await createResident()
+    asRole(['VIEWER'])
+
+    const result = await updateResident(
+      { facility_id: 'FAC-1', room_no: '102', dob: '1960-01-01' },
+      id,
+    )
+    expect(result.success).toBe(false)
+    expect(result.message).toMatch(/contact/i)
   })
 })

@@ -5,6 +5,7 @@ import { EncryptedPaymentSchema } from '#root/types/encrypted-schemas'
 import { getCryptoProvider } from '#root/lib/crypto'
 import { paymentCodec } from '#root/types/converters/residents/codecs'
 import { verifySession } from '#root/auth/server/definitions'
+import { canAccessKekType } from '#root/lib/access-control'
 import {
   decryptDataKey,
   encryptData,
@@ -16,7 +17,13 @@ export async function updatePayments(
   residentId: string,
   deletedPaymentIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
-  const { provider_id } = await verifySession()
+  const { provider_id, roles = [] } = await verifySession()
+  if (!canAccessKekType(roles, 'financial')) {
+    return {
+      success: false,
+      message: 'Insufficient permissions to modify financial data.',
+    }
+  }
   const isPlaintext = getCryptoProvider().scheme === 'none:v1'
 
   try {

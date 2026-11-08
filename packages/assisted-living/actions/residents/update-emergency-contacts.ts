@@ -3,6 +3,7 @@ import { getAdminDb } from '#root/firebase/admin'
 import { EmergencyContact } from '#root/types/schemas/administrative/emergency-contact'
 import { EncryptedEmergencyContactSchema } from '#root/types/encrypted-schemas'
 import { verifySession } from '#root/auth/server/definitions'
+import { canAccessKekType } from '#root/lib/access-control'
 import {
   decryptDataKey,
   encryptData,
@@ -14,7 +15,13 @@ export async function updateEmergencyContacts(
   residentId: string,
   deletedContactIds: string[] = [],
 ): Promise<{ success: boolean; message: string }> {
-  const { provider_id } = await verifySession()
+  const { provider_id, roles = [] } = await verifySession()
+  if (!canAccessKekType(roles, 'contact')) {
+    return {
+      success: false,
+      message: 'Insufficient permissions to modify contact data.',
+    }
+  }
 
   try {
     const adminDb = await getAdminDb()

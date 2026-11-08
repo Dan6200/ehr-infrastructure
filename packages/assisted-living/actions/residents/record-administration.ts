@@ -1,5 +1,6 @@
 'use server'
 import { verifySession } from '#root/auth/server/definitions'
+import { canAccessKekType } from '#root/lib/access-control'
 import { EmarRecord } from '#root/types/schemas/clinical/emar'
 import { EncryptedEmarRecordSchema } from '#root/types/encrypted-schemas'
 import {
@@ -17,7 +18,13 @@ export async function recordAdministration(
   residentId: string,
   administration: EmarRecord,
 ): Promise<{ success: boolean; message: string }> {
-  const { provider_id, uid } = await verifySession()
+  const { provider_id, uid, roles = [] } = await verifySession()
+  if (!canAccessKekType(roles, 'clinical')) {
+    return {
+      success: false,
+      message: 'Insufficient permissions to record clinical administration.',
+    }
+  }
 
   try {
     const adminDb = await getAdminDb()
