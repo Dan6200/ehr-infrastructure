@@ -34,12 +34,15 @@ export async function decryptPrescription(
     }
   }
 
+  if (decryptedData.period) {
+    decryptedData.period = JSON.parse(decryptedData.period)
+  }
   if (decryptedData.medication) {
     decryptedData.medication = JSON.parse(decryptedData.medication)
   }
-  if (decryptedData.dosageInstruction) {
-    decryptedData.dosageInstruction = JSON.parse(
-      decryptedData.dosageInstruction,
+  if (decryptedData.dosage_instruction) {
+    decryptedData.dosage_instruction = JSON.parse(
+      decryptedData.dosage_instruction,
     )
   }
 

@@ -31,15 +31,19 @@ export async function updatePrescriptions(
       throw new Error('Resident not found')
     }
 
-    const encryptedDek = residentSnap.data()?.encrypted_dek_clinical
-    if (!encryptedDek) {
-      throw new Error('Clinical DEK not found for resident')
+    let encryptedDek = ''
+    let clinicalDek: Buffer | string | Uint8Array = Buffer.alloc(0)
+    if (!isPlaintext) {
+      const wrappedDek = residentSnap.data()?.encrypted_dek_clinical
+      if (!wrappedDek) {
+        throw new Error('Clinical DEK not found for resident')
+      }
+      encryptedDek = wrappedDek
+      clinicalDek = await decryptDataKey(
+        Buffer.from(wrappedDek, 'base64'),
+        KEK_CLINICAL_PATH,
+      )
     }
-
-    const clinicalDek = await decryptDataKey(
-      Buffer.from(encryptedDek, 'base64'),
-      KEK_CLINICAL_PATH,
-    )
 
     const batch = adminDb.batch()
     const prescriptionsRef = residentRef.collection('prescriptions')

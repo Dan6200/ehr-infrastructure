@@ -34,6 +34,15 @@ export async function decryptObservation(
     }
   }
 
+  if (decryptedData.category) {
+    decryptedData.category = JSON.parse(decryptedData.category)
+  }
+  if (decryptedData.code) {
+    decryptedData.code = JSON.parse(decryptedData.code)
+  }
+  if (decryptedData.value_quantity) {
+    decryptedData.value_quantity = JSON.parse(decryptedData.value_quantity)
+  }
   if (decryptedData.body_site) {
     decryptedData.body_site = JSON.parse(decryptedData.body_site)
   }
@@ -42,9 +51,6 @@ export async function decryptObservation(
   }
   if (decryptedData.device) {
     decryptedData.device = JSON.parse(decryptedData.device)
-  }
-  if (decryptedData.value) {
-    decryptedData.value = parseFloat(decryptedData.value)
   }
 
   decryptedData.subject = toPatientReference(decryptedData.resident_id)

@@ -29,15 +29,19 @@ export async function updateAdjustments(
       throw new Error('Resident not found')
     }
 
-    const encryptedDek = residentSnap.data()?.encrypted_dek_financial
-    if (!encryptedDek) {
-      throw new Error('Financial DEK not found for resident')
+    let encryptedDek = ''
+    let financialDek: Buffer | string | Uint8Array = Buffer.alloc(0)
+    if (!isPlaintext) {
+      const wrappedDek = residentSnap.data()?.encrypted_dek_financial
+      if (!wrappedDek) {
+        throw new Error('Financial DEK not found for resident')
+      }
+      encryptedDek = wrappedDek
+      financialDek = await decryptDataKey(
+        Buffer.from(wrappedDek, 'base64'),
+        KEK_FINANCIAL_PATH,
+      )
     }
-
-    const financialDek = await decryptDataKey(
-      Buffer.from(encryptedDek, 'base64'),
-      KEK_FINANCIAL_PATH,
-    )
 
     const batch = adminDb.batch()
     const adjustmentsRef = residentRef.collection('adjustments')
