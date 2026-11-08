@@ -106,7 +106,7 @@ Integration tests run against the Firestore emulator (requires Java) with a test
 pnpm test:integration   # firebase emulators:exec + Jest integration config
 ```
 
-They cover resident create/read/list/delete, the envelope write/read path, and role/provider gating. The emulator listens on port 8181 (`firebase.emulator.json`) to avoid clashing with the dev emulator on 8080.
+They cover resident create/read/list/delete, role/provider gating, fail-closed scheme mismatches, and envelope/plaintext write-read for every form-backed subcollection. The emulator listens on port 8181 (`firebase.emulator.json`) to avoid clashing with the dev emulator on 8080.
 
 ### Test Credentials (Admin User)
 

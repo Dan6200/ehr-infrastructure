@@ -125,10 +125,10 @@ pathing. Native Firebase Auth multi-tenancy is proposed in #1/#2.
 - `pnpm test` (no emulator required) and `pnpm typecheck`.
 - Integration suite: `pnpm test:integration` runs against the Firestore emulator
   (`firebase.emulator.json`, port 8181) with a test-only crypto provider (no KMS
-  credentials). Covers resident CRUD, envelope write/read, and role/provider
-  gating.
-- **Gaps:** no CI gate yet; no real-KMS integration test; no emulator tests for
-  the remaining write actions.
+  credentials). Covers resident CRUD, role/provider gating, fail-closed scheme
+  mismatches, and envelope/plaintext write-read for every form-backed
+  subcollection.
+- **Gaps:** no CI gate yet; no real-KMS integration test.
 
 ## Key decisions & trade-offs
 
