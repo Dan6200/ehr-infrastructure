@@ -10,6 +10,7 @@ describe('makeCodec', () => {
     name: z.string(),
   })
   const encryptedSchema = z.object({
+    crypto_scheme: z.literal('kms-envelope:v1').optional(),
     resident_id: z.string(),
     encrypted_name: z.string(),
   })
@@ -39,6 +40,26 @@ describe('makeCodec', () => {
 
     expect(() =>
       codec.storedSchema.parse({ resident_id: 'resident-1' }),
+    ).toThrow()
+  })
+
+  it('rejects a plaintext-shaped document tagged as envelope', () => {
+    expect(() =>
+      codec.storedSchema.parse({
+        crypto_scheme: 'kms-envelope:v1',
+        resident_id: 'resident-1',
+        name: 'Jane',
+      }),
+    ).toThrow()
+  })
+
+  it('rejects an envelope-shaped document tagged as plaintext', () => {
+    expect(() =>
+      codec.storedSchema.parse({
+        crypto_scheme: 'none:v1',
+        resident_id: 'resident-1',
+        encrypted_name: 'ciphertext',
+      }),
     ).toThrow()
   })
 

@@ -52,3 +52,17 @@ export async function getStoredSubcollection(
     .get()
   return snap.docs.map((doc) => doc.data())
 }
+
+export async function setSubcollectionDoc(
+  residentId: string,
+  collection: string,
+  docId: string,
+  data: Record<string, any>,
+): Promise<void> {
+  const adminDb = await db()
+  await adminDb
+    .doc(
+      `providers/${TEST_PROVIDER_ID}/residents/${residentId}/${collection}/${docId}`,
+    )
+    .set(data)
+}

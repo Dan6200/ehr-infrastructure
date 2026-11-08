@@ -52,4 +52,8 @@ describe('canAccessKekType', () => {
   it('denies unknown roles', () => {
     expect(canAccessKekType(['SUPERUSER'], 'financial')).toBe(false)
   })
+
+  it('does not treat an empty-string role as authorized', () => {
+    expect(canAccessKekType([''], 'general')).toBe(false)
+  })
 })

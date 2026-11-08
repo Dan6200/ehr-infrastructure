@@ -61,4 +61,14 @@ describe('FHIR CarePlan.activity[]', () => {
       }),
     ).toThrow()
   })
+
+  it('rejects an unknown activity kind', () => {
+    expect(() =>
+      CarePlanActivityDetailSchema.parse({
+        code: { coding: [] },
+        status: 'scheduled',
+        kind: 'NotAKind',
+      }),
+    ).toThrow()
+  })
 })

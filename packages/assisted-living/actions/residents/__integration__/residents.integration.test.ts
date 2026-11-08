@@ -7,6 +7,8 @@ import {
 } from '#root/actions/residents/get'
 import { updateAllergies } from '#root/actions/residents/update-allergies'
 import { verifySession } from '#root/auth/server/definitions'
+import { setCryptoProviderForTesting } from '#root/lib/crypto'
+import { plaintextProvider } from '#root/lib/crypto/plaintext-provider'
 import type { Resident } from '#root/types/schemas/administrative/resident'
 import {
   clearFirestore,
@@ -14,7 +16,9 @@ import {
   getStoredSubcollection,
   listResidentIds,
   seedFacility,
+  setSubcollectionDoc,
 } from '#root/test-data/emulatorSetup'
+import { fakeCryptoProvider } from '#root/test-data/fakeCrypto'
 
 jest.mock('#root/auth/server/definitions', () => ({
   verifySession: jest.fn(),
@@ -51,6 +55,21 @@ const allergyInput = {
   reaction: { code: { coding: [], text: 'Hives' }, severity: 'mild' },
 }
 
+function plaintextAllergyDoc(residentId: string) {
+  return {
+    crypto_scheme: 'none:v1',
+    resident_id: residentId,
+    recorder_id: 'user-1',
+    clinical_status: 'active',
+    verification_status: 'confirmed',
+    type: 'allergy',
+    name: { coding: [], text: 'Peanuts' },
+    recorded_date: '2026-01-01',
+    substance: { coding: [], text: 'Peanut' },
+    reaction: { code: { coding: [], text: 'Hives' }, severity: 'mild' },
+  }
+}
+
 async function createResident(): Promise<string> {
   mockVerifySession.mockResolvedValue(adminClaims)
   const result = await addNewResident(residentInput)
@@ -63,6 +82,7 @@ async function createResident(): Promise<string> {
 
 beforeEach(async () => {
   mockVerifySession.mockResolvedValue(adminClaims)
+  setCryptoProviderForTesting(fakeCryptoProvider)
   await clearFirestore()
   await seedFacility('FAC-1', '123 Care Street')
 })
@@ -91,6 +111,81 @@ describe('resident actions against the Firestore emulator', () => {
     const deleted = await deleteResidentData(id)
     expect(deleted.success).toBe(true)
     expect(await listResidentIds()).toHaveLength(0)
+  })
+
+  it('persists only the fields that were provided', async () => {
+    const result = await addNewResident({
+      facility_id: 'FAC-1',
+      room_no: '102',
+      avatar_url: 'https://example.com/a.png',
+      dob: '1940-05-05',
+      pcp: 'Dr. Smith',
+    })
+    expect(result.success).toBe(true)
+
+    const [id] = await listResidentIds()
+    const resident = await getResidentData(id)
+    expect(resident.room_no).toBe('102')
+    expect(resident.resident_name).toBeUndefined()
+  })
+
+  it('does not persist a resident with missing required fields', async () => {
+    const result = await addNewResident({ room_no: '101' } as any)
+    expect(result.success).toBe(false)
+    expect(await listResidentIds()).toHaveLength(0)
+  })
+
+  it('lists multiple residents', async () => {
+    await createResident()
+    mockVerifySession.mockResolvedValue(adminClaims)
+    const second = await addNewResident({
+      ...residentInput,
+      room_no: '102',
+      resident_name: 'John Roe',
+    })
+    expect(second.success).toBe(true)
+
+    const all = await getResidents()
+    expect(all).toHaveLength(2)
+    expect(all.map((r) => r.resident_name).sort()).toEqual([
+      'Jane Doe',
+      'John Roe',
+    ])
+  })
+
+  it('rejects reading a non-existent resident', async () => {
+    await expect(getResidentData('does-not-exist')).rejects.toThrow(
+      /Failed to fetch resident/,
+    )
+  })
+
+  it('returns an empty list for a resident with no allergies', async () => {
+    const id = await createResident()
+    await expect(
+      getNestedResidentData('GYRHOME', id, 'allergies'),
+    ).resolves.toEqual([])
+  })
+
+  it('enforces role-gated decryption of the resident record', async () => {
+    const id = await createResident()
+
+    for (const roles of [['ADMIN'], ['CLINICIAN']]) {
+      mockVerifySession.mockResolvedValue({
+        provider_id: 'GYRHOME',
+        uid: 'u',
+        roles,
+      })
+      await expect(getResidentData(id)).resolves.toBeDefined()
+    }
+
+    for (const roles of [['CAREGIVER'], ['VIEWER']]) {
+      mockVerifySession.mockResolvedValue({
+        provider_id: 'GYRHOME',
+        uid: 'u',
+        roles,
+      })
+      await expect(getResidentData(id)).rejects.toThrow()
+    }
   })
 
   it('writes the envelope allergy shape and reads it through the codec', async () => {
@@ -134,5 +229,47 @@ describe('resident actions against the Firestore emulator', () => {
     await expect(
       getNestedResidentData('OTHER_PROVIDER', id, 'allergies'),
     ).rejects.toThrow(/Provider mismatch/)
+  })
+
+  it('fails closed when a plaintext document is read in envelope mode', async () => {
+    const id = await createResident()
+    await setSubcollectionDoc(
+      id,
+      'allergies',
+      'plain-1',
+      plaintextAllergyDoc(id),
+    )
+
+    await expect(
+      getNestedResidentData('GYRHOME', id, 'allergies'),
+    ).rejects.toThrow(/Crypto scheme mismatch/)
+  })
+
+  it('fails closed when an envelope document is read in plaintext mode', async () => {
+    const id = await createResident()
+    await updateAllergies([allergyInput], id)
+
+    setCryptoProviderForTesting(plaintextProvider)
+
+    await expect(
+      getNestedResidentData('GYRHOME', id, 'allergies'),
+    ).rejects.toThrow(/Crypto scheme mismatch/)
+  })
+
+  it('reads a plaintext document in plaintext mode', async () => {
+    const id = await createResident()
+    await setSubcollectionDoc(
+      id,
+      'allergies',
+      'plain-1',
+      plaintextAllergyDoc(id),
+    )
+
+    setCryptoProviderForTesting(plaintextProvider)
+
+    const allergies = await getNestedResidentData('GYRHOME', id, 'allergies')
+    expect(allergies).toHaveLength(1)
+    expect(allergies[0].name.text).toBe('Peanuts')
+    expect(allergies[0].patient.reference).toBe(`Patient/${id}`)
   })
 })
