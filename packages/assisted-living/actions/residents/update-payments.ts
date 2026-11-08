@@ -62,8 +62,8 @@ export async function updatePayments(
       const encryptedPayment: any = {
         crypto_scheme: 'kms-envelope:v1',
         resident_id: residentId,
-        claim_id: paymentData.claim_id,
-        coverage_id: paymentData.coverage_id,
+        claim_id: paymentData.claim_id ?? null,
+        coverage_id: paymentData.coverage_id ?? null,
         encrypted_dek: encryptedDek,
       }
 

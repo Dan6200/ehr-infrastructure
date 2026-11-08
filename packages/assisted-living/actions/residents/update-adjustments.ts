@@ -63,7 +63,7 @@ export async function updateAdjustments(
         crypto_scheme: 'kms-envelope:v1',
         resident_id: residentId,
         claim_id: adjustmentData.claim_id,
-        coverage_id: adjustmentData.coverage_id,
+        coverage_id: adjustmentData.coverage_id ?? null,
         encrypted_dek: encryptedDek,
       }
 

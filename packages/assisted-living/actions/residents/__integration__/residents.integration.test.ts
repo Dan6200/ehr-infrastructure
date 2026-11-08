@@ -6,6 +6,12 @@ import {
   getResidents,
 } from '#root/actions/residents/get'
 import { updateAllergies } from '#root/actions/residents/update-allergies'
+import { updateAdjustments } from '#root/actions/residents/update-adjustments'
+import { updateCharges } from '#root/actions/residents/update-charges'
+import { updateDiagnosticHistory } from '#root/actions/residents/update-diagnostic-history'
+import { updateObservations } from '#root/actions/residents/update-observations'
+import { updatePayments } from '#root/actions/residents/update-payments'
+import { updatePrescriptions } from '#root/actions/residents/update-prescriptions'
 import { verifySession } from '#root/auth/server/definitions'
 import { setCryptoProviderForTesting } from '#root/lib/crypto'
 import { plaintextProvider } from '#root/lib/crypto/plaintext-provider'
@@ -68,6 +74,67 @@ function plaintextAllergyDoc(residentId: string) {
     substance: { coding: [], text: 'Peanut' },
     reaction: { code: { coding: [], text: 'Hives' }, severity: 'mild' },
   }
+}
+
+const observationInput = {
+  id: '',
+  status: 'final' as const,
+  category: [{ coding: [], text: 'Vital Signs' }],
+  code: { coding: [], text: 'Blood pressure' },
+  effective_datetime: '2026-01-01T00:00:00.000Z',
+  value_quantity: {
+    value: 120,
+    unit: 'mmHg',
+    system: 'http://unitsofmeasure.org',
+    code: 'mm[Hg]',
+  },
+  body_site: { coding: [], text: 'Arm' },
+  method: { coding: [], text: 'Manual' },
+  device: { coding: [], text: 'Cuff' },
+}
+
+const diagnosticInput = {
+  id: '',
+  clinical_status: 'active' as const,
+  recorded_date: '2026-01-01',
+  onset_datetime: '2025-12-01',
+  abatement_datetime: null,
+  title: 'Hypertension',
+  code: { coding: [], text: 'Hypertension' },
+}
+
+const prescriptionInput = {
+  id: '',
+  period: { start: '2026-01-01', end: '2026-02-01' },
+  status: 'active' as const,
+  adherence: 'taking' as const,
+  medication: { code: { coding: [] }, strength: { value: 1, unit: 'mg' } },
+  dosage_instruction: [],
+}
+
+const chargeInput = {
+  id: '',
+  service: 'Physiotherapy',
+  quantity: 3,
+  unit_price: { value: 12.5, currency: 'NGN' },
+  occurrence_datetime: '2026-01-01T00:00:00.000Z',
+  description: 'Session',
+}
+
+const paymentInput = {
+  id: '',
+  amount: { value: 100, currency: 'NGN' },
+  payor: 'NHIS',
+  occurrence_datetime: '2026-01-01T00:00:00.000Z',
+  method: 'EFT',
+}
+
+const adjustmentInput = {
+  id: '',
+  claim_id: 'claim-1',
+  reason: 'Contractual',
+  approved_amount: { value: 50, currency: 'NGN' },
+  authored_on: '2026-01-01',
 }
 
 async function createResident(): Promise<string> {
@@ -271,5 +338,108 @@ describe('resident actions against the Firestore emulator', () => {
     expect(allergies).toHaveLength(1)
     expect(allergies[0].name.text).toBe('Peanuts')
     expect(allergies[0].patient.reference).toBe(`Patient/${id}`)
+  })
+})
+
+describe('subcollection write actions against the Firestore emulator', () => {
+  it('writes and reads an observation (JSON fields)', async () => {
+    const id = await createResident()
+    expect((await updateObservations([observationInput], id)).success).toBe(
+      true,
+    )
+
+    const observations = await getNestedResidentData(
+      'GYRHOME',
+      id,
+      'observations',
+    )
+    expect(observations).toHaveLength(1)
+    expect(observations[0].code.text).toBe('Blood pressure')
+    expect(observations[0].category[0].text).toBe('Vital Signs')
+    expect(observations[0].value_quantity.value).toBe(120)
+  })
+
+  it('writes and reads a diagnostic history record', async () => {
+    const id = await createResident()
+    expect((await updateDiagnosticHistory([diagnosticInput], id)).success).toBe(
+      true,
+    )
+
+    const records = await getNestedResidentData(
+      'GYRHOME',
+      id,
+      'diagnostic_history',
+    )
+    expect(records).toHaveLength(1)
+    expect(records[0].title).toBe('Hypertension')
+    expect(records[0].code.text).toBe('Hypertension')
+  })
+
+  it('writes and reads a prescription (period and dosage)', async () => {
+    const id = await createResident()
+    expect((await updatePrescriptions([prescriptionInput], id)).success).toBe(
+      true,
+    )
+
+    const prescriptions = await getNestedResidentData(
+      'GYRHOME',
+      id,
+      'prescriptions',
+    )
+    expect(prescriptions).toHaveLength(1)
+    expect(prescriptions[0].status).toBe('active')
+    expect(prescriptions[0].period.start).toBe('2026-01-01')
+    expect(prescriptions[0].dosage_instruction).toEqual([])
+  })
+
+  it('writes and reads a charge', async () => {
+    const id = await createResident()
+    expect((await updateCharges([chargeInput], id)).success).toBe(true)
+
+    const charges = await getNestedResidentData('GYRHOME', id, 'charges')
+    expect(charges).toHaveLength(1)
+    expect(charges[0].service).toBe('Physiotherapy')
+    expect(charges[0].unit_price.value).toBe(12.5)
+    expect(charges[0].quantity).toBe(3)
+  })
+
+  it('writes and reads a payment', async () => {
+    const id = await createResident()
+    expect((await updatePayments([paymentInput], id)).success).toBe(true)
+
+    const payments = await getNestedResidentData('GYRHOME', id, 'payments')
+    expect(payments).toHaveLength(1)
+    expect(payments[0].payor).toBe('NHIS')
+    expect(payments[0].amount.value).toBe(100)
+  })
+
+  it('writes and reads an adjustment', async () => {
+    const id = await createResident()
+    expect((await updateAdjustments([adjustmentInput], id)).success).toBe(true)
+
+    const adjustments = await getNestedResidentData(
+      'GYRHOME',
+      id,
+      'adjustments',
+    )
+    expect(adjustments).toHaveLength(1)
+    expect(adjustments[0].reason).toBe('Contractual')
+    expect(adjustments[0].approved_amount.value).toBe(50)
+  })
+
+  it('writes a plaintext charge in plaintext mode', async () => {
+    const id = await createResident()
+    setCryptoProviderForTesting(plaintextProvider)
+
+    expect((await updateCharges([chargeInput], id)).success).toBe(true)
+
+    const stored = await getStoredSubcollection(id, 'charges')
+    expect(stored[0].crypto_scheme).toBe('none:v1')
+    expect(stored[0]).not.toHaveProperty('encrypted_dek')
+
+    const charges = await getNestedResidentData('GYRHOME', id, 'charges')
+    expect(charges).toHaveLength(1)
+    expect(charges[0].service).toBe('Physiotherapy')
+    expect(charges[0].unit_price.value).toBe(12.5)
   })
 })
