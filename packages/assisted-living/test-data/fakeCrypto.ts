@@ -2,24 +2,25 @@ import * as crypto from 'crypto'
 import type { CryptoProvider } from '#root/lib/crypto/types'
 
 /**
- * Test-only crypto provider.
+ * Test-only crypto provider (no Cloud KMS).
  *
- * Replaces Cloud KMS so integration tests can run against the Firestore
- * emulator with no GCP credentials. It performs real AES-256-GCM with a single
- * fixed DEK, so encrypt/decrypt round-trips behave like production minus KMS.
+ * Each `generateDataKey` call issues a **distinct** DEK, and the "wrapped" value
+ * is the DEK itself. That means a DEK is recoverable only from its own wrapped
+ * value: overwriting a wrapped DEK (as a partial update that rotates keys does)
+ * makes the ciphertext it protected undecryptable. This mirrors real KMS key
+ * rotation closely enough to surface bugs like #15.
  */
 const ALGORITHM = 'aes-256-gcm'
 const IV_LENGTH = 16
-const FAKE_DEK = Buffer.alloc(32, 1)
-const FAKE_WRAPPED_DEK = Buffer.from('fake-wrapped-dek')
 
 export const fakeCryptoProvider: CryptoProvider = {
   scheme: 'kms-envelope:v1',
   async generateDataKey() {
-    return { plaintextDek: FAKE_DEK, encryptedDek: FAKE_WRAPPED_DEK }
+    const dek = crypto.randomBytes(32)
+    return { plaintextDek: dek, encryptedDek: dek }
   },
-  async decryptDataKey() {
-    return FAKE_DEK
+  async decryptDataKey(encryptedDek) {
+    return Buffer.from(encryptedDek as Uint8Array)
   },
   encryptData(plaintext, plaintextDek) {
     const iv = crypto.randomBytes(IV_LENGTH)

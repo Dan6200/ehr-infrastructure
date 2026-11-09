@@ -128,6 +128,9 @@ pathing. Native Firebase Auth multi-tenancy is proposed in #1/#2.
   credentials). Covers resident CRUD, role/provider gating, fail-closed scheme
   mismatches, and envelope/plaintext write-read for every form-backed
   subcollection.
+- The fake crypto provider is rotation-aware: each data key is distinct and
+  recoverable only from its own wrapped value, so key-rotation bugs surface
+  (see #15). A known rotation bug is encoded as an expected-failing test.
 - **Gaps:** no CI gate yet; no real-KMS integration test.
 
 ## Key decisions & trade-offs
