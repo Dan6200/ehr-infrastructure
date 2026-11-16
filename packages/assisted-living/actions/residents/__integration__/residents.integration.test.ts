@@ -181,6 +181,21 @@ describe('resident actions against the Firestore emulator', () => {
     expect(await listResidentIds()).toHaveLength(0)
   })
 
+  it('deletes resident subcollection documents recursively', async () => {
+    const id = await createResident()
+    await setSubcollectionDoc(id, 'allergies', 'allergy-1', {
+      resident_id: id,
+      name: 'Peanuts',
+    })
+
+    expect(await getStoredSubcollection(id, 'allergies')).toHaveLength(1)
+
+    const deleted = await deleteResidentData(id)
+
+    expect(deleted.success).toBe(true)
+    expect(await getStoredSubcollection(id, 'allergies')).toHaveLength(0)
+  })
+
   it('persists only the fields that were provided', async () => {
     const result = await addNewResident({
       facility_id: 'FAC-1',

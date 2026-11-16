@@ -1,9 +1,5 @@
 'use server'
-import {
-  collectionWrapper,
-  deleteDocWrapper,
-  docWrapper,
-} from '#root/firebase/admin'
+import { collectionWrapper, docWrapper, getAdminDb } from '#root/firebase/admin'
 import { verifySession } from '#root/auth/server/definitions'
 import { EncryptedResidentSchema } from '#root/types/encrypted-schemas'
 import { getResidentConverter } from '#root/types/converters/residents/main'
@@ -21,7 +17,8 @@ export async function deleteResidentData(documentId: string) {
 
     const residentDocRef = await docWrapper(residentsCollection, documentId)
 
-    await deleteDocWrapper(residentDocRef)
+    const adminDb = await getAdminDb()
+    await adminDb.recursiveDelete(residentDocRef)
 
     return { success: true, message: 'Successfully Deleted Resident' }
   } catch (error: any) {
