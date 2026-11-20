@@ -218,6 +218,18 @@ describe('resident actions against the Firestore emulator', () => {
     expect(await listResidentIds()).toHaveLength(0)
   })
 
+  it.each(['room_no', 'dob', 'pcp', 'avatar_url'] as const)(
+    'rejects a resident missing only %s before writing',
+    async (field) => {
+      const input = { ...residentInput }
+      delete (input as Partial<Resident>)[field]
+      const result = await addNewResident(input)
+      expect(result.success).toBe(false)
+      expect(result).toHaveProperty(['errors', field])
+      expect(await listResidentIds()).toHaveLength(0)
+    },
+  )
+
   it('lists multiple residents', async () => {
     await createResident()
     mockVerifySession.mockResolvedValue(adminClaims)

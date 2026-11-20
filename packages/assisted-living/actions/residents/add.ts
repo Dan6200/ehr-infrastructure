@@ -7,7 +7,10 @@ import {
   getResidentConverter,
 } from '#root/types/converters/residents/main'
 import { z } from 'zod'
-import { Resident } from '#root/types/schemas/administrative/resident'
+import {
+  Resident,
+  ResidentSchema,
+} from '#root/types/schemas/administrative/resident'
 
 export async function addNewResident(
   residentData: Omit<Resident, 'resident_id'>,
@@ -15,7 +18,15 @@ export async function addNewResident(
   try {
     const { provider_id } = await verifySession() // Authenticate the request first
 
-    const resident: Resident = residentData
+    const parsed = ResidentSchema.safeParse(residentData)
+    if (!parsed.success) {
+      return {
+        success: false,
+        message: 'Invalid resident data',
+        errors: parsed.error.flatten().fieldErrors,
+      }
+    }
+    const resident = parsed.data
 
     const encryptedResident = await encryptResident(resident)
 
