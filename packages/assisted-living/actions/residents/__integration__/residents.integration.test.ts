@@ -548,25 +548,16 @@ describe('write authorization', () => {
 })
 
 describe('key rotation', () => {
-  // Known bug (#15): updateResident rotates the four DEKs but only re-encrypts
-  // the fields in the partial payload, so untouched fields remain encrypted
-  // under DEKs that are no longer stored. The rotation-aware fake provider turns
-  // this into a decryption failure. Marked `failing` so it stays green while the
-  // bug is open; when #15 is fixed this test will start passing and Jest will
-  // flag it, prompting the flip to a normal `it`.
-  it.failing(
-    'a partial resident update leaves untouched fields readable (#15)',
-    async () => {
-      const id = await createResident()
+  it('a partial resident update leaves untouched fields readable (#15)', async () => {
+    const id = await createResident()
 
-      const result = await updateResident(
-        { facility_id: 'FAC-1', room_no: '102' },
-        id,
-      )
-      expect(result.success).toBe(true)
+    const result = await updateResident({ room_no: '102' }, id)
+    expect(result.success).toBe(true)
 
-      const resident = await getResidentData(id)
-      expect(resident.resident_name).toBe('Jane Doe')
-    },
-  )
+    const resident = await getResidentData(id)
+    expect(resident.resident_name).toBe('Jane Doe')
+    expect(resident.room_no).toBe('102')
+    expect(resident.dob).toBe(residentInput.dob)
+    expect(resident.pcp).toBe(residentInput.pcp)
+  })
 })
